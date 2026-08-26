@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode (Off-White Background, Navy Accents, Crisp White Cards) */
+    --background: 200 14% 96%; /* #F4F6F7 */
+    --foreground: 216 47% 16%; /* #16263D Deep Navy */
+
+    --card: 0 0% 100%;
+    --card-foreground: 216 47% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 47% 16%;
+
+    --primary: 175 55% 38%; /* #2FA39A Teal Accent */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 90%;
+    --secondary-foreground: 216 47% 16%;
+
+    --muted: 210 16% 91%;
+    --muted-foreground: 216 20% 42%;
+
+    --accent: 175 55% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 20% 86%;
+    --input: 216 20% 86%;
+    --ring: 175 55% 38%;
+
+    --radius: 0.875rem;
+
+    --brand-navy: #16263D;
+    --brand-teal: #2FA39A;
+  }
+
+  .dark {
+    /* Dark Mode (Deep Navy Anchor #0D1726 / #16263D, Teal Highlights, Crisp Dark Cards) */
+    --background: 216 49% 9%; /* #0B131F */
+    --foreground: 210 30% 98%;
+
+    --card: 216 47% 14%; /* #121F32 */
+    --card-foreground: 210 30% 98%;
+
+    --popover: 216 47% 14%;
+    --popover-foreground: 210 30% 98%;
+
+    --primary: 175 55% 44%; /* Vibrant Teal */
+    --primary-foreground: 216 49% 9%;
+
+    --secondary: 216 40% 18%;
+    --secondary-foreground: 210 30% 98%;
+
+    --muted: 216 35% 16%;
+    --muted-foreground: 215 20% 68%;
+
+    --accent: 175 55% 44%;
+    --accent-foreground: 216 49% 9%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 30% 98%;
+
+    --border: 216 30% 22%;
+    --input: 216 30% 22%;
+    --ring: 175 55% 44%;
+
+    --brand-navy: #0D1726;
+    --brand-teal: #2FA39A;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+/* Custom Design System Utility Classes */
+@layer utilities {
+  /* Subtle Tech Grid Background */
+  .bg-grid-pattern {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(47, 163, 154, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(47, 163, 154, 0.05) 1px, transparent 1px);
+  }
+
+  .dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(47, 163, 154, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(47, 163, 154, 0.08) 1px, transparent 1px);
+  }
+
+  /* Tech Node Glow Effects */
+  .glow-teal {
+    box-shadow: 0 0 25px -4px rgba(47, 163, 154, 0.4);
+  }
+
+  .glow-teal-lg {
+    box-shadow: 0 0 45px -8px rgba(47, 163, 154, 0.5);
+  }
+
+  /* Glassmorphism Card Style */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(22, 38, 61, 0.08);
+  }
+
+  .dark .glass-card {
+    background: rgba(22, 38, 61, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Gradient Text Helpers */
+  .text-gradient-teal {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-500 via-teal-400 to-sky-400;
+  }
+
+  .text-gradient-navy {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-navy-800 to-navy-600 dark:from-white dark:to-slate-300;
+  }
+}
