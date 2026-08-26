@@ -72,12 +72,12 @@ export const SITE_CONFIG = {
   // Social Links
   social: {
     whatsapp: "https://wa.me/254751035034",
-    instagram: "https://instagram.com/peter_kivevo",
-    tiktok: "https://tiktok.com/@peter_kivevo",
-    twitter: "https://x.com/peter_kivevo",
-    linkedin: "https://linkedin.com/in/peterkivevo",
-    github: "https://github.com/peterkivevo",
-    youtube: "https://youtube.com/@peterkivevo",
+    instagram: "https://instagram.com/kivevo_",
+    tiktok: "https://tiktok.com/@kivevo1",
+    twitter: "https://x.com/kivevo_",
+    linkedin: "https://linkedin.com/in/kivevo",
+    github: "https://github.com/kivevo",
+    youtube: "https://youtube.com/@kivevo",
     email: "mailto:peterkivevo001@gmail.com",
   },
   
