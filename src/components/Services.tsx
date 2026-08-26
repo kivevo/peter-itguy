@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { SERVICES, getWhatsAppUrl } from "@/config/site";
 import { 
   Headphones, 
@@ -15,7 +16,18 @@ import {
 } from "lucide-react";
 
 export const Services: React.FC = () => {
+  const location = useLocation();
   const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES[0].id);
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace("#", "");
+      const found = SERVICES.find((s) => s.id === targetId);
+      if (found) {
+        setSelectedServiceId(found.id);
+      }
+    }
+  }, [location.hash]);
 
   const iconMap: Record<string, React.ElementType> = {
     Headphones,
