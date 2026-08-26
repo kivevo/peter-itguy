@@ -1,6 +1,7 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
 import Portfolio from "@/components/Portfolio";
+import ArchitectureViewer from "@/components/ArchitectureViewer";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -30,6 +31,13 @@ const CaseStudiesPage: React.FC = () => {
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
               Explore in-depth technical case studies documenting how I diagnose severe downtime, isolate network vulnerabilities, and engineer websites that load in under 2 seconds.
             </p>
+          </div>
+        </section>
+
+        {/* Interactive Architecture Transformation Lab */}
+        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <ArchitectureViewer />
           </div>
         </section>
 

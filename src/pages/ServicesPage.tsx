@@ -1,11 +1,14 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
 import Services from "@/components/Services";
+import DowntimeCalculator from "@/components/DowntimeCalculator";
+import EngagementPricing from "@/components/EngagementPricing";
+import TechnicalFAQ from "@/components/TechnicalFAQ";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { SERVICES, getWhatsAppUrl } from "@/config/site";
-import { Layers, ShieldCheck, Check, Clock, Users, MessageCircle, ArrowRight } from "lucide-react";
+import { Layers, Check, MessageCircle } from "lucide-react";
 
 const ServicesPage: React.FC = () => {
   return (
@@ -36,6 +39,9 @@ const ServicesPage: React.FC = () => {
 
         {/* Interactive Services Deep Dive */}
         <Services />
+
+        {/* Downtime Cost Estimator */}
+        <DowntimeCalculator />
 
         {/* All Services Breakdown Details */}
         <section className="py-16 lg:py-20 bg-muted/20 dark:bg-navy-900/40 border-t border-border/70">
@@ -110,6 +116,12 @@ const ServicesPage: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Engagement Models */}
+        <EngagementPricing />
+
+        {/* Technical FAQ */}
+        <TechnicalFAQ />
 
         {/* Pre-footer Call to Action */}
         <CallToActionBand />
