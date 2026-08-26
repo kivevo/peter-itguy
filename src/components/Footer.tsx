@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
 import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
@@ -17,12 +18,13 @@ export const Footer: React.FC = () => {
   };
 
   const navLinks = [
-    { label: "Home", href: "#home" },
-    { label: "Services", href: "#services" },
-    { label: "Case Studies", href: "#case-studies" },
-    { label: "How I Work", href: "#process" },
-    { label: "About Peter", href: "#about" },
-    { label: "Contact & Quotations", href: "#contact" },
+    { label: "Home", href: "/" },
+    { label: "All Services", href: "/services" },
+    { label: "Case Studies", href: "/case-studies" },
+    { label: "How I Work", href: "/process" },
+    { label: "About Peter", href: "/about" },
+    { label: "Tech Insights & Blog", href: "/resources" },
+    { label: "Contact & Quotations", href: "/contact" },
   ];
 
   return (
@@ -31,7 +33,9 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* Brand & Overview */}
           <div className="lg:col-span-5 space-y-4">
-            <BrandLogo size="md" />
+            <Link to="/">
+              <BrandLogo size="md" />
+            </Link>
             
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
               Your on-call IT partner in Nairobi. Providing enterprise-grade remote IT support countrywide, on-site network & CCTV installations, and high-speed commercial websites.
@@ -73,12 +77,12 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs sm:text-sm">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -92,12 +96,12 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs sm:text-sm">
               {SERVICES.map((s) => (
                 <li key={s.id}>
-                  <a
-                    href="#services"
+                  <Link
+                    to={`/services#${s.id}`}
                     className="text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors block"
                   >
                     {s.title}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -107,7 +111,7 @@ export const Footer: React.FC = () => {
                 href={getWhatsAppUrl("Hi Peter, I'd like to book an IT network audit.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs shadow-sm transition-all hover:shadow-glow"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs shadow-sm transition-all"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>Request IT Audit</span>

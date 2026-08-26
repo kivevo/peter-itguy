@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
 import { useTheme } from "@/hooks/use-theme";
@@ -21,6 +22,7 @@ import { Button } from "@/components/ui/button";
 
 export const Navigation: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -33,11 +35,12 @@ export const Navigation: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: "Services", href: "#services", icon: Layers },
-    { label: "Case Studies", href: "#case-studies", icon: FolderGit2 },
-    { label: "How I Work", href: "#process", icon: Sparkles },
-    { label: "About", href: "#about", icon: UserCheck },
-    { label: "Contact", href: "#contact", icon: Phone },
+    { label: "Home", href: "/", icon: Shield },
+    { label: "Services", href: "/services", icon: Layers },
+    { label: "Case Studies", href: "/case-studies", icon: FolderGit2 },
+    { label: "How I Work", href: "/process", icon: Sparkles },
+    { label: "About", href: "/about", icon: UserCheck },
+    { label: "Contact", href: "/contact", icon: Phone },
   ];
 
   return (
@@ -45,27 +48,34 @@ export const Navigation: React.FC = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-background/85 dark:bg-navy-900/85 backdrop-blur-md border-b border-border/80 shadow-sm"
-          : "bg-transparent border-b border-border/30"
+          : "bg-background/60 dark:bg-navy-950/60 backdrop-blur-sm border-b border-border/30"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18 sm:h-20">
           {/* Brand Logo */}
-          <a href="#home" className="flex items-center gap-2 group focus:outline-none">
+          <Link to="/" className="flex items-center gap-2 group focus:outline-none">
             <BrandLogo size="md" />
-          </a>
+          </Link>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                    isActive
+                      ? "text-teal-600 dark:text-teal-400 bg-teal-500/10 font-bold border border-teal-500/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Action Area */}
@@ -143,16 +153,21 @@ export const Navigation: React.FC = () => {
           <div className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const Icon = link.icon;
+              const isActive = location.pathname === link.href;
               return (
-                <a
+                <Link
                   key={link.href}
-                  href={link.href}
+                  to={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-base font-medium rounded-lg text-foreground hover:bg-muted transition-colors"
+                  className={`flex items-center gap-3 px-3 py-2.5 text-base font-medium rounded-lg transition-colors ${
+                    isActive
+                      ? "text-teal-600 dark:text-teal-400 bg-teal-500/10 font-bold"
+                      : "text-foreground hover:bg-muted"
+                  }`}
                 >
                   <Icon className="w-4 h-4 text-teal-500" />
                   <span>{link.label}</span>
-                </a>
+                </Link>
               );
             })}
           </div>
