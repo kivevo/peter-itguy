@@ -16,6 +16,7 @@ import {
   Layers,
   FileText
 } from "lucide-react";
+import { ProfilePhoto } from "@/components/ProfilePhoto";
 
 // Defined outside component so the reference is stable across renders
 const SERVICE_PHRASES = [
@@ -76,13 +77,21 @@ export const Hero: React.FC = () => {
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Left Column: Value Proposition & CTAs */}
           <div className="lg:col-span-7 space-y-6 lg:pr-4">
-            {/* Real-time Status Badge */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/30 text-xs sm:text-sm font-medium text-teal-800 dark:text-teal-300 shadow-sm">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
-              </span>
-              <span>Available for On-site Nairobi & Countrywide Remote SLA</span>
+            {/* Profile Avatar & Real-time Status Badge */}
+            <div className="flex items-center gap-3.5">
+              <ProfilePhoto size="md" showStatusBadge={true} />
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 dark:bg-teal-500/15 border border-teal-500/30 text-xs font-medium text-teal-800 dark:text-teal-300 shadow-sm">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                  </span>
+                  <span>Peter Kivevo John · Nairobi, KE</span>
+                </div>
+                <p className="text-[11px] font-mono text-muted-foreground">
+                  BSc Computer Science · On-Site &amp; Remote SLA
+                </p>
+              </div>
             </div>
 
             {/* Main Headline */}

@@ -15,6 +15,7 @@ import {
   MessageCircle,
   UserCheck
 } from "lucide-react";
+import { ProfilePhoto } from "@/components/ProfilePhoto";
 
 export const About: React.FC = () => {
   const careerMilestones = [
@@ -72,16 +73,17 @@ export const About: React.FC = () => {
           {/* Left Column: Personal Narrative & Philosophy */}
           <div className="lg:col-span-7 space-y-6">
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-8 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-navy-800 dark:bg-navy-950 border border-teal-500/30 flex items-center justify-center text-teal-400 font-heading font-bold text-xl">
-                  P
-                </div>
-                <div>
-                  <h3 className="font-heading font-bold text-xl text-foreground">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 pb-4 border-b border-border/70 text-center sm:text-left">
+                <ProfilePhoto size="lg" />
+                <div className="space-y-1">
+                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 uppercase tracking-wider inline-block">
+                    On-Call IT Partner · Nairobi
+                  </span>
+                  <h3 className="font-heading font-extrabold text-2xl text-foreground">
                     Peter Kivevo John
                   </h3>
                   <p className="text-xs font-mono text-muted-foreground">
-                    BSc Computer Science • Nairobi GPO 00100
+                    BSc Computer Science (CUEA) • Nairobi GPO 00100
                   </p>
                 </div>
               </div>

@@ -17,6 +17,7 @@ import {
   Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProfilePhoto } from "@/components/ProfilePhoto";
 
 export const Contact: React.FC = () => {
   const { toast } = useToast();
@@ -102,16 +103,14 @@ export const Contact: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             {/* Primary Kenyan WhatsApp Box */}
             <div className="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-800 text-white p-6 sm:p-8 space-y-5 shadow-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                  <MessageCircle className="w-6 h-6" />
-                </div>
+              <div className="flex items-center gap-3.5">
+                <ProfilePhoto size="sm" showStatusBadge={true} />
                 <div>
-                  <h3 className="font-heading font-bold text-xl text-white">
-                    Instant WhatsApp Support
+                  <h3 className="font-heading font-bold text-lg text-white">
+                    Direct Line with Peter Kivevo
                   </h3>
                   <p className="text-xs text-teal-100">
-                    Highest conversion & fastest response time in Kenya
+                    Fastest response time in Kenya via WhatsApp
                   </p>
                 </div>
               </div>
