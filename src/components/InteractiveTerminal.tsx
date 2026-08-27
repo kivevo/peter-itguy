@@ -25,7 +25,7 @@ export const InteractiveTerminal: React.FC = () => {
       timestamp: "10:42:01",
     },
   ]);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
   const quickCommands = [
     { label: "ping after40hotel.com", cmd: "ping after40hotel.com" },
@@ -119,6 +119,13 @@ export const InteractiveTerminal: React.FC = () => {
       },
     ]);
     setInputVal("");
+
+    // Only scroll the internal terminal box, never the whole window
+    setTimeout(() => {
+      if (logContainerRef.current) {
+        logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+      }
+    }, 50);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -126,10 +133,6 @@ export const InteractiveTerminal: React.FC = () => {
       executeCommand(inputVal);
     }
   };
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
 
   return (
     <div className="rounded-3xl bg-navy-950 border border-teal-500/30 shadow-2xl overflow-hidden font-mono text-xs">
@@ -152,7 +155,10 @@ export const InteractiveTerminal: React.FC = () => {
       </div>
 
       {/* Output Console Log Area */}
-      <div className="p-4 sm:p-5 h-72 sm:h-80 overflow-y-auto space-y-3.5 scrollbar-thin scrollbar-thumb-teal-500/20">
+      <div 
+        ref={logContainerRef}
+        className="p-4 sm:p-5 h-72 sm:h-80 overflow-y-auto space-y-3.5 scrollbar-thin scrollbar-thumb-teal-500/20"
+      >
         {logs.map((log) => (
           <div key={log.id} className="space-y-1 animate-in fade-in duration-200">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -165,7 +171,6 @@ export const InteractiveTerminal: React.FC = () => {
             </div>
           </div>
         ))}
-        <div ref={bottomRef} />
       </div>
 
       {/* Quick Click Command Presets */}
