@@ -64,7 +64,7 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
       url: SITE_CONFIG.social.whatsapp,
       icon: MessageCircle,
       color: "hover:bg-emerald-500 hover:text-white hover:border-emerald-500",
-      handle: "+254 751 035 034",
+      handle: "+254 758 896 553",
     },
     {
       name: "Instagram",

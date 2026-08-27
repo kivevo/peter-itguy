@@ -62,16 +62,16 @@ export const SITE_CONFIG = {
   subtagline: "BSc Computer Science graduate providing enterprise-grade remote support countrywide and on-site troubleshooting across Nairobi.",
   
   // Contact Constants
-  whatsappNumber: "254751035034",
-  phoneDisplay: "+254 751 035 034",
-  phoneTel: "+254751035034",
+  whatsappNumber: "254758896553",
+  phoneDisplay: "+254 758 896 553",
+  phoneTel: "+254758896553",
   email: "peterkivevo001@gmail.com",
   location: "Nairobi GPO 00100, Kenya",
   officeHours: "Remote Support: 24/7 Response • On-site Visits: Mon - Sat by Appointment",
   
   // Social Links
   social: {
-    whatsapp: "https://wa.me/254751035034",
+    whatsapp: "https://wa.me/254758896553",
     instagram: "https://instagram.com/kivevo_",
     tiktok: "https://tiktok.com/@kivevo1",
     twitter: "https://x.com/kivevo_",

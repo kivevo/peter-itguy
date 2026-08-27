@@ -126,7 +126,7 @@ export const Contact: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-teal-900 font-bold text-sm shadow-md transition-transform duration-200 hover:scale-[1.02]"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-600" />
-                <span>Message +254 751 035 034</span>
+                <span>Message {SITE_CONFIG.phoneDisplay}</span>
               </a>
             </div>
 
