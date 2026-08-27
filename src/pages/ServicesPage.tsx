@@ -3,6 +3,8 @@ import Navigation from "@/components/Navigation";
 import Services from "@/components/Services";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
 import DowntimeCalculator from "@/components/DowntimeCalculator";
+import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
+import NetworkSpeedTester from "@/components/NetworkSpeedTester";
 import EngagementPricing from "@/components/EngagementPricing";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
 import CallToActionBand from "@/components/CallToActionBand";
@@ -43,6 +45,13 @@ const ServicesPage: React.FC = () => {
 
         {/* Interactive Services Deep Dive */}
         <Services />
+
+        {/* Live Network Health Diagnostic Tool */}
+        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-y border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+            <NetworkSpeedTester />
+          </div>
+        </section>
 
         {/* Downtime Cost Estimator */}
         <DowntimeCalculator />
@@ -120,6 +129,9 @@ const ServicesPage: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Interactive Scope Estimator */}
+        <QuickQuoteEstimator />
 
         {/* Engagement Models */}
         <EngagementPricing />

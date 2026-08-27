@@ -18,6 +18,7 @@ import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LeadMagnetModal from "@/components/LeadMagnetModal";
+import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
 import { Download, FileText, Sparkles } from "lucide-react";
 
 // Performance code-splitting for heavy interactive components
@@ -127,7 +128,10 @@ const Index: React.FC = () => {
         {/* 15. Engagement Models & Retainers */}
         <EngagementPricing />
 
-        {/* 16. Frequently Asked Technical Questions */}
+        {/* 16. Interactive Project Scope & WhatsApp Estimator */}
+        <QuickQuoteEstimator />
+
+        {/* 17. Frequently Asked Technical Questions */}
         <TechnicalFAQ />
 
         {/* 17. Blog & Technical Advisories */}
