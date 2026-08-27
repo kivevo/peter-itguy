@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* Brand & Overview */}
           <div className="lg:col-span-5 space-y-4">
-            <Link to="/" className="inline-block focus:outline-none">
+            <Link to="/" onClick={scrollToTop} className="inline-block focus:outline-none">
               <BrandLogo size="md" />
             </Link>
             
@@ -93,6 +93,9 @@ export const Footer: React.FC = () => {
                 <li key={link.href}>
                   <Link
                     to={link.href}
+                    onClick={() => {
+                      if (link.href === "/") scrollToTop();
+                    }}
                     className="text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors inline-block"
                   >
                     {link.label}

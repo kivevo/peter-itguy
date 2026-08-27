@@ -55,7 +55,16 @@ export const Navigation: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18 sm:h-20">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 group focus:outline-none">
+          <Link 
+            to="/" 
+            onClick={(e) => {
+              if (location.pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="flex items-center gap-2 group focus:outline-none"
+          >
             <BrandLogo size="md" />
           </Link>
 
@@ -67,6 +76,12 @@ export const Navigation: React.FC = () => {
                 <Link
                   key={link.href}
                   to={link.href}
+                  onClick={(e) => {
+                    if (link.href === "/" && location.pathname === "/") {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
                   className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
                     isActive
                       ? "text-teal-600 dark:text-teal-400 bg-teal-500/10 font-bold border border-teal-500/20"
@@ -174,7 +189,13 @@ export const Navigation: React.FC = () => {
                 <Link
                   key={link.href}
                   to={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    if (link.href === "/" && location.pathname === "/") {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                    setMobileMenuOpen(false);
+                  }}
                   className={`flex items-center gap-3 px-3 py-2.5 text-base font-medium rounded-lg transition-colors ${
                     isActive
                       ? "text-teal-600 dark:text-teal-400 bg-teal-500/10 font-bold"
