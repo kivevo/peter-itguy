@@ -91,7 +91,7 @@ export const About: React.FC = () => {
                   I built my career from the ground up: starting in the trenches of an Internet Service Provider (Fiberlink), crimping cables, aligning wireless radios, and troubleshooting customer gateways. That taught me one fundamental truth: <strong className="text-foreground">technology must produce business continuity, not excuses</strong>.
                 </p>
                 <p>
-                  Since then, I have operated as the trusted IT backbone for organizations ranging from high-traffic hotels like <strong className="text-foreground">After40 Hotel</strong> to a nationwide <strong className="text-foreground">30+ branch Safaricom dealership network</strong>. Whether I am configuring isolated POS subnets or writing clean React code for commercial websites, I take complete personal ownership of every system under my care.
+                  Since then, I have operated as the trusted IT backbone for organizations ranging from high-traffic hotels like <strong className="text-foreground">After40 Hotel</strong> to a nationwide <strong className="text-foreground">30+ branch Samchi Telecom network (Safaricom Dealer)</strong>. Whether I am configuring isolated POS subnets or writing clean React code for commercial websites, I take complete personal ownership of every system under my care.
                 </p>
                 <p>
                   I don't treat IT like a hobby shop. I treat it like what it is: the operational nervous system of your business.

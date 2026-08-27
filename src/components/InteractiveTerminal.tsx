@@ -68,7 +68,7 @@ export const InteractiveTerminal: React.FC = () => {
         <div className="space-y-1 text-xs text-slate-300 font-mono">
           <p className="text-teal-300 font-bold">Peter Kivevo John — The IT Guy</p>
           <p>• BSc Computer Science (Catholic University of Eastern Africa)</p>
-          <p>• 30+ Regional Safaricom Dealership Branches Supported</p>
+          <p>• 30+ Regional Samchi Telecom (Safaricom) Branches Supported</p>
           <p>• Specialization: UniFi/MikroTik Networks, IP CCTV, Web Engineering</p>
         </div>
       );

@@ -20,7 +20,7 @@ import {
 const SERVICE_PHRASES = [
   "I fix broken networks & Wi-Fi bottlenecks.",
   "I build fast, lead-generating business websites.",
-  "I support 30+ Safaricom dealership branches remotely.",
+  "I support 30+ Samchi Telecom (Safaricom) branches remotely.",
   "I secure your business data and CCTV cameras.",
   "I turn downtime into reliable 99.9% uptime."
 ];
@@ -55,7 +55,7 @@ export const Hero: React.FC = () => {
   }, [displayedText, isDeleting, phraseIndex]);
 
   const networkNodes = [
-    { id: "gateway", name: "Safaricom 30+ Gateway", status: "Operational", ping: "8ms", icon: Server, x: 20, y: 25 },
+    { id: "gateway", name: "Samchi Telecom 30+ Gateway", status: "Operational", ping: "8ms", icon: Server, x: 20, y: 25 },
     { id: "hotel", name: "After40 Hotel Wi-Fi", status: "100% Uptime", ping: "14ms", icon: Wifi, x: 80, y: 20 },
     { id: "pos", name: "SNL Venue POS VLAN", status: "Secure / Isolated", ping: "6ms", icon: Lock, x: 25, y: 75 },
     { id: "web", name: "Live Client Web Stack", status: "Sub-2s Speed", ping: "12ms", icon: Globe2, x: 75, y: 70 },
@@ -137,7 +137,7 @@ export const Hero: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />
-                <span>30+ Safaricom Dealership Branches</span>
+                <span>30+ Samchi Telecom Branches</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />

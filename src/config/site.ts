@@ -86,7 +86,7 @@ export const SITE_CONFIG = {
     {
       value: "30+",
       label: "Branches Supported",
-      description: "Remote & on-site SLA for Safaricom dealership network",
+      description: "Remote & on-site SLA for Samchi Telecom (Safaricom Dealer Network)",
     },
     {
       value: "40%",
@@ -339,12 +339,12 @@ export const TESTIMONIALS: TestimonialItem[] = [
     id: "1",
     name: "Operations Director",
     role: "Regional Operations Manager",
-    company: "Safaricom Dealership Network",
+    company: "Samchi Telecom (Safaricom Dealer)",
     location: "Nairobi & Central Kenya",
-    avatarText: "SD",
-    content: "Peter has been instrumental in keeping our 30+ branch network running without disruptions. When a branch POS or dealer terminal freezes, he resolves it within minutes remotely. Truly dependable.",
+    avatarText: "ST",
+    content: "Peter has been instrumental in keeping our 30+ Samchi Telecom branch network running without disruptions. When a branch POS or Safaricom dealer terminal freezes, he resolves it within minutes remotely. Truly dependable.",
     rating: 5,
-    highlight: "30+ Branches Supported Seamlessly",
+    highlight: "30+ Samchi Branches Supported Seamlessly",
   },
   {
     id: "2",
@@ -412,6 +412,13 @@ export const BLOG_POSTS: BlogPostItem[] = [
 ];
 
 export const WEB_PORTFOLIO_LINKS = [
+  {
+    title: "After40 Hotel",
+    domain: "after40hotel.com",
+    url: "https://after40hotel.com",
+    desc: "Bespoke hospitality web engine & reservation funnel with 40% faster mobile load speed.",
+    badge: "Hospitality & Web Engine",
+  },
   {
     title: "Linens & Decor Kenya",
     domain: "linensndecor.co.ke",
