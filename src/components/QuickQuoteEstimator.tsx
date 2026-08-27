@@ -89,7 +89,7 @@ export const QuickQuoteEstimator: React.FC = () => {
         specs = ["Custom portfolio & services showcases", "Fast CDN edge deployment (Vercel)", "Lead generation forms & analytics"];
         turnaround = "7-10 business days";
       } else {
-        title = "Custom Booking Portal / Enterprise Web",
+        title = "Custom Booking Portal / Enterprise Web";
         specs = ["Direct booking / customer portals", "M-Pesa payment integration ready", "High-concurrency cloud architecture"];
         turnaround = "2-3 weeks";
       }
