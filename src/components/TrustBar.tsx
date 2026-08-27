@@ -105,7 +105,7 @@ export const TrustBar: React.FC = () => {
             return (
               <div
                 key={stat.label}
-                className="flex flex-col items-center text-center p-4 rounded-2xl bg-card/70 dark:bg-navy-950/70 border border-border/60 hover:border-teal-500/40 transition-all duration-300 hover:-translate-y-0.5"
+                className="flex flex-col items-center text-center p-4 rounded-2xl bg-card/70 dark:bg-navy-950/70 border border-border/60 hover:border-teal-500/40 transition-all duration-300 hover:-translate-y-0.5 group"
               >
                 <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3">
                   <Icon className="w-4 h-4" />
@@ -122,6 +122,11 @@ export const TrustBar: React.FC = () => {
                 <div className="text-[11px] text-muted-foreground mt-1 leading-snug">
                   {stat.description}
                 </div>
+                {stat.methodology && (
+                  <div className="mt-2.5 pt-2 border-t border-border/50 text-[10px] text-muted-foreground/80 font-mono italic">
+                    ℹ️ {stat.methodology}
+                  </div>
+                )}
               </div>
             );
           })}

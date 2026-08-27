@@ -81,35 +81,144 @@ export const SITE_CONFIG = {
     email: "mailto:peterkivevo001@gmail.com",
   },
   
-  // Credibility Stats
+  // Credibility Stats & Footnotes (Defensible & Specific)
   stats: [
     {
       value: "30+",
       label: "Branches Supported",
-      description: "Remote & on-site SLA for Samchi Telecom (Safaricom Dealer Network)",
+      description: "Remote & on-site technical support for Samchi Telecom (Safaricom Dealer)",
+      methodology: "Based on active dealership branch locations supported countrywide.",
     },
     {
       value: "40%",
-      label: "Faster Load Speed",
-      description: "Delivered for After40Hotel web turnaround",
+      label: "Faster Load Time",
+      description: "Measured web speed improvement delivered for After40 Hotel",
+      methodology: "Benchmarked via Google PageSpeed Insights before & after code overhaul.",
     },
     {
-      value: "50%",
-      label: "Less Downtime",
-      description: "Achieved via proactive maintenance for hospitality clients",
+      value: "Same-Day",
+      label: "Remote Triage",
+      description: "Typically answers emergency WhatsApp tickets within minutes during business hours",
+      methodology: "Direct engineer access with no automated call queues or ticket tiers.",
     },
     {
       value: "BSc CS",
       label: "Computer Science",
       description: "Catholic University of Eastern Africa (CUEA)",
+      methodology: "4-year degree specializing in Data Communications & Systems Engineering.",
     },
     {
-      value: "90%+",
-      label: "Client Satisfaction",
-      description: "Proven track record from ISP operations to boutique consulting",
+      value: "100%",
+      label: "Direct Accountability",
+      description: "You work directly with Peter — the engineer who does the work",
+      methodology: "No rotating junior contractors or detached account managers.",
     },
   ],
 };
+
+export interface ClientPartnerItem {
+  name: string;
+  industry: string;
+  projectType: string;
+  website?: string;
+  badgeText: string;
+}
+
+export const CLIENT_PARTNERS: ClientPartnerItem[] = [
+  {
+    name: "Samchi Telecom",
+    industry: "Telecommunications & Retail",
+    projectType: "30+ Branch Safaricom Dealer Support",
+    badgeText: "30+ Branches",
+  },
+  {
+    name: "After40 Hotel",
+    industry: "Hospitality (Nairobi CBD)",
+    projectType: "Web Engine Rebuild & Network VLANs",
+    website: "https://after40hotel.com",
+    badgeText: "Web & Network Overhaul",
+  },
+  {
+    name: "SNL Lounge & Garden",
+    industry: "Food & Entertainment (Nairobi)",
+    projectType: "High-Density Wi-Fi & POS Isolation",
+    badgeText: "POS Network Hardening",
+  },
+  {
+    name: "Linens & Decor",
+    industry: "E-Commerce / Retail",
+    projectType: "Product Catalog & WhatsApp Sales Funnel",
+    website: "https://linensndecor.co.ke",
+    badgeText: "E-Commerce Web",
+  },
+  {
+    name: "Stratbridge Group",
+    industry: "Corporate Advisory",
+    projectType: "Consultancy Web Portal & Domain Stack",
+    website: "https://stratbridgegroup.co.ke",
+    badgeText: "Corporate Web",
+  },
+  {
+    name: "Chomazoze Mtwapa",
+    industry: "Hospitality & Venue",
+    projectType: "Online Menu & Reservation Web Portal",
+    website: "https://chomazozemtwapa.co.ke",
+    badgeText: "Hospitality Web",
+  },
+];
+
+export interface CredentialBadgeItem {
+  title: string;
+  issuer: string;
+  category: "Academic" | "ISP & Field" | "Vendor & Tech" | "Registration";
+  status: "Verified" | "Practiced / Applied" | "Available on Request";
+  note: string;
+}
+
+export const CREDENTIALS_LIST: CredentialBadgeItem[] = [
+  {
+    title: "Bachelor of Science in Computer Science",
+    issuer: "Catholic University of Eastern Africa (CUEA)",
+    category: "Academic",
+    status: "Verified",
+    note: "Graduated with core focus on Data Communications, Networks & Software Systems.",
+  },
+  {
+    title: "ISP Network Engineering & Field Operations",
+    issuer: "Fiberlink Systems Limited",
+    category: "ISP & Field",
+    status: "Verified",
+    note: "Hands-on fiber termination, wireless point-to-point radios, and enterprise CPE router configurations.",
+  },
+  {
+    title: "UniFi OS & High-Density Wireless Deployment",
+    issuer: "Ubiquiti Networks Ecosystem",
+    category: "Vendor & Tech",
+    status: "Practiced / Applied",
+    note: "Deployed multi-VLAN guest/POS environments across hospitality venues in Nairobi.",
+  },
+  {
+    title: "MikroTik RouterOS Routing & Bandwidth QoS",
+    issuer: "MikroTik Routing Platforms",
+    category: "Vendor & Tech",
+    status: "Practiced / Applied",
+    note: "Dual-WAN failover, load balancing, firewall security, and packet prioritization.",
+  },
+  {
+    title: "Modern Web Engineering (React, TypeScript, Next.js)",
+    issuer: "Commercial Production Deployments",
+    category: "Vendor & Tech",
+    status: "Practiced / Applied",
+    note: "Bespoke high-performance web frontends hosted on Vercel with sub-2s mobile speeds.",
+  },
+  {
+    title: "Tax Compliance & Business Registration",
+    issuer: "KRA / Business Registrar [Kenya]",
+    category: "Registration",
+    status: "Available on Request",
+    note: "PIN and official invoices/receipts provided upon formal quotation approval.",
+  },
+];
 
 // WhatsApp URL generator with customizable contextual messages
 export const getWhatsAppUrl = (customMessage?: string, service?: string): string => {

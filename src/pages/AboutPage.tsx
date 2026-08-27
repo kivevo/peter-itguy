@@ -1,6 +1,8 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
 import About from "@/components/About";
+import TrustBadges from "@/components/TrustBadges";
+import ClientLogoStrip from "@/components/ClientLogoStrip";
 import Testimonials from "@/components/Testimonials";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
@@ -9,7 +11,7 @@ import { UserCheck } from "lucide-react";
 
 const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
       <Navigation />
 
       <main className="flex-1 pt-24 lg:pt-32">
@@ -36,6 +38,12 @@ const AboutPage: React.FC = () => {
 
         {/* Full About Section */}
         <About />
+
+        {/* Verifiable Credentials & Certifications */}
+        <TrustBadges />
+
+        {/* Client Logos Strip */}
+        <ClientLogoStrip />
 
         {/* Client Endorsements */}
         <Testimonials />

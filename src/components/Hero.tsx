@@ -13,7 +13,8 @@ import {
   CheckCircle2, 
   Clock,
   Sparkles,
-  Layers
+  Layers,
+  FileText
 } from "lucide-react";
 
 // Defined outside component so the reference is stable across renders
@@ -102,30 +103,41 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Direct Value Description */}
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl">
-              I am <span className="font-semibold text-foreground">Peter Kivevo John</span> — a Computer Science graduate providing proactive IT maintenance, zero-downtime networking, CCTV security, and high-performance websites for businesses that cannot afford to go offline.
-            </p>
+            <div className="space-y-2 max-w-xl">
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                I am <span className="font-semibold text-foreground">Peter Kivevo John</span> — an independent IT engineer providing proactive network reliability, POS stability, CCTV security, and high-performance commercial websites in Kenya.
+              </p>
+              <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-500/10 px-3 py-1.5 rounded-lg border border-teal-500/20 inline-block">
+                ⚡ You work directly with me — the engineer who does the work, not a support queue or a rotating account manager.
+              </p>
+            </div>
 
             {/* Conversion CTA Group */}
-            <div className="flex flex-col sm:flex-row gap-3.5 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               {/* Primary WhatsApp CTA */}
               <a
-                href={getWhatsAppUrl("Hi Peter, I need help with an IT issue / project.")}
+                href={getWhatsAppUrl("Hi Peter, I saw your IT profile and need support with a project / issue.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-base shadow-lg shadow-teal-600/25 transition-all duration-200 hover:shadow-glow hover:-translate-y-0.5 group"
               >
                 <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Get Support Now (WhatsApp)</span>
+                <span>Message Peter on WhatsApp</span>
               </a>
 
-              {/* Secondary Case Studies Link */}
+              {/* Download CV / Profile One-Pager */}
               <a
-                href="#case-studies"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-base transition-all duration-200 hover:-translate-y-0.5"
+                href="/Peter_Kivevo_IT_Profile.pdf"
+                download="Peter_Kivevo_IT_Consultant_Profile.pdf"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.print();
+                }}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm sm:text-base transition-all duration-200 hover:-translate-y-0.5"
+                title="Download Executive Profile / CV (PDF)"
               >
-                <span>See Case Studies</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1" />
+                <FileText className="w-4 h-4 text-teal-500" />
+                <span>Executive Profile (PDF)</span>
               </a>
             </div>
 
@@ -133,7 +145,7 @@ export const Hero: React.FC = () => {
             <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-muted-foreground border-t border-border/70">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />
-                <span>15-min Remote Response</span>
+                <span>Rapid Remote Triage</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />

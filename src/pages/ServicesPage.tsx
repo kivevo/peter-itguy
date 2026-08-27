@@ -1,6 +1,7 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
 import Services from "@/components/Services";
+import ClientLogoStrip from "@/components/ClientLogoStrip";
 import DowntimeCalculator from "@/components/DowntimeCalculator";
 import EngagementPricing from "@/components/EngagementPricing";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
@@ -12,7 +13,7 @@ import { Layers, Check, MessageCircle } from "lucide-react";
 
 const ServicesPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
       <Navigation />
       
       <main className="flex-1 pt-24 lg:pt-32">
@@ -23,11 +24,11 @@ const ServicesPage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
               <Layers className="w-3.5 h-3.5" />
-              <span>Full Service Catalog & SLAs</span>
+              <span>Full Service Catalog &amp; SLAs</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-              Enterprise IT Support, Networking & <br className="hidden sm:inline" />
+              Enterprise IT Support, Networking &amp; <br className="hidden sm:inline" />
               <span className="text-gradient-teal">High-Speed Web Development</span>
             </h1>
             
@@ -36,6 +37,9 @@ const ServicesPage: React.FC = () => {
             </p>
           </div>
         </section>
+
+        {/* Client Partners Bar */}
+        <ClientLogoStrip />
 
         {/* Interactive Services Deep Dive */}
         <Services />
@@ -82,7 +86,7 @@ const ServicesPage: React.FC = () => {
 
                     <div className="space-y-2 pt-2">
                       <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-foreground">
-                        Deliverables & Scope:
+                        Deliverables &amp; Scope:
                       </h4>
                       <div className="space-y-1.5">
                         {service.whatsIncluded.map((item, idx) => (

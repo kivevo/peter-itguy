@@ -16,7 +16,8 @@ import {
   Layers,
   Sparkles,
   FolderGit2,
-  UserCheck
+  UserCheck,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -101,6 +102,21 @@ export const Navigation: React.FC = () => {
                 <Moon className="w-4 h-4 text-navy-800" />
               )}
             </button>
+
+            {/* Download Profile PDF */}
+            <a
+              href="/Peter_Kivevo_IT_Profile.pdf"
+              download="Peter_Kivevo_IT_Consultant_Profile.pdf"
+              onClick={(e) => {
+                e.preventDefault();
+                window.print();
+              }}
+              className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              title="Download Executive Profile / CV (PDF)"
+            >
+              <FileText className="w-3.5 h-3.5 text-teal-500" />
+              <span>Profile (PDF)</span>
+            </a>
 
             {/* WhatsApp Direct CTA */}
             <a

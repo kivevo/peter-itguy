@@ -96,6 +96,15 @@ export const About: React.FC = () => {
                 <p>
                   I don't treat IT like a hobby shop. I treat it like what it is: the operational nervous system of your business.
                 </p>
+
+                <div className="p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs sm:text-sm text-foreground space-y-1">
+                  <strong className="text-teal-700 dark:text-teal-300 block font-heading">
+                    ⚡ Direct Engineer Accountability:
+                  </strong>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    When you partner with me, you work directly with the engineer who configures your gateways, isolates your POS VLANs, and writes your web code. No junior ticket queues, no call center intermediaries, and no excuses.
+                  </p>
+                </div>
               </div>
 
               {/* Action Buttons: Resume & WhatsApp */}
