@@ -4,11 +4,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
   Download, 
-  MessageCircle, 
   X, 
-  CheckCircle2, 
-  ShieldCheck, 
-  Sparkles 
+  CheckCircle2
 } from "lucide-react";
 
 interface LeadMagnetModalProps {
@@ -31,12 +28,11 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({ isOpen, onClos
     setIsSubmitted(true);
     toast({
       title: "Checklist Unlocked!",
-      description: "Opening PDF and sending quick WhatsApp copy.",
+      description: "Opening PDF and preparing your free copy.",
     });
 
-    // Send pre-filled WhatsApp lead
     const waUrl = getWhatsAppUrl(
-      `Hi Peter, my name is ${name} (${phone}). I just downloaded your "5-Point Office Network Health Checklist" and would like to learn more.`
+      `Hi Peter, my name is ${name} (${phone}). I just downloaded your "5 Signs Your Office Wi-Fi Needs an Upgrade" checklist and would like to ask a quick question.`
     );
     window.open(waUrl, "_blank");
   };
@@ -55,13 +51,13 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({ isOpen, onClos
         <div className="space-y-2 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <FileText className="w-3.5 h-3.5" />
-            <span>Free Technical One-Pager</span>
+            <span>Free Practical Resource</span>
           </div>
           <h3 className="text-2xl font-extrabold font-heading text-foreground">
-            5 Signs Your Nairobi Office Network Needs an Upgrade (PDF)
+            5 Signs Your Office Wi-Fi Needs an Upgrade (PDF Guide)
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            A quick, jargon-free diagnostic checklist covering Wi-Fi bottlenecks, POS payment failovers, VLAN separation, and IP camera security.
+            A simple, non-technical guide on fixing slow internet, preventing M-Pesa till freezes, and keeping your office cameras working properly.
           </p>
         </div>
 
@@ -69,15 +65,15 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({ isOpen, onClos
         <div className="space-y-2 p-4 rounded-2xl bg-muted/40 dark:bg-navy-950 border border-border/70 text-xs">
           <div className="flex items-start gap-2 text-foreground font-medium">
             <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-            <span>Why M-Pesa POS tills freeze during peak weekend customer Wi-Fi usage</span>
+            <span>Why customer phones slow down your payment machines (and how to fix it)</span>
           </div>
           <div className="flex items-start gap-2 text-foreground font-medium">
             <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-            <span>How to configure dual-ISP failover without paying for expensive corporate fiber</span>
+            <span>How to set up automatic backup internet so your office never goes offline</span>
           </div>
           <div className="flex items-start gap-2 text-foreground font-medium">
             <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-            <span>3 crucial security questions to ask before installing IP CCTV cameras</span>
+            <span>3 quick questions to ask before buying office computers or security cameras</span>
           </div>
         </div>
 
@@ -96,7 +92,7 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({ isOpen, onClos
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">Phone / WhatsApp *</label>
+            <label className="text-xs font-semibold text-foreground">Phone / WhatsApp Number *</label>
             <input
               type="tel"
               required
@@ -112,11 +108,11 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({ isOpen, onClos
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm shadow-md transition-all hover:shadow-glow"
           >
             <Download className="w-4 h-4" />
-            <span>Download Free Checklist &amp; Connect on WhatsApp</span>
+            <span>Download Free PDF Guide</span>
           </button>
 
           <p className="text-[11px] text-center text-muted-foreground">
-            🔒 No spam. Direct engineer WhatsApp delivery.
+            🔒 Zero spam. Direct engineer WhatsApp delivery.
           </p>
         </form>
       </div>

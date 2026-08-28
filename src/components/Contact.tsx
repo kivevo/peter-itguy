@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
 import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
 import { useToast } from "@/hooks/use-toast";
@@ -7,16 +6,11 @@ import {
   Phone, 
   Mail, 
   MapPin, 
-  Clock, 
   Send, 
   MessageCircle, 
-  ShieldCheck, 
-  Sparkles, 
   CheckCircle2,
-  Calendar,
-  Zap
+  Clock
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
 export const Contact: React.FC = () => {
@@ -32,9 +26,9 @@ export const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const urgencyOptions = [
-    { label: "Emergency / Immediate Triage (Today)", value: "Emergency / Today" },
-    { label: "Standard Business Request (This Week)", value: "Standard (This Week)" },
-    { label: "Planning / Future Project Quote", value: "Planning / Future Quote" },
+    { label: "🚨 Emergency (Need Help Right Away)", value: "Emergency / Today" },
+    { label: "⚡ Standard (This Week)", value: "Standard (This Week)" },
+    { label: "📅 Planning / Free Written Quote", value: "Planning / Quote" },
   ];
 
   const handleInputChange = (
@@ -47,7 +41,7 @@ export const Contact: React.FC = () => {
   };
 
   const generateWhatsAppMessage = () => {
-    return `Hi Peter,\n\nMy name is ${formData.name || "[Your Name]"}.\nService Needed: ${formData.service}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I'd like to get support or a quote for my business."}`;
+    return `Hi Peter,\n\nMy name is ${formData.name || "[Your Name]"}.\nService Needed: ${formData.service}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
   };
 
   const handleSendViaWhatsApp = (e: React.FormEvent) => {
@@ -56,7 +50,7 @@ export const Contact: React.FC = () => {
     window.open(url, "_blank");
     toast({
       title: "Opening WhatsApp...",
-      description: "Your structured inquiry message has been prepared for Peter.",
+      description: "Your message has been prepared for Peter.",
     });
   };
 
@@ -66,8 +60,8 @@ export const Contact: React.FC = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       toast({
-        title: "Inquiry Received!",
-        description: "Thank you Peter will review your details and respond within 2-4 hours.",
+        title: "Message Received!",
+        description: "Thank you! Peter will review your details and respond shortly.",
       });
       setFormData({
         name: "",
@@ -87,19 +81,19 @@ export const Contact: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-18">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <Phone className="w-3.5 h-3.5" />
-            <span>Direct Line & Lead Intake</span>
+            <span>Direct Line &amp; Fast Help</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-            Let's Fix Your IT Issues or <br className="hidden sm:inline" />
+            Let's Fix Your Tech Headaches or <br className="hidden sm:inline" />
             <span className="text-gradient-teal">Build Your Next Website</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            WhatsApp is the quickest way to get my attention in Kenya. You can also submit the intake form below or call directly.
+            WhatsApp is the fastest way to get my attention in Kenya. You can also call directly or fill out the quick form below.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Direct Contact Details & WhatsApp Channel */}
+          {/* Left Column: Direct Contact Info */}
           <div className="lg:col-span-5 space-y-6">
             {/* Primary Kenyan WhatsApp Box */}
             <div className="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-800 text-white p-6 sm:p-8 space-y-5 shadow-xl">
@@ -110,17 +104,17 @@ export const Contact: React.FC = () => {
                     Direct Line with Peter Kivevo
                   </h3>
                   <p className="text-xs text-teal-100">
-                    Fastest response time in Kenya via WhatsApp
+                    Fastest response in Kenya via WhatsApp
                   </p>
                 </div>
               </div>
 
               <p className="text-xs sm:text-sm text-teal-50 leading-relaxed">
-                Whether you need same-day emergency on-site dispatch in Nairobi or a 15-minute remote diagnostic, send a message directly to my active WhatsApp line.
+                Whether you need same-day on-site help in Nairobi or quick 15-minute remote assistance anywhere in Kenya, send a quick message to my active WhatsApp.
               </p>
 
               <a
-                href={getWhatsAppUrl("Hi Peter, I need urgent IT assistance.")}
+                href={getWhatsAppUrl("Hi Peter, I need IT help for my business.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-teal-900 font-bold text-sm shadow-md transition-transform duration-200 hover:scale-[1.02]"
@@ -138,7 +132,7 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                    Direct Phone Line
+                    Phone &amp; WhatsApp Call
                   </h4>
                   <a
                     href={`tel:${SITE_CONFIG.phoneTel}`}
@@ -146,7 +140,7 @@ export const Contact: React.FC = () => {
                   >
                     {SITE_CONFIG.phoneDisplay}
                   </a>
-                  <p className="text-xs text-muted-foreground mt-0.5">Emergency calls answered 24/7</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Calls answered promptly</p>
                 </div>
               </div>
 
@@ -164,7 +158,7 @@ export const Contact: React.FC = () => {
                   >
                     {SITE_CONFIG.email}
                   </a>
-                  <p className="text-xs text-muted-foreground mt-0.5">For formal RFPs & detailed scopes</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">For formal quotes and contracts</p>
                 </div>
               </div>
 
@@ -174,7 +168,7 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                    Base Location & Coverage
+                    Location &amp; Availability
                   </h4>
                   <p className="font-semibold text-sm sm:text-base text-foreground">
                     {SITE_CONFIG.location}
@@ -186,24 +180,24 @@ export const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Social Media Channels Card */}
+            {/* Social Media */}
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 space-y-3">
               <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                Follow & Connect Across Platforms:
+                Follow &amp; Connect Online:
               </h4>
               <SocialLinks size="md" />
             </div>
           </div>
 
-          {/* Right Column: Interactive Lead Qualification & Booking Form */}
+          {/* Right Column: Quick Form */}
           <div className="lg:col-span-7">
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-8 space-y-6">
               <div>
                 <h3 className="font-heading font-bold text-2xl text-foreground">
-                  Send a Structured Inquiry
+                  Send a Quick Message
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Select your service requirements to generate a pre-qualified WhatsApp message or email dispatch.
+                  Fill in your details to send a direct WhatsApp message or email inquiry.
                 </p>
               </div>
 
@@ -238,7 +232,7 @@ export const Contact: React.FC = () => {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Service Required *</label>
+                    <label className="text-xs font-semibold text-foreground">Service You Need *</label>
                     <select
                       name="service"
                       value={formData.service}
@@ -254,7 +248,7 @@ export const Contact: React.FC = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Urgency Level *</label>
+                    <label className="text-xs font-semibold text-foreground">How Urgent Is This? *</label>
                     <select
                       name="urgency"
                       value={formData.urgency}
@@ -284,7 +278,7 @@ export const Contact: React.FC = () => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
-                    Describe your problem or requirements *
+                    Describe what you need help with *
                   </label>
                   <textarea
                     name="message"
@@ -292,12 +286,12 @@ export const Contact: React.FC = () => {
                     rows={4}
                     value={formData.message}
                     onChange={handleInputChange}
-                    placeholder="e.g. Our office Wi-Fi keeps disconnecting during peak hours, and we need 4 new IP CCTV cameras installed at our Westlands branch..."
+                    placeholder="e.g. Our office Wi-Fi keeps disconnecting during peak hours, and we need 4 new security cameras installed at our Westlands branch..."
                     className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 resize-none"
                   />
                 </div>
 
-                {/* Dual Submit Options: WhatsApp vs Web Form */}
+                {/* Dual Submit Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"

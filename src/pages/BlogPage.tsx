@@ -2,6 +2,7 @@ import React from "react";
 import Navigation from "@/components/Navigation";
 import BlogResources from "@/components/BlogResources";
 import NetworkSpeedTester from "@/components/NetworkSpeedTester";
+import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
@@ -21,24 +22,31 @@ const BlogPage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Technical Advisories &amp; Tools</span>
+              <span>Practical Advice &amp; Free Tools</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
               Practical IT Guides &amp; <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Diagnostic Tools for Kenya</span>
+              <span className="text-gradient-teal">Free Online Tools for Kenya</span>
             </h1>
             
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Field-tested recommendations on office network upgrades, avoiding POS timeouts, and maximizing Wi-Fi coverage across hospitality venues.
+              Clear advice on fixing slow office internet, preventing payment till freezes, and boosting your website speed across Kenya.
             </p>
           </div>
         </section>
 
-        {/* Live Network Diagnostic Tool */}
+        {/* Live Internet Health Test */}
         <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             <NetworkSpeedTester />
+          </div>
+        </section>
+
+        {/* Website Speed Checker */}
+        <section className="py-12 lg:py-16 bg-background dark:bg-navy-950 border-b border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <WebsiteSpeedChecker />
           </div>
         </section>
 

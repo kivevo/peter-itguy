@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { HelpCircle, ChevronDown, MessageCircle, ShieldCheck } from "lucide-react";
+import { HelpCircle, ChevronDown, MessageCircle } from "lucide-react";
 
 interface FAQItem {
   q: string;
@@ -14,27 +14,27 @@ export const TechnicalFAQ: React.FC = () => {
   const faqs: FAQItem[] = [
     {
       q: "How does remote support work if our office internet is completely down?",
-      a: "When a primary fiber connection drops, I guide your branch manager through our mobile hotspot failover diagnostic protocol. In 80% of cases, we restore router access via LTE tethering within 10 minutes. For physical fiber cuts or blown router power supplies, I initiate same-day on-site dispatch across Nairobi.",
-      category: "IT Support & SLAs",
+      a: "If your fiber internet is down, I can guide you or your staff over a quick phone call to connect your computer to a smartphone hotspot. In most cases, we can connect remotely within 10 minutes. If the router or power supply is physically damaged, I come to your Nairobi office the same day.",
+      category: "Computer & Remote Help",
     },
     {
-      q: "Can you fix our network without forcing us to cancel our existing Safaricom / Zuku / Liquid ISP contract?",
-      a: "Yes. In fact, that's what I specialize in. Most slow network complaints aren't caused by the ISP line itself, but by unmanaged local routers, lack of VLAN bandwidth prioritization, and interference between guest Wi-Fi and POS tills. I optimize your internal network hardware to get the maximum speed from your existing provider.",
-      category: "Networking & Bandwidth",
+      q: "Can you fix our slow office Wi-Fi without forcing us to cancel our current internet provider?",
+      a: "Yes! In fact, most slow internet issues are not caused by your provider (Safaricom, Zuku, Liquid, Airtel), but by basic home routers being overloaded with too many office devices and guest phones. I configure smart office access points and separate your payment tills so you get the full speed you already pay for.",
+      category: "Wi-Fi & Speed",
     },
     {
-      q: "How fast can you dispatch on-site in Nairobi for an urgent hardware or POS crash?",
-      a: "For businesses on an active SLA, our on-site emergency dispatch window is within 2 to 4 hours anywhere across Nairobi (CBD, Westlands, Kilimani, Upper Hill, Industrial Area, Mombasa Rd). Initial encrypted remote triage begins within 15 minutes of your WhatsApp alert.",
-      category: "Emergency Dispatch",
+      q: "How fast can you visit our office in Nairobi for an urgent computer or POS crash?",
+      a: "For emergency issues, I arrive on-site within 1 to 3 hours anywhere in Nairobi (CBD, Westlands, Kilimani, Upper Hill, Industrial Area, Karen, Mombasa Rd). Initial remote help starts within 15 minutes of your WhatsApp message.",
+      category: "Emergency Visits",
     },
     {
-      q: "How do you protect our customer data, M-Pesa till transactions, and administrative credentials?",
-      a: "I enforce zero-trust network segmentation. Guest Wi-Fi is physically and logically isolated onto a separate VLAN with zero access to your accounting or booking desks. All remote support sessions are encrypted, credentials are stored in secure password vaults, and off-site cloud backups are cryptographically protected.",
-      category: "Security & Compliance",
+      q: "How do you protect our company files, financial records, and passwords?",
+      a: "I keep guest Wi-Fi strictly separated from your accounting computers and payment tills so customer phones cannot see your company files. All remote sessions are secure and encrypted, and we set up automatic daily backups so you never lose important documents.",
+      category: "Security & Safety",
     },
     {
-      q: "What is your pricing structure (Monthly Retainer vs On-Demand Per Incident)?",
-      a: "I offer both: 1) On-Demand Pay-As-You-Go for one-off web builds, emergency repairs, or CCTV installations, and 2) Monthly Retainer SLAs for multi-branch retailers and hospitality venues who need guaranteed uptime, priority 15-min triage, and scheduled preventive maintenance.",
+      q: "What is your pricing structure (One-Time Fix vs Monthly Support)?",
+      a: "I offer both: 1) One-Time Pay-As-You-Go for emergency fixes, new websites, or CCTV installation, and 2) Affordable Monthly Support Retainers for businesses and multi-branch shops who want an on-call IT partner for peace of mind.",
       category: "Pricing & Retainers",
     },
   ];
@@ -48,11 +48,11 @@ export const TechnicalFAQ: React.FC = () => {
             <span>Frequently Asked Questions</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-foreground tracking-tight">
-            Clear Technical Answers for <br className="hidden sm:inline" />
-            <span className="text-gradient-teal">Business Owners & Operations Leads</span>
+            Straight Answers to <br className="hidden sm:inline" />
+            <span className="text-gradient-teal">Common Business Questions</span>
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Have a specific scenario in mind? Here are straight answers to common questions about response times, ISP lines, and security.
+            Have questions about how we work, response times, or pricing? Here are clear answers without confusing jargon.
           </p>
         </div>
 
@@ -104,14 +104,14 @@ export const TechnicalFAQ: React.FC = () => {
         <div className="mt-10 p-5 rounded-2xl bg-muted/40 dark:bg-navy-900/70 border border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div>
             <p className="font-heading font-bold text-sm text-foreground">
-              Have a custom infrastructure requirement or hardware question?
+              Have a specific question about your office or setup?
             </p>
             <p className="text-xs text-muted-foreground">
-              Ask directly on WhatsApp and get an immediate engineering perspective.
+              Ask directly on WhatsApp and get a friendly, immediate answer.
             </p>
           </div>
           <a
-            href={getWhatsAppUrl("Hi Peter, I have a specific question regarding our office network / IT setup.")}
+            href={getWhatsAppUrl("Hi Peter, I have a specific question about our office computers / Wi-Fi.")}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs shadow-sm flex-shrink-0"

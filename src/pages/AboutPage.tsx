@@ -27,11 +27,11 @@ const AboutPage: React.FC = () => {
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
               Peter Kivevo John: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Your Technical Partner in Nairobi</span>
+              <span className="text-gradient-teal">Your Dependable IT Partner in Kenya</span>
             </h1>
             
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              BSc Computer Science graduate from Catholic University of Eastern Africa with hands-on ISP network engineering foundation and multi-branch enterprise support experience.
+              BSc Computer Science graduate from Catholic University of Eastern Africa (CUEA) with hands-on Internet Service Provider (ISP) experience and support for 30+ regional business branches.
             </p>
           </div>
         </section>
@@ -39,13 +39,13 @@ const AboutPage: React.FC = () => {
         {/* Full About Section */}
         <About />
 
-        {/* Verifiable Credentials & Certifications */}
+        {/* Credentials & Certifications */}
         <TrustBadges />
 
         {/* Client Logos Strip */}
         <ClientLogoStrip />
 
-        {/* Client Endorsements */}
+        {/* Client Testimonials */}
         <Testimonials />
 
         {/* Pre-footer Call to Action */}

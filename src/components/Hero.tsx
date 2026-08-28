@@ -11,20 +11,18 @@ import {
   Lock, 
   Globe2, 
   CheckCircle2, 
-  Clock,
-  Sparkles,
-  Layers,
+  Clock, 
   FileText
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
-// Defined outside component so the reference is stable across renders
+// Client-friendly rotating phrases (Simple, clear, and benefit-driven)
 const SERVICE_PHRASES = [
-  "I fix broken networks & Wi-Fi bottlenecks.",
-  "I build fast, lead-generating business websites.",
-  "I support 30+ Samchi Telecom (Safaricom) branches remotely.",
-  "I secure your business data and CCTV cameras.",
-  "I turn downtime into reliable 99.9% uptime."
+  "I fix slow office Wi-Fi & internet disconnects.",
+  "I build fast websites that bring you new clients.",
+  "I keep 30+ Safaricom dealer branches running smoothly.",
+  "I install clear HD security cameras on your phone.",
+  "I solve computer, printer & email headaches in minutes."
 ];
 
 export const Hero: React.FC = () => {
@@ -35,12 +33,11 @@ export const Hero: React.FC = () => {
 
   useEffect(() => {
     const currentPhrase = SERVICE_PHRASES[phraseIndex];
-    const typingSpeed = isDeleting ? 30 : 60;
+    const typingSpeed = isDeleting ? 25 : 55;
 
     const timer = setTimeout(() => {
       if (!isDeleting && displayedText === currentPhrase) {
-        // Pause at end of sentence
-        setTimeout(() => setIsDeleting(true), 2200);
+        setTimeout(() => setIsDeleting(true), 2400);
       } else if (isDeleting && displayedText === "") {
         setIsDeleting(false);
         setPhraseIndex((prev) => (prev + 1) % SERVICE_PHRASES.length);
@@ -57,10 +54,10 @@ export const Hero: React.FC = () => {
   }, [displayedText, isDeleting, phraseIndex]);
 
   const networkNodes = [
-    { id: "gateway", name: "Samchi Telecom 30+ Gateway", status: "Operational", ping: "8ms", icon: Server, x: 20, y: 25 },
-    { id: "hotel", name: "After40 Hotel Wi-Fi", status: "100% Uptime", ping: "14ms", icon: Wifi, x: 80, y: 20 },
-    { id: "pos", name: "SNL Venue POS VLAN", status: "Secure / Isolated", ping: "6ms", icon: Lock, x: 25, y: 75 },
-    { id: "web", name: "Live Client Web Stack", status: "Sub-2s Speed", ping: "12ms", icon: Globe2, x: 75, y: 70 },
+    { id: "gateway", name: "Samchi 30+ Branches", status: "All Running Smoothly", ping: "8ms", icon: Server },
+    { id: "hotel", name: "After40 Hotel Wi-Fi", status: "100% Reliable", ping: "14ms", icon: Wifi },
+    { id: "pos", name: "SNL Venue Payment Tills", status: "Fast & Protected", ping: "6ms", icon: Lock },
+    { id: "web", name: "Client Websites", status: "Opens in < 1.5s", ping: "12ms", icon: Globe2 },
   ];
 
   return (
@@ -68,16 +65,16 @@ export const Hero: React.FC = () => {
       id="home"
       className="relative min-h-[92vh] pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
     >
-      {/* Background Decorative Tech Grids & Soft Glows */}
+      {/* Background Tech Grids & Soft Ambient Glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-navy-800/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Value Proposition & CTAs */}
+          {/* Left Column: Clear Value Proposition */}
           <div className="lg:col-span-7 space-y-6 lg:pr-4">
-            {/* Profile Avatar & Real-time Status Badge */}
+            {/* Status Badge */}
             <div className="flex items-center gap-3.5">
               <ProfilePhoto size="md" showStatusBadge={true} />
               <div className="space-y-1">
@@ -86,10 +83,10 @@ export const Hero: React.FC = () => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
                   </span>
-                  <span>Peter Kivevo John · Nairobi, KE</span>
+                  <span>Peter Kivevo John · Nairobi, Kenya</span>
                 </div>
                 <p className="text-[11px] font-mono text-muted-foreground">
-                  BSc Computer Science · On-Site &amp; Remote SLA
+                  Fast Remote Help Countrywide • Same-Day Visits in Nairobi
                 </p>
               </div>
             </div>
@@ -101,7 +98,7 @@ export const Hero: React.FC = () => {
                 <span className="text-gradient-teal">IT Partner</span> in Kenya
               </h1>
               
-              {/* Cycling Terminal Style Subheader */}
+              {/* Cycling Subheader in Simple Words */}
               <div className="flex items-center gap-2 text-base sm:text-xl font-mono text-muted-foreground bg-muted/60 dark:bg-navy-900/80 px-3.5 py-2 rounded-xl border border-border/80 w-fit min-h-[44px]">
                 <Terminal className="w-4 h-4 text-teal-500 flex-shrink-0" />
                 <span className="text-foreground font-semibold font-mono">
@@ -111,13 +108,13 @@ export const Hero: React.FC = () => {
               </div>
             </div>
 
-            {/* Direct Value Description */}
+            {/* Direct Value Description (Plain English) */}
             <div className="space-y-2 max-w-xl">
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-                I am <span className="font-semibold text-foreground">Peter Kivevo John</span> — an independent IT engineer providing proactive network reliability, POS stability, CCTV security, and high-performance commercial websites in Kenya.
+                When your office computers freeze, Wi-Fi drops, payment machines lag, or website goes down, I fix them fast — so you and your team never lose business.
               </p>
               <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-500/10 px-3 py-1.5 rounded-lg border border-teal-500/20 inline-block">
-                ⚡ You work directly with me — the engineer who does the work, not a support queue or a rotating account manager.
+                ⚡ You talk directly with Peter — the engineer who does the work. No call centers, no waiting on hold.
               </p>
             </div>
 
@@ -125,7 +122,7 @@ export const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               {/* Primary WhatsApp CTA */}
               <a
-                href={getWhatsAppUrl("Hi Peter, I saw your IT profile and need support with a project / issue.")}
+                href={getWhatsAppUrl("Hi Peter, I saw your IT profile and need help with a computer / network / website issue.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-base shadow-lg shadow-teal-600/25 transition-all duration-200 hover:shadow-glow hover:-translate-y-0.5 group"
@@ -134,7 +131,7 @@ export const Hero: React.FC = () => {
                 <span>Message Peter on WhatsApp</span>
               </a>
 
-              {/* Download CV / Profile One-Pager */}
+              {/* Download Profile One-Pager */}
               <a
                 href="/Peter_Kivevo_IT_Profile.pdf"
                 download="Peter_Kivevo_IT_Consultant_Profile.pdf"
@@ -146,7 +143,7 @@ export const Hero: React.FC = () => {
                 title="Download Executive Profile / CV (PDF)"
               >
                 <FileText className="w-4 h-4 text-teal-500" />
-                <span>Executive Profile (PDF)</span>
+                <span>Print Profile / CV</span>
               </a>
             </div>
 
@@ -154,11 +151,11 @@ export const Hero: React.FC = () => {
             <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-muted-foreground border-t border-border/70">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />
-                <span>Rapid Remote Triage</span>
+                <span>15-Min Remote Help</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />
-                <span>30+ Samchi Telecom Branches</span>
+                <span>30+ Safaricom Dealer Branches</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-500" />
@@ -167,29 +164,27 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Interactive Tech Topology & SLA Cockpit */}
+          {/* Right Column: Live Hub Simulation */}
           <div className="lg:col-span-5 relative">
-            {/* Backdrop glow */}
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-teal-500/20 to-sky-500/10 blur-xl pointer-events-none" />
 
             <div className="relative rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-5 sm:p-6 overflow-hidden">
-              {/* Cockpit Header */}
+              {/* Header */}
               <div className="flex items-center justify-between pb-4 border-b border-border/70 mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-3 h-3 rounded-full bg-teal-500 animate-pulse" />
                   <span className="font-heading font-bold text-sm tracking-tight text-foreground">
-                    Infrastructure & Network Hub
+                    Live Systems &amp; Client Network Hub
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 rounded bg-muted text-teal-600 dark:text-teal-400 border border-border">
                   <Activity className="w-3.5 h-3.5" />
-                  <span>99.98% SLA</span>
+                  <span>100% Operational</span>
                 </div>
               </div>
 
               {/* Network Graph Simulation Card */}
               <div className="relative h-56 sm:h-64 rounded-xl bg-muted/40 dark:bg-navy-950/90 border border-border/60 p-4 flex flex-col justify-between overflow-hidden">
-                {/* SVG Circuit Connector Lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-teal-500/25" strokeDasharray="3 3">
                   <line x1="25%" y1="30%" x2="50%" y2="50%" strokeWidth="1.5" />
                   <line x1="75%" y1="30%" x2="50%" y2="50%" strokeWidth="1.5" />
@@ -197,13 +192,13 @@ export const Hero: React.FC = () => {
                   <line x1="75%" y1="75%" x2="50%" y2="50%" strokeWidth="1.5" />
                 </svg>
 
-                {/* Central Dispatch Node */}
+                {/* Central Node */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
                   <div className="w-12 h-12 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/30 border-2 border-white dark:border-navy-900 animate-pulse-subtle">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground mt-1 bg-background/90 px-1.5 py-0.5 rounded">
-                    Peter • IT Core
+                    Peter • IT Lead
                   </span>
                 </div>
 
@@ -227,7 +222,7 @@ export const Hero: React.FC = () => {
                         </div>
                         <div className="overflow-hidden">
                           <p className="text-xs font-semibold text-foreground truncate">{node.name}</p>
-                          <p className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">{node.status} • {node.ping}</p>
+                          <p className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">{node.status}</p>
                         </div>
                       </button>
                     );
@@ -239,25 +234,25 @@ export const Hero: React.FC = () => {
               <div className="mt-4 p-3 rounded-xl bg-muted/60 border border-border flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 text-teal-500" />
-                  <span className="text-muted-foreground font-mono">
-                    Active Node: <span className="font-semibold text-foreground">{networkNodes.find(n => n.id === activeNode)?.name}</span>
+                  <span className="text-muted-foreground">
+                    Selected Setup: <span className="font-semibold text-foreground">{networkNodes.find(n => n.id === activeNode)?.name}</span>
                   </span>
                 </div>
-                <span className="font-mono text-teal-600 dark:text-teal-400 font-semibold">
-                  Latency: {networkNodes.find(n => n.id === activeNode)?.ping}
+                <span className="text-teal-600 dark:text-teal-400 font-semibold">
+                  Status: {networkNodes.find(n => n.id === activeNode)?.status}
                 </span>
               </div>
 
               {/* Rapid Service Action Bar */}
               <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-3">
                 <div className="text-xs text-muted-foreground">
-                  Need a network audit or website fix?
+                  Need a quick checkup or website fix?
                 </div>
                 <a
                   href="#contact"
                   className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
                 >
-                  <span>Request Free Audit</span>
+                  <span>Request Free Checkup</span>
                   <ArrowRight className="w-3 h-3" />
                 </a>
               </div>

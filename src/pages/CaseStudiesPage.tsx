@@ -2,6 +2,8 @@ import React from "react";
 import Navigation from "@/components/Navigation";
 import Portfolio from "@/components/Portfolio";
 import ArchitectureViewer from "@/components/ArchitectureViewer";
+import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
+import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
@@ -21,16 +23,16 @@ const CaseStudiesPage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
               <FolderGit2 className="w-3.5 h-3.5" />
-              <span>Case Studies &amp; Track Record</span>
+              <span>Real Client Stories &amp; Proven Results</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
               Real Turnarounds for <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Hotels, Branches &amp; Commercial Web Clients</span>
+              <span className="text-gradient-teal">Hotels, Retail Branches &amp; Websites</span>
             </h1>
             
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Explore in-depth technical case studies documenting how I diagnose severe downtime, isolate network vulnerabilities, and engineer websites that load in under 2 seconds.
+              Explore in-depth case studies showing how I fix severe downtime, speed up slow websites, protect payment machines, and keep multi-branch operations online.
             </p>
           </div>
         </section>
@@ -38,15 +40,29 @@ const CaseStudiesPage: React.FC = () => {
         {/* Client Partners Bar */}
         <ClientLogoStrip />
 
-        {/* Interactive Architecture Transformation Lab */}
+        {/* Before vs After Comparison */}
         <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <ArchitectureViewer />
           </div>
         </section>
 
+        {/* Interactive Office Network Visualizer */}
+        <section className="py-12 lg:py-16 bg-background dark:bg-navy-950 border-b border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <OfficeNetworkVisualizer />
+          </div>
+        </section>
+
         {/* Full Case Studies & Web Showcase */}
         <Portfolio />
+
+        {/* Website Speed Tester */}
+        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-t border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <WebsiteSpeedChecker />
+          </div>
+        </section>
 
         {/* Pre-footer Call to Action */}
         <CallToActionBand />

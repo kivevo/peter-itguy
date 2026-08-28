@@ -1,6 +1,6 @@
 import React from "react";
 import { CREDENTIALS_LIST } from "@/config/site";
-import { GraduationCap, Award, ShieldCheck, CheckCircle2, FileText } from "lucide-react";
+import { Award, CheckCircle2 } from "lucide-react";
 
 export const TrustBadges: React.FC = () => {
   return (
@@ -9,13 +9,13 @@ export const TrustBadges: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-3 mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <Award className="w-3.5 h-3.5" />
-            <span>Verified Credentials &amp; Hardware Competencies</span>
+            <span>Credentials &amp; Proven Experience</span>
           </div>
           <h3 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
-            Academic Degree, ISP Background &amp; Certified Platforms
+            Academic Degree, ISP Background &amp; Certified Hardware Experience
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Verifiable qualifications you can inspect before hiring or initiating an enterprise SLA.
+            Verifiable qualifications you can trust for your business technology.
           </p>
         </div>
 

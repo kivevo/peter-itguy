@@ -1,50 +1,53 @@
 import React from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { Check, MessageCircle, Zap, ShieldCheck, Layers, ArrowRight } from "lucide-react";
+import { Check, MessageCircle, ShieldCheck } from "lucide-react";
 
 export const EngagementPricing: React.FC = () => {
   const models = [
     {
-      name: "On-Demand Incident Triage",
-      badge: "Pay-As-You-Go",
-      desc: "Ideal for one-off computer breakdowns, emergency malware cleanup, router reboots, or printer setup.",
+      name: "One-Time Emergency Fix",
+      badge: "Pay As You Need",
+      price: "From KES 3,500",
+      desc: "Great for quick computer breakdowns, virus removal, printer jams, or Wi-Fi troubleshooting.",
       features: [
-        "15-min remote encrypted diagnostic",
-        "Hardware & OS troubleshooting",
-        "Same-day on-site Nairobi dispatch when needed",
-        "Clear incident summary & prevention tips",
-        "Zero long-term commitment",
+        "15-minute quick remote help",
+        "Computer, Mac & printer repair",
+        "Same-day on-site visit in Nairobi when needed",
+        "Clear explanation of what caused the issue",
+        "Zero monthly contract or commitment",
       ],
-      ctaText: "Request Emergency Fix",
+      ctaText: "Get Emergency Help",
       popular: false,
     },
     {
-      name: "Proactive Monthly SLA",
+      name: "Monthly Office IT Support",
       badge: "Most Popular for Businesses",
-      desc: "Full-scale outsourced IT management for corporate offices, retail branches, and hospitality venues.",
+      price: "From KES 15,000 / month",
+      desc: "Full IT department for your office, retail shops, or restaurant without hiring full-time staff.",
       features: [
-        "Guaranteed 15-min priority response SLA",
-        "30+ branch remote helpdesk stack",
-        "VLAN isolation & POS stability monitoring",
-        "Automated encrypted cloud backups",
-        "Scheduled monthly on-site health visits",
-        "Vendor & ISP accountability management",
+        "Guaranteed 15-minute fast response on WhatsApp",
+        "Unlimited remote help for all staff computers",
+        "Wi-Fi & payment till protection (zero freezes)",
+        "Daily automatic cloud backups of company files",
+        "Scheduled monthly on-site maintenance visits",
+        "We handle internet providers when lines are slow",
       ],
-      ctaText: "Discuss SLA Retainer",
+      ctaText: "Discuss Monthly Support",
       popular: true,
     },
     {
-      name: "Turnkey Project Deployment",
-      badge: "Fixed-Scope Delivery",
-      desc: "Structured LAN cabling, high-density Wi-Fi engineering, IP CCTV rollouts, or custom business websites.",
+      name: "Complete Project Setup",
+      badge: "Fixed-Price Delivery",
+      price: "Custom Itemized Quote",
+      desc: "Moving to a new office, wiring network cables, setting up Wi-Fi & CCTV, or building a new website.",
       features: [
-        "Complete site survey & bill of quantities",
-        "Sub-2s mobile commercial web engineering",
-        "Ubiquiti / MikroTik hardware procurement",
-        "16-channel HD CCTV camera installation",
-        "Full documentation & handover training",
+        "Free initial site survey & written quote",
+        "Super-fast website built to get WhatsApp leads",
+        "Neat office cabling & long-range Wi-Fi APs",
+        "HD security cameras with live phone viewing",
+        "Hands-on staff training & official receipt/invoice",
       ],
-      ctaText: "Get Project Scope & Quote",
+      ctaText: "Get Project Quote",
       popular: false,
     },
   ];
@@ -55,14 +58,14 @@ export const EngagementPricing: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Transparent Engagement Models</span>
+            <span>Clear &amp; Transparent Plans</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
             Flexible Support Plans <br className="hidden sm:inline" />
-            <span className="text-gradient-teal">Designed for Business Growth</span>
+            <span className="text-gradient-teal">Tailored to Your Budget</span>
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Whether you need a one-time emergency network fix or an on-call IT department for all your regional branches.
+            Whether you need a quick 30-minute fix today or a dedicated IT partner to keep your company running smoothly every month.
           </p>
         </div>
 
@@ -78,7 +81,7 @@ export const EngagementPricing: React.FC = () => {
             >
               {model.popular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-teal-500 text-white text-[11px] font-mono font-bold uppercase tracking-wider shadow-md">
-                  Recommended for SMEs &amp; Retail
+                  Recommended for Businesses
                 </div>
               )}
 
@@ -86,6 +89,9 @@ export const EngagementPricing: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
                     {model.badge}
+                  </span>
+                  <span className="text-xs font-mono font-bold text-teal-600 dark:text-teal-400">
+                    {model.price}
                   </span>
                 </div>
 
@@ -114,7 +120,7 @@ export const EngagementPricing: React.FC = () => {
 
               <div className="pt-6 mt-6 border-t border-border/70">
                 <a
-                  href={getWhatsAppUrl(`Hi Peter, I am interested in discussing your ${model.name} engagement.`)}
+                  href={getWhatsAppUrl(`Hi Peter, I would like to discuss your ${model.name} plan (${model.price}).`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-xs sm:text-sm shadow-sm transition-all ${

@@ -5,6 +5,9 @@ import ClientLogoStrip from "@/components/ClientLogoStrip";
 import DowntimeCalculator from "@/components/DowntimeCalculator";
 import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
 import NetworkSpeedTester from "@/components/NetworkSpeedTester";
+import InstantIssueWizard from "@/components/InstantIssueWizard";
+import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
+import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
 import EngagementPricing from "@/components/EngagementPricing";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
 import CallToActionBand from "@/components/CallToActionBand";
@@ -26,16 +29,16 @@ const ServicesPage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
               <Layers className="w-3.5 h-3.5" />
-              <span>Full Service Catalog &amp; SLAs</span>
+              <span>Full Service Catalog &amp; Support Options</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-              Enterprise IT Support, Networking &amp; <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">High-Speed Web Development</span>
+              Fast IT Support, Strong Wi-Fi &amp; <br className="hidden sm:inline" />
+              <span className="text-gradient-teal">High-Converting Business Websites</span>
             </h1>
             
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Explore my four core practice areas. Each service is tailored for Nairobi businesses, multi-branch operations, and clients requiring reliable uptime and rapid turnaround.
+              Explore our four core services designed for Kenyan businesses, hotels, retail shops, and offices that need reliable systems and fast response.
             </p>
           </div>
         </section>
@@ -43,13 +46,34 @@ const ServicesPage: React.FC = () => {
         {/* Client Partners Bar */}
         <ClientLogoStrip />
 
+        {/* Instant Troubleshooter Wizard */}
+        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <InstantIssueWizard />
+          </div>
+        </section>
+
         {/* Interactive Services Deep Dive */}
         <Services />
 
-        {/* Live Network Health Diagnostic Tool */}
+        {/* Website Speed & Lead Audit Checker */}
         <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-y border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <WebsiteSpeedChecker />
+          </div>
+        </section>
+
+        {/* Live Internet Health Test */}
+        <section className="py-12 lg:py-16 bg-background dark:bg-navy-950 border-b border-border/70">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             <NetworkSpeedTester />
+          </div>
+        </section>
+
+        {/* Office Network Visualizer */}
+        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <OfficeNetworkVisualizer />
           </div>
         </section>
 
@@ -61,10 +85,10 @@ const ServicesPage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
               <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
-                Service Delivery Breakdown
+                Complete Service Breakdown
               </h2>
               <p className="text-sm text-muted-foreground">
-                Detailed deliverables, target industries, and fast-track WhatsApp inquiries.
+                Detailed scope, deliverables, and fast WhatsApp booking for each service.
               </p>
             </div>
 
@@ -95,7 +119,7 @@ const ServicesPage: React.FC = () => {
 
                     <div className="space-y-2 pt-2">
                       <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-foreground">
-                        Deliverables &amp; Scope:
+                        What's Included:
                       </h4>
                       <div className="space-y-1.5">
                         {service.whatsIncluded.map((item, idx) => (
@@ -136,7 +160,7 @@ const ServicesPage: React.FC = () => {
         {/* Engagement Models */}
         <EngagementPricing />
 
-        {/* Technical FAQ */}
+        {/* FAQ */}
         <TechnicalFAQ />
 
         {/* Pre-footer Call to Action */}

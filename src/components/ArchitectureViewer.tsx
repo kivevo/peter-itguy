@@ -8,52 +8,52 @@ export const ArchitectureViewer: React.FC = () => {
   const projects = {
     after40: {
       title: "After40 Hotel (Nairobi CBD)",
-      category: "Hotel Infrastructure & Web Turnaround",
+      category: "Hotel Wi-Fi & Website Turnaround",
       before: {
-        headline: "6+ Months Defunct Website & Unmanaged Network",
-        speed: "8.4s Average Load Time",
-        uptime: "Repeated Outages & Offline Booking Desk",
+        headline: "Broken Website for 6+ Months & Dropped Guest Wi-Fi",
+        speed: "8.4s Slow Loading Speed",
+        uptime: "Frequent Outages & Offline Booking Desk",
         points: [
-          "Defunct DNS and abandoned legacy CMS with corrupted database",
-          "Single flat subnet: guest video streaming choked reception POS computers",
-          "Unmonitored analog CCTV with dead cameras and zero remote access",
+          "Previous developer disappeared; website was completely broken and offline for half a year",
+          "Guests streaming videos in rooms made front-desk payment computers freeze and lag",
+          "Security cameras were unmonitored with zero live viewing on phones",
         ],
         badgeColor: "text-rose-500 bg-rose-500/10 border-rose-500/20",
       },
       after: {
-        headline: "Sub-1.2s Fast Web Engine & UniFi VLAN Isolation",
+        headline: "Super-Fast 1.1s Website & Strong Separated Wi-Fi",
         speed: "1.1s Mobile Load (40% Speed Boost)",
-        uptime: "99.98% Monitored Uptime",
+        uptime: "100% Reliable Uptime",
         points: [
-          "Rebuilt modern mobile-first web frontend with direct WhatsApp reservation funnel",
-          "Configured UniFi Enterprise APs with strict VLAN isolation for guest & admin traffic",
-          "Deployed 16-channel IP CCTV surveillance with encrypted mobile remote monitoring",
+          "Rebuilt modern mobile-first website with direct WhatsApp room booking buttons",
+          "Separated guest Wi-Fi from front-desk computers so guest streaming never slows down staff",
+          "Upgraded 16 HD security cameras with encrypted live phone viewing for management",
         ],
         badgeColor: "text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20",
       },
     },
     snl: {
       title: "SNL Lounge & Garden",
-      category: "High-Density Venue Network Engineering",
+      category: "Restaurant Wi-Fi & Payment Protection",
       before: {
-        headline: "Weekend POS Freezes & Choked Guest Wi-Fi",
-        speed: "Unmanaged Bandwidth Throttle",
-        uptime: "POS Timeouts During M-Pesa Peak Hours",
+        headline: "Weekend POS Payment Freezes & Choked Internet",
+        speed: "Slow & Unstable Speeds",
+        uptime: "Payment Timeouts During Peak Saturday Nights",
         points: [
-          "200+ weekend smartphone connections saturated single consumer router",
-          "Waiters experienced repeated M-Pesa till payment timeouts during Saturday rushes",
-          "Zero wireless roaming: dead zones in outdoor cabanas and garden dining",
+          "200+ weekend guests connecting to standard router choked the whole internet",
+          "Waiters experienced repeated M-Pesa payment till timeouts during busy dinner rushes",
+          "Wi-Fi signal dropped out in outdoor garden cabanas and dining areas",
         ],
         badgeColor: "text-rose-500 bg-rose-500/10 border-rose-500/20",
       },
       after: {
-        headline: "Dual-WAN Load Balancing & Isolated POS VLAN",
-        speed: "Dedicated Guaranteed Bandwidth per Till",
-        uptime: "Zero POS Outages Since Cutover",
+        headline: "Backup Internet & Protected Payment Tills",
+        speed: "Guaranteed Fast Speed for Every Till",
+        uptime: "Zero Payment Machine Freezes",
         points: [
-          "MikroTik RouterOS with dual-ISP failover and dynamic QoS traffic shaping",
-          "VLAN 10 strictly reserved for POS terminals with priority packet queuing",
-          "Weatherproof outdoor UniFi APs delivering seamless coverage across all garden cabanas",
+          "Payment tills placed on an exclusive private channel that guest phones cannot slow down",
+          "Installed outdoor weatherproof Wi-Fi antennas covering all garden dining cabanas",
+          "Automatic 4G backup line so payment tills stay online even if main fiber cuts",
         ],
         badgeColor: "text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20",
       },
@@ -69,10 +69,10 @@ export const ArchitectureViewer: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 mb-1">
             <Layers className="w-3.5 h-3.5" />
-            <span>Architecture Transformation Lab</span>
+            <span>Before &amp; After Comparison</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-extrabold font-heading text-foreground">
-            Before vs. After: Technical Infrastructure Comparison
+            Real Turnarounds: How Peter Solves Complex Tech Headaches
           </h3>
         </div>
 
@@ -112,7 +112,7 @@ export const ArchitectureViewer: React.FC = () => {
           }`}
         >
           <ShieldAlert className="w-4 h-4" />
-          <span>Initial State (Before Turnaround)</span>
+          <span>Before Peter Fixed It (Problem State)</span>
         </button>
 
         <button
@@ -124,7 +124,7 @@ export const ArchitectureViewer: React.FC = () => {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>Engineered State (After Peter's Overhaul)</span>
+          <span>After Peter's Fix (Smooth &amp; Fast)</span>
         </button>
       </div>
 
@@ -137,7 +137,7 @@ export const ArchitectureViewer: React.FC = () => {
                 viewState === "after" ? current.after.badgeColor : current.before.badgeColor
               }`}
             >
-              {viewState === "after" ? "✓ OPTIMIZED & HARDENED" : "⚠ LEGACY BOTTLENECK"}
+              {viewState === "after" ? "✓ FIXED & RELIABLE" : "⚠️ COMMON BUSINESS BOTTLENECK"}
             </span>
             <span className="text-xs text-muted-foreground font-mono font-semibold">
               {current.title}
@@ -162,13 +162,13 @@ export const ArchitectureViewer: React.FC = () => {
           </div>
         </div>
 
-        {/* Metrics Badge Box */}
+        {/* Metrics Box */}
         <div className="md:col-span-4 rounded-xl bg-card dark:bg-navy-900 border border-border p-5 space-y-3 text-center md:text-left">
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-            Key Performance Metrics:
+            Measurable Results:
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Speed Benchmark:</div>
+            <div className="text-xs text-muted-foreground">Website / Internet Speed:</div>
             <div
               className={`text-lg font-bold font-mono ${
                 viewState === "after" ? "text-teal-600 dark:text-teal-400" : "text-rose-500 line-through"
@@ -178,7 +178,7 @@ export const ArchitectureViewer: React.FC = () => {
             </div>
           </div>
           <div className="pt-2 border-t border-border/70">
-            <div className="text-xs text-muted-foreground">Uptime & Reliability:</div>
+            <div className="text-xs text-muted-foreground">System Reliability:</div>
             <div
               className={`text-sm font-bold font-mono ${
                 viewState === "after" ? "text-emerald-500" : "text-rose-500"

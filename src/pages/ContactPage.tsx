@@ -23,11 +23,11 @@ const ContactPage: React.FC = () => {
             
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
               Contact Peter Kivevo John: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Emergency Support & Quotations</span>
+              <span className="text-gradient-teal">Fast IT Help &amp; Project Quotes</span>
             </h1>
             
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Available 24/7 for remote emergencies countrywide and on-site visits across Nairobi. Send a structured inquiry or message directly on WhatsApp.
+              Available for fast remote help anywhere in Kenya and same-day on-site visits across Nairobi. Send a message on WhatsApp or fill out the quick form below.
             </p>
           </div>
         </section>

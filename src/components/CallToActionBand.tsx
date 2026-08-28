@@ -1,11 +1,10 @@
 import React from "react";
 import { getWhatsAppUrl, SITE_CONFIG } from "@/config/site";
-import { MessageCircle, Phone, ArrowRight, ShieldCheck, Zap, Clock } from "lucide-react";
+import { MessageCircle, Phone, ShieldCheck, Zap, Clock } from "lucide-react";
 
 export const CallToActionBand: React.FC = () => {
   return (
     <section className="py-16 lg:py-20 bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 text-white relative overflow-hidden border-t border-teal-500/20">
-      {/* Background Soft Glows & Ambient Highlights */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -14,46 +13,46 @@ export const CallToActionBand: React.FC = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-mono font-bold border border-teal-500/30">
             <Zap className="w-3.5 h-3.5" />
-            <span>Direct WhatsApp Line & Rapid Response</span>
+            <span>Direct WhatsApp Help &amp; Fast Response</span>
           </div>
 
           {/* Heading */}
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
-            Stop Losing Business to Slow Networks, <br className="hidden sm:inline" />
-            Crashed POS Tills, and Broken Websites.
+            Stop Losing Business to Slow Wi-Fi, <br className="hidden sm:inline" />
+            Frozen Payment Tills, and Broken Computers.
           </h2>
 
           {/* Description */}
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Get an experienced, university-trained Computer Science graduate on your team. Whether you need a full network overhaul in Nairobi or emergency remote support countrywide, I'm ready to assist.
+            Get an experienced Computer Science graduate on your team. Whether you need an office Wi-Fi setup in Nairobi or fast remote help anywhere in Kenya, I'm ready to help you today.
           </p>
 
           {/* Key Value Pillars */}
           <div className="grid sm:grid-cols-3 gap-4 pt-2 max-w-2xl mx-auto text-left text-xs text-slate-200">
             <div className="flex items-center gap-2 bg-navy-950/60 p-3 rounded-xl border border-white/10">
               <Clock className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              <span>15-Minute Remote Diagnostic Triage</span>
+              <span>15-Minute Fast Remote Help</span>
             </div>
             <div className="flex items-center gap-2 bg-navy-950/60 p-3 rounded-xl border border-white/10">
               <ShieldCheck className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              <span>Enterprise-Grade Network Isolation</span>
+              <span>Protected Payment Tills</span>
             </div>
             <div className="flex items-center gap-2 bg-navy-950/60 p-3 rounded-xl border border-white/10">
               <Zap className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              <span>Sub-2s Mobile Websites That Convert</span>
+              <span>Websites That Bring WhatsApp Sales</span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <a
-              href={getWhatsAppUrl("Hi Peter, I'd like to book an IT diagnostic audit for my business.")}
+              href={getWhatsAppUrl("Hi Peter, I would like to book a quick IT checkup for my business.")}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-bold text-sm sm:text-base shadow-lg shadow-teal-500/25 transition-all duration-200 hover:scale-105"
             >
               <MessageCircle className="w-5 h-5" />
-              <span>Message Peter on WhatsApp</span>
+              <span>Chat with Peter on WhatsApp</span>
             </a>
 
             <a

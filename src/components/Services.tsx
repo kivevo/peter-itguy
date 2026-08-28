@@ -11,7 +11,6 @@ import {
   MessageCircle, 
   Clock, 
   Users, 
-  Briefcase,
   Layers
 } from "lucide-react";
 
@@ -46,18 +45,18 @@ export const Services: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-18">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <Layers className="w-3.5 h-3.5" />
-            <span>Dedicated Service Offerings</span>
+            <span>Core IT &amp; Web Services</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-            Pragmatic IT Solutions Built for <br className="hidden sm:inline" />
-            <span className="text-gradient-teal">Reliability & Business Uptime</span>
+            Practical IT Solutions Built for <br className="hidden sm:inline" />
+            <span className="text-gradient-teal">Fast Results &amp; Zero Stress</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            No jargon. No unnecessary retainers. Just fast, dependable support, secure network engineering, and business-focused web development.
+            No confusing tech talk. Just fast computer repairs, strong Wi-Fi that never drops, and modern websites that bring you clients.
           </p>
         </div>
 
-        {/* Desktop & Mobile Interactive Service Selector Tabs */}
+        {/* Service Selector Tabs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {SERVICES.map((service) => {
             const Icon = iconMap[service.iconName] || Headphones;
@@ -96,7 +95,7 @@ export const Services: React.FC = () => {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs font-semibold text-teal-600 dark:text-teal-400">
-                  <span>{isSelected ? "Active View" : "Explore Details"}</span>
+                  <span>{isSelected ? "Currently Viewing" : "See Details"}</span>
                   <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? "translate-x-1" : ""}`} />
                 </div>
               </button>
@@ -104,10 +103,10 @@ export const Services: React.FC = () => {
           })}
         </div>
 
-        {/* Selected Service Deep-Dive Showcase Card */}
+        {/* Selected Service Detail Box */}
         <div className="rounded-3xl bg-card dark:bg-navy-900 border border-border shadow-card-dark dark:shadow-glow p-6 sm:p-8 lg:p-10">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* Left: What's Included & Full Overview */}
+            {/* Left: What's Included */}
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2.5">
@@ -115,7 +114,7 @@ export const Services: React.FC = () => {
                     <SelectedIcon className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-                    Service Scope & Deliverables
+                    What We Do for You
                   </span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
@@ -128,7 +127,7 @@ export const Services: React.FC = () => {
 
               {/* What's Included Checklist */}
               <div className="space-y-3 pt-2">
-                <h4 className="font-heading font-bold text-sm text-foreground uppercase tracking-wider">
+                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-foreground">
                   What's Included:
                 </h4>
                 <div className="grid sm:grid-cols-2 gap-2.5">
@@ -143,11 +142,11 @@ export const Services: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quick Inquiry CTA for this specific service */}
+              {/* Inquiry CTA */}
               <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <a
                   href={getWhatsAppUrl(
-                    `Hi Peter, I am interested in your ${selectedService.title} service. Can we discuss scope and availability?`,
+                    `Hi Peter, I am interested in your ${selectedService.title} service. Could we discuss availability and pricing?`,
                     selectedService.title
                   )}
                   target="_blank"
@@ -155,7 +154,7 @@ export const Services: React.FC = () => {
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm shadow-sm transition-all hover:shadow-glow"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Inquire About {selectedService.title} on WhatsApp</span>
+                  <span>Inquire on WhatsApp</span>
                 </a>
                 <a
                   href="#contact"
@@ -166,15 +165,14 @@ export const Services: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: Who It's For, Turnaround & Mini Case Study */}
+            {/* Right: Who It's For & Mini Story */}
             <div className="lg:col-span-5 space-y-4">
-              {/* Audience & SLA Box */}
               <div className="p-5 rounded-2xl bg-muted/40 dark:bg-navy-950/70 border border-border/80 space-y-4">
                 <div className="flex items-start gap-3">
                   <Users className="w-4 h-4 text-teal-500 mt-1 flex-shrink-0" />
                   <div>
                     <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      Target Client
+                      Best For
                     </h5>
                     <p className="text-xs sm:text-sm text-foreground font-medium mt-0.5">
                       {selectedService.whoItsFor}
@@ -186,7 +184,7 @@ export const Services: React.FC = () => {
                   <Clock className="w-4 h-4 text-teal-500 mt-1 flex-shrink-0" />
                   <div>
                     <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      Response & Turnaround
+                      Speed &amp; Response Time
                     </h5>
                     <p className="text-xs sm:text-sm text-foreground font-medium mt-0.5">
                       {selectedService.typicalTurnaround}
@@ -195,11 +193,11 @@ export const Services: React.FC = () => {
                 </div>
               </div>
 
-              {/* Relevant Mini Case Study Card */}
+              {/* Real Story Box */}
               <div className="p-5 rounded-2xl bg-teal-500/5 dark:bg-teal-500/10 border border-teal-500/20 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
-                    Mini Case Study
+                    Real Customer Story
                   </span>
                   <span className="text-[11px] font-semibold text-muted-foreground">
                     {selectedService.miniCaseStudy.client}
@@ -207,10 +205,10 @@ export const Services: React.FC = () => {
                 </div>
                 <div className="space-y-1.5 text-xs">
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Challenge:</strong> {selectedService.miniCaseStudy.challenge}
+                    <strong className="text-foreground">Problem:</strong> {selectedService.miniCaseStudy.challenge}
                   </p>
                   <p className="text-teal-900 dark:text-teal-200">
-                    <strong className="text-teal-700 dark:text-teal-400">Outcome:</strong> {selectedService.miniCaseStudy.result}
+                    <strong className="text-teal-700 dark:text-teal-400">Result:</strong> {selectedService.miniCaseStudy.result}
                   </p>
                 </div>
               </div>

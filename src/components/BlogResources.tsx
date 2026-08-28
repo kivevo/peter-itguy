@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BLOG_POSTS, getWhatsAppUrl } from "@/config/site";
-import { BookOpen, Clock, ArrowRight, Sparkles, MessageCircle, X } from "lucide-react";
+import { BookOpen, Clock, ArrowRight, MessageCircle, X } from "lucide-react";
 
 export const BlogResources: React.FC = () => {
   const [activePost, setActivePost] = useState<typeof BLOG_POSTS[0] | null>(null);
@@ -12,14 +12,14 @@ export const BlogResources: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-18">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Tech Insights & Best Practices</span>
+            <span>Practical Tech Advice</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-            IT Knowledge for <br className="hidden sm:inline" />
+            Simple IT Advice for <br className="hidden sm:inline" />
             <span className="text-gradient-teal">Growing Kenyan Businesses</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            Practical advice to avoid costly network errors, secure your customer data, and maximize your uptime.
+            Clear, practical tips to avoid slow internet, secure your company data, and keep your computers running fast.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export const BlogResources: React.FC = () => {
                   onClick={() => setActivePost(post)}
                   className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
                 >
-                  <span>Read Full Advisory</span>
+                  <span>Read Article</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
                 <span className="text-[11px] font-mono text-muted-foreground">{post.date}</span>
@@ -101,22 +101,22 @@ export const BlogResources: React.FC = () => {
 
             <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-xs sm:text-sm space-y-1">
               <strong className="text-teal-900 dark:text-teal-200 font-heading block">
-                Recommended Action for Nairobi Businesses:
+                Peter's Advice for Your Business:
               </strong>
               <p className="text-muted-foreground">
-                {activePost.keyTakeaway} Reach out directly to audit your current equipment and setup before minor bottlenecks trigger costly downtime.
+                {activePost.keyTakeaway} Message me directly to audit your office Wi-Fi and computers before small issues cause costly downtime.
               </p>
             </div>
 
             <div className="pt-3 flex flex-col sm:flex-row gap-3">
               <a
-                href={getWhatsAppUrl(`Hi Peter, I read your article on "${activePost.title}" and want to discuss applying this to my office.`)}
+                href={getWhatsAppUrl(`Hi Peter, I read your article on "${activePost.title}" and would like to ask a quick question.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs sm:text-sm shadow-sm"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Discuss This Topic on WhatsApp</span>
+                <span>Discuss on WhatsApp</span>
               </a>
               <button
                 onClick={() => setActivePost(null)}

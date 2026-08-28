@@ -1,18 +1,8 @@
 import React from "react";
 import { SITE_CONFIG, getWhatsAppUrl } from "@/config/site";
 import { 
-  GraduationCap, 
-  Briefcase, 
-  Award, 
   Download, 
-  ExternalLink, 
-  CheckCircle2, 
-  Server, 
-  ShieldCheck, 
-  Code2, 
-  Cpu, 
-  MapPin,
-  MessageCircle,
+  MessageCircle, 
   UserCheck
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
@@ -21,34 +11,34 @@ export const About: React.FC = () => {
   const careerMilestones = [
     {
       period: "Current Role",
-      title: "Boutique IT Consultant & Multi-Branch Support Lead",
-      organization: "The IT Guy / Samchi Telecom (Safaricom Dealer Network)",
-      desc: "Architecting remote and field support operations across 30+ regional branches, managing vendor SLAs, POS reliability, and building high-converting websites.",
+      title: "Independent IT Consultant & Multi-Branch Support Lead",
+      organization: "The IT Guy / Samchi Telecom (Safaricom Dealer)",
+      desc: "Providing daily remote and on-site support across 30+ regional dealer branches, managing office Wi-Fi networks, and building modern business websites.",
     },
     {
-      period: "Infrastructure Turnaround",
-      title: "Lead Systems & Network Overhaul Engineer",
-      organization: "After40 Hotel & Hospitality Clients",
-      desc: "Revived a 6-month defunct digital footprint, cut site load times by 40%, re-engineered guest Wi-Fi VLANs, and deployed 16-channel IP CCTV surveillance.",
+      period: "Hotel Infrastructure",
+      title: "Lead Network & Website Overhaul",
+      organization: "After40 Hotel (Nairobi CBD)",
+      desc: "Revived a 6-month offline website in days, sped up load times by 40%, re-organized guest Wi-Fi, and upgraded security cameras with live phone viewing.",
     },
     {
-      period: "ISP Foundations",
-      title: "Network Operations & Client Support Intern",
+      period: "Internet Service Provider Experience",
+      title: "Network Operations & Field Support",
       organization: "Fiberlink Systems Limited",
-      desc: "Delivered hands-on fiber optic and wireless networking, customer CPE configurations, and WAN troubleshooting for 30+ enterprise clients with 90%+ satisfaction.",
+      desc: "Hands-on experience crimping fiber optic cables, aligning wireless internet antennas, and setting up office routers for over 30 business clients in Kenya.",
     },
     {
-      period: "Academic Foundation",
+      period: "Academic Degree",
       title: "Bachelor of Science in Computer Science",
       organization: "Catholic University of Eastern Africa (CUEA)",
-      desc: "Core specializations in Data Communications, Network Engineering, Systems Security, and Software Development Principles.",
+      desc: "Graduated with strong foundations in Computer Networks, System Security, Database Management, and Modern Web Development.",
     },
   ];
 
   const technicalCompetencies = [
-    { category: "Networking & Security", skills: ["UniFi OS & Access Points", "MikroTik RouterOS", "VLAN & QoS Traffic Shaping", "Firewalls & VPN Tunnels", "IP CCTV & NVR Systems"] },
-    { category: "Systems & Cloud", skills: ["Windows Server & Active Directory", "Linux (Ubuntu / Debian)", "Google Workspace & Microsoft 365", "Automated Cloud Backups", "Hardware Board-Level Repair"] },
-    { category: "Web Engineering", skills: ["React / TypeScript", "Tailwind CSS", "Next.js & Vercel", "REST APIs & M-Pesa Gateways", "Technical SEO & Schema"] },
+    { category: "Wi-Fi & Office Networks", skills: ["Long-Range Wi-Fi APs", "Smart Routers & Bandwidth Control", "Protected Payment Tills", "Automatic Backup Internet", "HD Security Cameras (CCTV)"] },
+    { category: "Computers & Cloud Systems", skills: ["Windows & Mac Troubleshooting", "Google Workspace & Microsoft 365", "Virus & Malware Cleaning", "Automatic Cloud File Backups", "Hardware & Printer Repairs"] },
+    { category: "Fast Web Development", skills: ["Mobile-First Fast Websites", "Direct WhatsApp Ordering", "M-Pesa Integration", "Google Search Local SEO", "Fast Cloud Hosting"] },
   ];
 
   return (
@@ -58,58 +48,58 @@ export const About: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-18">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <UserCheck className="w-3.5 h-3.5" />
-            <span>Background & Technical Range</span>
+            <span>Meet Your Engineer</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
             About Peter Kivevo John: <br className="hidden sm:inline" />
-            <span className="text-gradient-teal">Engineer, Problem Solver & IT Partner</span>
+            <span className="text-gradient-teal">Your Dependable IT Partner</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            A rare hybrid of hands-on physical networking experience, enterprise SLA discipline, and modern web development skills.
+            A reliable problem-solver who combines hands-on internet engineering, fast computer repair, and modern web development.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Personal Narrative & Philosophy */}
+          {/* Left Column: Personal Story */}
           <div className="lg:col-span-7 space-y-6">
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-8 space-y-4">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 pb-4 border-b border-border/70 text-center sm:text-left">
                 <ProfilePhoto size="lg" />
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 uppercase tracking-wider inline-block">
-                    On-Call IT Partner · Nairobi
+                    On-Call IT Engineer · Nairobi
                   </span>
                   <h3 className="font-heading font-extrabold text-2xl text-foreground">
                     Peter Kivevo John
                   </h3>
                   <p className="text-xs font-mono text-muted-foreground">
-                    BSc Computer Science (CUEA) • Nairobi GPO 00100
+                    BSc Computer Science (CUEA) • Nairobi, Kenya
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
                 <p>
-                  I built my career from the ground up: starting in the trenches of an Internet Service Provider (Fiberlink), crimping cables, aligning wireless radios, and troubleshooting customer gateways. That taught me one fundamental truth: <strong className="text-foreground">technology must produce business continuity, not excuses</strong>.
+                  I started my career working in the field with an Internet Service Provider (Fiberlink), running fiber cables, aligning wireless radios, and fixing customer routers. That taught me an important lesson: <strong className="text-foreground">technology must keep your business running smoothly without excuses</strong>.
                 </p>
                 <p>
-                  Since then, I have operated as the trusted IT backbone for organizations ranging from high-traffic hotels like <strong className="text-foreground">After40 Hotel</strong> to a nationwide <strong className="text-foreground">30+ branch Samchi Telecom network (Safaricom Dealer)</strong>. Whether I am configuring isolated POS subnets or writing clean React code for commercial websites, I take complete personal ownership of every system under my care.
+                  Since then, I have been the trusted IT partner for busy businesses across Kenya — from renowned hotels like <strong className="text-foreground">After40 Hotel in Nairobi CBD</strong> to a nationwide <strong className="text-foreground">30+ branch network for Samchi Telecom (Safaricom Dealer)</strong>.
                 </p>
                 <p>
-                  I don't treat IT like a hobby shop. I treat it like what it is: the operational nervous system of your business.
+                  Whether I am setting up protected Wi-Fi for your payment tills, fixing a slow laptop, or designing a fast website that brings in WhatsApp orders, I take personal responsibility for making sure everything works reliably.
                 </p>
 
                 <div className="p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs sm:text-sm text-foreground space-y-1">
                   <strong className="text-teal-700 dark:text-teal-300 block font-heading">
-                    ⚡ Direct Engineer Accountability:
+                    ⚡ Why Clients Enjoy Working With Me:
                   </strong>
                   <p className="text-muted-foreground text-xs leading-relaxed">
-                    When you partner with me, you work directly with the engineer who configures your gateways, isolates your POS VLANs, and writes your web code. No junior ticket queues, no call center intermediaries, and no excuses.
+                    You talk directly with me — the engineer who does the work. You never have to deal with automated phone bots, support ticket queues, or inexperienced junior staff passing you around.
                   </p>
                 </div>
               </div>
 
-              {/* Action Buttons: Resume & WhatsApp */}
+              {/* Action Buttons */}
               <div className="pt-4 flex flex-wrap gap-3">
                 <a
                   href="/Resume.pdf"
@@ -122,21 +112,21 @@ export const About: React.FC = () => {
                   <span>Download CV / Profile (PDF)</span>
                 </a>
                 <a
-                  href={getWhatsAppUrl("Hi Peter, I'd like to discuss partnering with you as our IT consultant.")}
+                  href={getWhatsAppUrl("Hi Peter, I'd like to discuss partnering with you for IT support.")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Hire Me as Your IT Partner</span>
+                  <span>Chat on WhatsApp</span>
                 </a>
               </div>
             </div>
 
-            {/* Technical Competency Matrix */}
+            {/* Practical Skills Matrix */}
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-8 space-y-5">
               <h4 className="font-heading font-bold text-base text-foreground uppercase tracking-wider">
-                Technical Stack & Infrastructure Competencies
+                What I Help Businesses With:
               </h4>
 
               <div className="space-y-4">
@@ -161,17 +151,16 @@ export const About: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Career Milestones Timeline */}
+          {/* Right Column: Track Record Timeline */}
           <div className="lg:col-span-5 space-y-4">
             <div className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-7 space-y-6">
               <h4 className="font-heading font-bold text-base text-foreground uppercase tracking-wider pb-3 border-b border-border/70">
-                Career Milestones & Proven Track Record
+                Experience &amp; Proven Track Record
               </h4>
 
               <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-teal-500/30">
                 {careerMilestones.map((milestone, idx) => (
                   <div key={idx} className="relative pl-8 space-y-1">
-                    {/* Timeline Node Dot */}
                     <div className="absolute left-2.5 top-1.5 -translate-x-1/2 w-3 h-3 rounded-full bg-teal-500 border-2 border-card dark:border-navy-900" />
 
                     <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
