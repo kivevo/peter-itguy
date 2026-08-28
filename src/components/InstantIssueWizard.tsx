@@ -129,7 +129,7 @@ export const InstantIssueWizard: React.FC = () => {
           What Tech Issue Are You Experiencing Today?
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground">
-          Select your problem below for instant plain-English advice, pricing guide, and direct dispatch to Peter.
+          Select your problem below for instant diagnostic advice, pricing guide, and direct response from Peter.
         </p>
       </div>
 
@@ -222,13 +222,13 @@ export const InstantIssueWizard: React.FC = () => {
         </div>
       </div>
 
-      {/* Step 3: Advice Card & Dual Submission (Direct Web vs WhatsApp) */}
+      {/* Step 3: Advice Card & Dual Submission */}
       <div className="rounded-2xl bg-teal-500/10 border border-teal-500/30 p-5 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-teal-700 dark:text-teal-300 uppercase">
               <CheckCircle2 className="w-4 h-4 text-teal-500" />
-              <span>Peter's Plain-English Solution:</span>
+              <span>Peter's Recommended Solution:</span>
             </div>
             <h4 className="font-heading font-extrabold text-base sm:text-lg text-foreground">
               {currentIssue.title}
@@ -256,7 +256,7 @@ export const InstantIssueWizard: React.FC = () => {
           <div className="p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-800 dark:text-emerald-300 space-y-2 animate-in fade-in duration-200">
             <div className="flex items-center gap-2 font-heading font-bold text-sm">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Request Sent Directly to Peter!</span>
+              <span>Request Sent Successfully!</span>
             </div>
             <p className="text-xs">
               Thank you, <strong>{clientName}</strong>! Peter has received your inquiry for <strong>{currentIssue.title}</strong> at <strong>{location}</strong> and will reach out to <strong>{clientPhone}</strong> shortly.
@@ -266,10 +266,10 @@ export const InstantIssueWizard: React.FC = () => {
           /* Dual Action Options */
           <div className="space-y-4 pt-1">
             {showDirectForm ? (
-              /* Inline Direct Form without leaving page */
+              /* Inline Direct Form */
               <form onSubmit={handleDirectWebSubmit} className="p-4 rounded-2xl bg-card dark:bg-navy-950 border border-border space-y-3.5">
                 <div className="flex items-center justify-between pb-2 border-b border-border text-xs font-heading font-bold text-foreground">
-                  <span>Send Request Directly to Peter (No WhatsApp App Needed)</span>
+                  <span>Send Inquiry to Peter</span>
                   <button
                     type="button"
                     onClick={() => setShowDirectForm(false)}
@@ -310,7 +310,7 @@ export const InstantIssueWizard: React.FC = () => {
                     className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all hover:shadow-glow"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Submit Request to Peter Directly</span>
+                    <span>Submit Request</span>
                   </button>
                   
                   <a
@@ -320,7 +320,7 @@ export const InstantIssueWizard: React.FC = () => {
                     className="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Or Open in WhatsApp</span>
+                    <span>Chat on WhatsApp</span>
                   </a>
                 </div>
               </form>
@@ -333,7 +333,7 @@ export const InstantIssueWizard: React.FC = () => {
                   className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Send Request Directly from Website</span>
+                  <span>Submit Request</span>
                 </button>
 
                 <a
@@ -350,6 +350,7 @@ export const InstantIssueWizard: React.FC = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };

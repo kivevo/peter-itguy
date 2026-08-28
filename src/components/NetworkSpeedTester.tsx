@@ -125,7 +125,7 @@ export const NetworkSpeedTester: React.FC = () => {
               Ready to test your connection
             </p>
             <p className="text-xs text-muted-foreground">
-              Click the button above to check your speed and get plain-English advice.
+              Click the button above to check your speed and get an instant diagnostic report.
             </p>
           </div>
         </div>

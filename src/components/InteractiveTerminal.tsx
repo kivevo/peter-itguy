@@ -20,7 +20,7 @@ export const InteractiveTerminal: React.FC = () => {
           <p>🟢 System Status: ALL SYSTEMS OPERATIONAL</p>
           <p>📍 Location: Nairobi, Kenya • Coverage: On-site Nairobi &amp; Countrywide Remote Help</p>
           <p>⚡ Response Time: Under 15 minutes for urgent WhatsApp alerts</p>
-          <p className="text-slate-400 text-[11px]">💡 Tip: Type <span className="text-white font-bold">ping hotels.com</span> or <span className="text-white font-bold">ping google.com</span> to test any live domain.</p>
+          <p className="text-slate-400 text-[11px]">💡 Tip: Type <span className="text-white font-bold">ping hotels.com</span>, <span className="text-white font-bold">Ping Google.com</span>, or enter any website to test live.</p>
         </div>
       ),
       timestamp: "10:42:01",
@@ -39,10 +39,11 @@ export const InteractiveTerminal: React.FC = () => {
 
   // Client-side real network timing probe
   const probeHost = async (domain: string): Promise<number> => {
+    const clean = domain.toLowerCase().trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").replace(/^www\./i, "");
     const start = performance.now();
     const cacheBuster = `_t=${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     try {
-      await fetch(`https://${domain}/favicon.ico?${cacheBuster}`, {
+      await fetch(`https://${clean}/favicon.ico?${cacheBuster}`, {
         mode: "no-cors",
         cache: "no-store",
       });
@@ -54,19 +55,34 @@ export const InteractiveTerminal: React.FC = () => {
         const imgStart = performance.now();
         img.onload = () => resolve(Math.round(performance.now() - imgStart) || 16);
         img.onerror = () => resolve(Math.round(performance.now() - imgStart) || 18);
-        img.src = `https://${domain}/favicon.ico?${cacheBuster}`;
+        img.src = `https://${clean}/favicon.ico?${cacheBuster}`;
         setTimeout(() => resolve(Math.round(20 + Math.random() * 15)), 1200);
       });
     }
   };
 
   const executeCommand = async (rawCmd: string) => {
-    const trimmed = rawCmd.trim().toLowerCase();
+    const rawTrimmed = rawCmd.trim();
+    if (!rawTrimmed) return;
+
+    const lower = rawTrimmed.toLowerCase();
     const time = new Date().toLocaleTimeString("en-KE", { hour12: false });
     let output: React.ReactNode = null;
 
-    if (trimmed.startsWith("ping ")) {
-      const target = trimmed.replace("ping ", "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    // Check if command is ping or starts with ping (case-insensitive)
+    const isPingCmd = lower.startsWith("ping ") || lower.startsWith("ping:") || lower === "ping";
+    const isDirectDomain = !isPingCmd && (lower.includes(".com") || lower.includes(".ke") || lower.includes(".org") || lower.includes(".net") || lower.includes(".io") || lower.startsWith("http://") || lower.startsWith("https://"));
+
+    if (isPingCmd || isDirectDomain) {
+      let target = "";
+      if (isPingCmd) {
+        target = lower.replace(/^ping[:\s]*/i, "").trim() || "hotels.com";
+      } else {
+        target = lower.trim();
+      }
+
+      target = target.replace(/^https?:\/\//i, "").replace(/\/.*$/, "").replace(/^www\./i, "");
+
       const sample1 = await probeHost(target);
       const sample2 = await probeHost(target);
       const sample3 = await probeHost(target);
@@ -93,7 +109,7 @@ export const InteractiveTerminal: React.FC = () => {
           </p>
         </div>
       );
-    } else if (trimmed.includes("wifi") || trimmed.includes("network") || trimmed.includes("audit")) {
+    } else if (lower.includes("wifi") || lower.includes("network") || lower.includes("audit")) {
       output = (
         <div className="space-y-1 text-xs text-slate-300 font-mono">
           <p className="text-amber-400">🔍 Running Quick Office Network Health Check...</p>
@@ -104,7 +120,7 @@ export const InteractiveTerminal: React.FC = () => {
           <p className="text-emerald-400 font-bold">Network Score: 98/100 • Zero Payment Freezes</p>
         </div>
       );
-    } else if (trimmed === "whoami" || trimmed.includes("peter")) {
+    } else if (lower === "whoami" || lower.includes("peter")) {
       output = (
         <div className="space-y-1 text-xs text-slate-300 font-mono">
           <p className="text-teal-300 font-bold">Peter Kivevo John — The IT Guy</p>
@@ -113,39 +129,38 @@ export const InteractiveTerminal: React.FC = () => {
           <p>• Specialties: Office Wi-Fi, Computer Repairs, Security Cameras, Fast Websites</p>
         </div>
       );
-    } else if (trimmed.includes("whatsapp") || trimmed.includes("chat") || trimmed.includes("contact")) {
+    } else if (lower.includes("whatsapp") || lower.includes("chat") || lower.includes("contact")) {
       output = (
         <div className="space-y-1 text-xs font-mono text-emerald-400">
-          <p>Opening direct WhatsApp chat with Peter...</p>
+          <p>Connecting to Peter Kivevo...</p>
           <a
             href={getWhatsAppUrl("Hi Peter, connecting from your website interactive console.")}
             target="_blank"
             rel="noopener noreferrer"
             className="underline text-teal-300 font-semibold hover:text-white"
           >
-            Click here if WhatsApp didn't open automatically
+            Click here to open chat
           </a>
         </div>
       );
-      window.open(getWhatsAppUrl("Hi Peter, connecting from your website interactive console."), "_blank");
-    } else if (trimmed === "help") {
+    } else if (lower === "help") {
       output = (
         <div className="space-y-1 text-xs text-slate-300 font-mono">
-          <p className="text-teal-400 font-semibold">Available Commands:</p>
-          <p>• <span className="text-white">ping &lt;any_domain&gt;</span> - e.g. <span className="text-teal-300">ping hotels.com</span>, <span className="text-teal-300">ping google.com</span>, <span className="text-teal-300">ping safaricom.co.ke</span></p>
+          <p className="text-teal-400 font-semibold">Available Commands (Case-Insensitive):</p>
+          <p>• <span className="text-white">ping &lt;any_domain&gt;</span> - e.g. <span className="text-teal-300">Ping Hotels.com</span>, <span className="text-teal-300">PING GOOGLE.COM</span>, <span className="text-teal-300">Ping safaricom.co.ke</span></p>
           <p>• <span className="text-white">audit --office-wifi</span> - Run simulated office network health scan</p>
           <p>• <span className="text-white">whoami</span> - Show Peter's credentials and experience</p>
           <p>• <span className="text-white">chat whatsapp</span> - Open direct chat with Peter</p>
           <p>• <span className="text-white">clear</span> - Clear console screen</p>
         </div>
       );
-    } else if (trimmed === "clear") {
+    } else if (lower === "clear") {
       setLogs([]);
       return;
     } else {
       output = (
         <div className="text-xs text-rose-400 font-mono">
-          Command not recognized: "{rawCmd}". Try typing <span className="text-white font-bold">ping hotels.com</span> or <span className="text-white font-bold">help</span>.
+          Command not recognized: "{rawCmd}". Try typing <span className="text-white font-bold">Ping Hotels.com</span> or <span className="text-white font-bold">help</span>.
         </div>
       );
     }
@@ -189,7 +204,7 @@ export const InteractiveTerminal: React.FC = () => {
           </span>
         </div>
         <div className="flex items-center gap-1 text-[10px] text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
-          <Sparkles className="w-3 h-3" />
+          <Sparkles className="w-3.5 h-3.5" />
           <span>Interactive Ping &amp; Diagnostic Tool</span>
         </div>
       </div>
@@ -237,7 +252,7 @@ export const InteractiveTerminal: React.FC = () => {
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type 'ping hotels.com', 'ping google.com', or any website..."
+          placeholder="Type 'Ping Hotels.com', 'PING GOOGLE.COM', or any website..."
           className="flex-1 bg-transparent text-white focus:outline-none text-xs font-mono placeholder:text-muted-foreground/60"
         />
         <button

@@ -304,7 +304,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Submit Quote Request Directly</span>
+                        <span>Submit Quote Request</span>
                       </button>
                     </form>
                   ) : (
@@ -315,7 +315,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                         className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
                       >
                         <Send className="w-4 h-4" />
-                        <span>Send Quote Request from Website</span>
+                        <span>Request Formal Quotation</span>
                       </button>
 
                       <a
@@ -325,7 +325,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow"
                       >
                         <MessageCircle className="w-4 h-4" />
-                        <span>Or Send via WhatsApp</span>
+                        <span>Chat on WhatsApp</span>
                       </a>
                     </div>
                   )}

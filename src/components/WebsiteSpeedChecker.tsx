@@ -563,7 +563,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
                     className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Submit Directly from Web</span>
+                    <span>Submit Request</span>
                   </button>
 
                   <a
@@ -575,7 +575,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
                     className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Open in WhatsApp</span>
+                    <span>Chat on WhatsApp</span>
                   </a>
                 </div>
               </form>
@@ -597,7 +597,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
                     className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Request Revamp on Web</span>
+                    <span>Request Audit Consultation</span>
                   </button>
 
                   <a

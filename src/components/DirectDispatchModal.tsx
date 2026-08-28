@@ -11,7 +11,8 @@ import {
   User, 
   Sparkles,
   MessageCircle,
-  ExternalLink
+  ExternalLink,
+  ShieldCheck
 } from "lucide-react";
 
 interface DirectDispatchModalProps {
@@ -61,13 +62,13 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
     setIsSubmitting(true);
 
-    // Simulate direct dispatch to Peter's phone
+    // Simulate direct message dispatch to Peter's phone
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
       toast({
-        title: "Message Delivered Directly to Peter! 🚀",
-        description: `Thank you, ${name}! Peter has received your request on +254 758 896 553 and will contact ${phone} shortly.`,
+        title: "Message Sent Successfully! 🚀",
+        description: `Thank you, ${name}! Peter has received your request and will contact ${phone} shortly.`,
       });
     }, 600);
   };
@@ -93,13 +94,13 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
         <div className="space-y-1 text-center sm:text-left pr-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Direct On-Site Dispatch</span>
+            <span>Fast Engineer Response</span>
           </div>
           <h3 className="text-2xl font-extrabold font-heading text-foreground">
             Send Message to Peter Kivevo
           </h3>
           <p className="text-xs text-muted-foreground">
-            Delivered directly to Peter's phone (<strong className="text-foreground">{SITE_CONFIG.phoneDisplay}</strong>) without leaving this website.
+            Direct line: <strong className="text-foreground">{SITE_CONFIG.phoneDisplay}</strong> • Average reply within 15 minutes.
           </p>
         </div>
 
@@ -112,13 +113,13 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
             <div className="space-y-1.5 max-w-sm mx-auto">
               <h4 className="font-heading font-extrabold text-xl text-foreground">
-                Message Delivered Directly!
+                Message Sent Successfully!
               </h4>
               <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-                Thank you, <strong>{name}</strong>! Your inquiry for <strong>{service}</strong> has been sent to Peter's direct line (<span className="font-mono">{SITE_CONFIG.phoneDisplay}</span>).
+                Thank you, <strong>{name}</strong>! Your inquiry for <strong>{service}</strong> has been received by Peter Kivevo.
               </p>
               <p className="text-xs text-teal-600 dark:text-teal-400 font-mono pt-1">
-                ⚡ Peter will call or message {phone} in &lt; 15 minutes.
+                ⚡ Peter will call or message {phone} shortly.
               </p>
             </div>
 
@@ -128,7 +129,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                 onClick={handleResetAndClose}
                 className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm"
               >
-                Done (Back to Website)
+                Close
               </button>
             </div>
           </div>
@@ -218,7 +219,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
               />
             </div>
 
-            {/* Direct Submit Action */}
+            {/* Submit Action */}
             <div className="pt-2 space-y-2.5">
               <button
                 type="submit"
@@ -226,11 +227,11 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-sm shadow-md transition-all hover:shadow-glow disabled:opacity-60"
               >
                 <Send className="w-4 h-4" />
-                <span>{isSubmitting ? "Delivering Directly to Peter..." : "Send Message to Peter (Direct On-Site)"}</span>
+                <span>{isSubmitting ? "Sending Request to Peter..." : "Send Message to Peter"}</span>
               </button>
 
               <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-                <span>🔒 Stays on this page • Direct engineer inbox</span>
+                <span>🔒 Direct engineer inbox • Fast response</span>
                 <a
                   href={getWhatsAppUrl(message, service)}
                   target="_blank"
@@ -238,7 +239,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                   className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
                 >
                   <MessageCircle className="w-3 h-3" />
-                  <span>Or open WhatsApp app</span>
+                  <span>Open in WhatsApp</span>
                   <ExternalLink className="w-2.5 h-2.5" />
                 </a>
               </div>

@@ -150,7 +150,7 @@ export const FloatingWhatsApp: React.FC = () => {
                     className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs shadow-sm transition-colors"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Send from Web</span>
+                    <span>Send Message</span>
                   </button>
 
                   <button
