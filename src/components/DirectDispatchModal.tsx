@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { getWhatsAppUrl } from "@/config/site";
 import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
+import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
 import { 
   Send, 
   X, 
@@ -14,7 +15,8 @@ import {
   Sparkles,
   MessageCircle,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  MapPin
 } from "lucide-react";
 
 interface DirectDispatchModalProps {
@@ -35,10 +37,15 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [service, setService] = useState(initialService || siteContent.services[0]?.title || "Computer & IT Support");
+  const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
   const [urgency, setUrgency] = useState("Urgent (Today / Within Hours)");
   const [message, setMessage] = useState(initialMessage || "Hi Peter, I need IT help for my business.");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
+    setLocation(loc.formattedLocation);
+  }, []);
 
   useEffect(() => {
     const load = () => setSiteContent(dataStorage.getSiteContent());
@@ -82,7 +89,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
       phone: phone.trim(),
       service,
       urgency,
-      details: message.trim(),
+      details: `Location: ${location} | Urgency: ${urgency} | Details: ${message.trim()}`,
       status: "new",
       createdAt: new Date().toISOString(),
     };
@@ -230,6 +237,17 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                   <option value="📅 Free Written Quotation">📅 Free Planning / Written Quote</option>
                 </select>
               </div>
+            </div>
+
+            {/* 3-Tier Kenyan Location Selector */}
+            <div className="space-y-1 pt-1">
+              <KenyaLocationPicker
+                initialCounty="Nairobi City"
+                initialConstituency="Westlands"
+                initialWard="Parklands / Highridge"
+                compact={true}
+                onChange={handleLocationChange}
+              />
             </div>
 
             <div className="space-y-1">

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { dataStorage } from "@/services/dataStorage";
+import { dataStorage, InquiryLead } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
+import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
 import { 
   Wifi, 
   CreditCard, 
@@ -32,12 +34,16 @@ interface IssueOption {
 export const InstantIssueWizard: React.FC = () => {
   const { toast } = useToast();
   const [selectedIssue, setSelectedIssue] = useState<string>("wifi");
-  const [location, setLocation] = useState<string>("Nairobi CBD / Westlands / Kilimani");
+  const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
   const [urgency, setUrgency] = useState<string>("Urgent (Today / Within Hours)");
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [showDirectForm, setShowDirectForm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
+    setLocation(loc.formattedLocation);
+  }, []);
 
   const issues: IssueOption[] = [
     {
@@ -98,7 +104,7 @@ export const InstantIssueWizard: React.FC = () => {
 
   const currentIssue = issues.find((i) => i.id === selectedIssue) || issues[0];
 
-  const handleDirectWebSubmit = (e: React.FormEvent) => {
+  const handleDirectWebSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientName.trim() || !clientPhone.trim()) {
       toast({
@@ -109,15 +115,22 @@ export const InstantIssueWizard: React.FC = () => {
       return;
     }
 
-    dataStorage.addInquiry({
+    const lead: InquiryLead = {
+      id: `inq_${Date.now()}`,
       source: "issue_wizard",
       name: clientName.trim(),
       phone: clientPhone.trim(),
       service: currentIssue.title,
       urgency,
-      location,
-      details: `Client chose: ${currentIssue.title} | Location: ${location} | Urgency: ${urgency} | Price estimate: ${currentIssue.priceEstimate}`,
-    });
+      details: `Location: ${location} | Urgency: ${urgency} | Problem: ${currentIssue.title} (${currentIssue.priceEstimate})`,
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+
+    dataStorage.addInquiry(lead);
+
+    // Instant lead email dispatch to Peter
+    await resendService.notifyNewInquiry(lead);
 
     setIsSubmitted(true);
     toast({
@@ -197,38 +210,36 @@ export const InstantIssueWizard: React.FC = () => {
         </div>
       </div>
 
-      {/* Step 2: Location & Urgency */}
-      <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-border/80">
+      {/* Step 2: 3-Tier Kenyan Administrative Location & Urgency */}
+      <div className="space-y-4 pt-2 border-t border-border/80">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-teal-500" />
-            <span>Your Business Location</span>
-          </label>
-          <select
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
-          >
-            <option value="Nairobi CBD / Westlands / Kilimani">Nairobi (CBD, Westlands, Kilimani, Upper Hill)</option>
-            <option value="Nairobi Industrial Area / Mombasa Rd">Nairobi (Industrial Area, Mombasa Rd, Airport)</option>
-            <option value="Nairobi Suburbs (Karen, Gigiri, Runda)">Nairobi Suburbs (Karen, Gigiri, Runda, Thika Rd)</option>
-            <option value="Other Town in Kenya (Remote Support)">Other Town in Kenya (Remote Diagnostic)</option>
-          </select>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-teal-500" />
+              <span>Step 2: Business Location (County &rarr; Constituency &rarr; Ward)</span>
+            </span>
+          </div>
+          <KenyaLocationPicker
+            initialCounty="Nairobi City"
+            initialConstituency="Westlands"
+            initialWard="Parklands / Highridge"
+            onChange={handleLocationChange}
+          />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-teal-500" />
-            <span>How Fast Do You Need This?</span>
+            <span>How Fast Do You Need This? *</span>
           </label>
           <select
             value={urgency}
             onChange={(e) => setUrgency(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/50"
           >
-            <option value="Urgent (Today / Within Hours)">🚨 Emergency (Within 1-3 Hours / Today)</option>
-            <option value="Standard (This Week)">⚡ Standard (This Week)</option>
-            <option value="Free Written Quotation">📅 Free Planning / Written Quotation</option>
+            <option value="Urgent (Today / Within Hours)">🚨 Emergency (Within 1-3 Hours / Same-Day Visit)</option>
+            <option value="Standard (This Week)">⚡ Standard Priority (This Week)</option>
+            <option value="Free Written Quotation">📅 Planning Phase / Free Written Site Survey</option>
           </select>
         </div>
       </div>

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { dataStorage } from "@/services/dataStorage";
+import { dataStorage, InquiryLead } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
+import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
 import { 
   Calculator, 
   Check, 
@@ -11,7 +13,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   FileText,
-  Clock
+  Clock,
+  MapPin
 } from "lucide-react";
 
 interface ScopeOption {
@@ -26,10 +29,15 @@ export const QuickQuoteEstimator: React.FC = () => {
   const { toast } = useToast();
   const [selectedScopes, setSelectedScopes] = useState<string[]>(["wifi_setup"]);
   const [urgencyLabel, setUrgencyLabel] = useState<string>("Standard (This Week)");
+  const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [showDirectForm, setShowDirectForm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
+    setLocation(loc.formattedLocation);
+  }, []);
 
   const scopeCatalog: ScopeOption[] = [
     {
@@ -87,7 +95,7 @@ export const QuickQuoteEstimator: React.FC = () => {
     }
   };
 
-  const handleDirectWebSubmit = (e: React.FormEvent) => {
+  const handleDirectWebSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientPhone.trim()) {
       toast({
@@ -103,19 +111,27 @@ export const QuickQuoteEstimator: React.FC = () => {
       .filter(Boolean)
       .join(", ");
 
-    dataStorage.addInquiry({
+    const lead: InquiryLead = {
+      id: `inq_${Date.now()}`,
       source: "quote_estimator",
       name: clientName.trim() || "Website Visitor",
       phone: clientPhone.trim(),
       service: `Custom Scope: ${selectedNames}`,
       urgency: urgencyLabel,
-      details: `Selected Scope: ${selectedNames} | Timeline: ${urgencyLabel}`,
-    });
+      details: `Selected Scope: ${selectedNames} | Timeline: ${urgencyLabel} | Location: ${location}`,
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+
+    dataStorage.addInquiry(lead);
+
+    // Instant lead email alert to Peter
+    await resendService.notifyNewInquiry(lead);
 
     setIsSubmitted(true);
     toast({
       title: "Scope Request Received! 🚀",
-      description: `Thank you! Peter has received your customized project scope and will contact ${clientPhone} right away.`,
+      description: `Thank you! Peter has received your customized project scope for ${location} and will contact ${clientPhone} right away.`,
     });
   };
 
@@ -125,7 +141,7 @@ export const QuickQuoteEstimator: React.FC = () => {
       .filter(Boolean)
       .join("\n• ");
 
-    return `Hi Peter,\n\nI selected my project requirements on your website:\n\nServices Needed:\n• ${selectedNames}\n\nTimeline: ${urgencyLabel}\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nCould you review these requirements and provide a custom proposal / quote?`;
+    return `Hi Peter,\n\nI selected my project requirements on your website:\n\nServices Needed:\n• ${selectedNames}\n\nLocation: *${location}*\nTimeline: *${urgencyLabel}*\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nCould you review these requirements and provide a custom proposal / quote?`;
   };
 
   return (
@@ -221,6 +237,22 @@ export const QuickQuoteEstimator: React.FC = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 3-Tier Kenyan Location Selector */}
+            <div className="rounded-3xl bg-card dark:bg-navy-900 border border-border/90 p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-heading font-bold text-sm text-foreground flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-teal-500" />
+                  <span>Office / Site Location (County &rarr; Constituency &rarr; Ward):</span>
+                </label>
+              </div>
+              <KenyaLocationPicker
+                initialCounty="Nairobi City"
+                initialConstituency="Westlands"
+                initialWard="Parklands / Highridge"
+                onChange={handleLocationChange}
+              />
             </div>
           </div>
 

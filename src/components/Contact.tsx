@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { SocialLinks } from "@/components/SocialLinks";
 import { getWhatsAppUrl } from "@/config/site";
 import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
+import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
 import { 
   Phone, 
   Mail, 
@@ -19,6 +20,11 @@ import { ProfilePhoto } from "@/components/ProfilePhoto";
 export const Contact: React.FC = () => {
   const { toast } = useToast();
   const [siteContent, setSiteContent] = useState(dataStorage.getSiteContent());
+  const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
+
+  const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
+    setLocation(loc.formattedLocation);
+  }, []);
 
   useEffect(() => {
     const load = () => setSiteContent(dataStorage.getSiteContent());
@@ -56,7 +62,7 @@ export const Contact: React.FC = () => {
   };
 
   const generateWhatsAppMessage = () => {
-    return `Hi Peter,\n\nMy name is ${formData.name || "[Client]"}.\nService Needed: ${formData.service}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
+    return `Hi Peter,\n\nMy name is ${formData.name || "[Client]"}.\nService Needed: ${formData.service}\nLocation: ${location}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
   };
 
   const handleSendViaWhatsApp = (e: React.FormEvent) => {
@@ -78,7 +84,7 @@ export const Contact: React.FC = () => {
       phone: formData.phone.trim(),
       service: formData.service,
       urgency: formData.urgency,
-      details: formData.message.trim(),
+      details: `Location: ${location} | Urgency: ${formData.urgency} | Details: ${formData.message.trim()}`,
       status: "new",
       createdAt: new Date().toISOString(),
     };
@@ -127,7 +133,7 @@ export const Contact: React.FC = () => {
       phone: formData.phone.trim(),
       service: formData.service,
       urgency: formData.urgency,
-      details: `${formData.message.trim()}${formData.email ? ` (Email: ${formData.email.trim()})` : ""}`,
+      details: `Location: ${location} | Urgency: ${formData.urgency} | Details: ${formData.message.trim()}${formData.email ? ` (Email: ${formData.email.trim()})` : ""}`,
       status: "new",
       createdAt: new Date().toISOString(),
     };
@@ -353,6 +359,16 @@ export const Contact: React.FC = () => {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* 3-Tier Kenyan Location Selector (County -> Constituency -> Ward) */}
+                <div className="space-y-1.5 pt-1">
+                  <KenyaLocationPicker
+                    initialCounty="Nairobi City"
+                    initialConstituency="Westlands"
+                    initialWard="Parklands / Highridge"
+                    onChange={handleLocationChange}
+                  />
                 </div>
 
                 <div className="space-y-1.5">
