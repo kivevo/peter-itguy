@@ -41,8 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     <p><strong>Message:</strong> ${message || "No text provided."}</p>
   `;
 
-  try {
-    const data = await resend.emails.send({
+    const result = await resend.emails.send({
       from: senderFrom,
       to: Array.isArray(recipientTo) ? recipientTo : [recipientTo],
       subject: emailSubject,
@@ -51,10 +50,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       replyTo: replyTo || (email ? email : undefined),
     });
 
-    return res.status(200).json({ success: true, data });
+    if (result.error) {
+      const errMsg = result.error.message || "Failed to send email via Resend.";
+      console.error("Resend API rejected email:", errMsg);
+      return res.status(400).json({ success: false, error: errMsg });
+    }
+
+    return res.status(200).json({ success: true, id: result.data?.id, data: result.data });
   } catch (error: unknown) {
     const errMessage = error instanceof Error ? error.message : String(error);
-    console.error("Resend email error:", errMessage);
+    console.error("Resend server error:", errMessage);
     return res.status(500).json({ success: false, error: errMessage });
   }
 }
