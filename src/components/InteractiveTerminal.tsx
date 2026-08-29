@@ -212,7 +212,7 @@ export const InteractiveTerminal: React.FC = () => {
       {/* Output Console Log Area */}
       <div 
         ref={logContainerRef}
-        className="p-4 sm:p-5 h-72 sm:h-80 overflow-y-auto space-y-3.5 scrollbar-thin scrollbar-thumb-teal-500/20"
+        className="p-4 sm:p-5 h-72 sm:h-80 overflow-y-auto space-y-3.5 no-scrollbar"
       >
         {logs.map((log) => (
           <div key={log.id} className="space-y-1 animate-in fade-in duration-200">
