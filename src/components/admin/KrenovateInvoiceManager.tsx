@@ -53,7 +53,9 @@ import {
   Wand2,
   Mail,
   X,
-  Loader2
+  Loader2,
+  RotateCcw,
+  AlertTriangle
 } from "lucide-react";
 
 interface KrenovateInvoiceManagerProps {
@@ -69,11 +71,12 @@ interface KrenovateInvoiceManagerProps {
 export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = ({ initialLead }) => {
   const { toast } = useToast();
 
-  // Sub-view: "list" | "editor" | "preview" | "settings" | "clients"
-  const [subView, setSubView] = useState<"list" | "editor" | "preview" | "settings" | "clients">("list");
+  // Sub-view: "list" | "editor" | "preview" | "settings" | "clients" | "bin"
+  const [subView, setSubView] = useState<"list" | "editor" | "preview" | "settings" | "clients" | "bin">("list");
   
   // Data state
   const [invoices, setInvoices] = useState<InvoiceDocument[]>([]);
+  const [deletedInvoices, setDeletedInvoices] = useState<InvoiceDocument[]>([]);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>(dataStorage.getCompanyProfile());
   const [clients, setClients] = useState<SavedClient[]>([]);
   const [inquiries, setInquiries] = useState<InquiryLead[]>([]);
@@ -90,6 +93,15 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  // Delete-confirm modal state
+  const [deleteTarget, setDeleteTarget] = useState<InvoiceDocument | null>(null);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+  const [isPermanentDelete, setIsPermanentDelete] = useState(false);
+
+  // Client delete confirm state
+  const [clientDeleteTarget, setClientDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [clientDeleteInput, setClientDeleteInput] = useState("");
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +132,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   useEffect(() => {
     const loadAll = () => {
       setInvoices(dataStorage.getInvoices());
+      setDeletedInvoices(dataStorage.getDeletedInvoices());
       setCompanyProfile(dataStorage.getCompanyProfile());
       setClients(dataStorage.getClients());
       setInquiries(dataStorage.getInquiries());
@@ -479,19 +492,53 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
   };
 
-  // Delete document
-  const handleDeleteDoc = (id: string, docNumber: string) => {
-    if (window.confirm(`Are you sure you want to delete ${docNumber}?`)) {
-      dataStorage.deleteInvoice(id);
-      toast({
-        title: "Document Deleted",
-        description: `${docNumber} has been removed.`,
-      });
-      if (currentDoc?.id === id) {
+  // Move document to recycle bin (soft delete) — opens confirmation modal
+  const handleDeleteDoc = (doc: InvoiceDocument) => {
+    setDeleteTarget(doc);
+    setIsPermanentDelete(false);
+    setDeleteConfirmInput("");
+  };
+
+  // Permanently delete from recycle bin — opens second confirmation modal
+  const handlePermanentDeleteDoc = (doc: InvoiceDocument) => {
+    setDeleteTarget(doc);
+    setIsPermanentDelete(true);
+    setDeleteConfirmInput("");
+  };
+
+  // Execute confirmed delete action
+  const executeDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    if (deleteConfirmInput.trim() !== deleteTarget.docNumber) {
+      toast({ title: "Document number doesn't match", description: "Type the exact document number to confirm.", variant: "destructive" });
+      return;
+    }
+    if (isPermanentDelete) {
+      dataStorage.permanentDeleteInvoice(deleteTarget.id);
+      toast({ title: "🗑️ Permanently Deleted", description: `${deleteTarget.docNumber} has been erased permanently.` });
+    } else {
+      dataStorage.softDeleteInvoice(deleteTarget.id);
+      toast({ title: "📦 Moved to Recycle Bin", description: `${deleteTarget.docNumber} moved to bin. You can restore it any time.` });
+      if (currentDoc?.id === deleteTarget.id) {
         setCurrentDoc(null);
         setSubView("list");
       }
     }
+    setDeletedInvoices(dataStorage.getDeletedInvoices());
+    setInvoices(dataStorage.getInvoices());
+    setDeleteTarget(null);
+    setDeleteConfirmInput("");
+  };
+
+  // Restore document from recycle bin
+  const handleRestoreDoc = (id: string, docNumber: string) => {
+    dataStorage.restoreInvoice(id);
+    toast({
+      title: "Document Restored! ♻️",
+      description: `${docNumber} has been restored to your active documents.`,
+    });
+    setDeletedInvoices(dataStorage.getDeletedInvoices());
+    setInvoices(dataStorage.getInvoices());
   };
 
   // Save Company Profile Settings
@@ -575,15 +622,22 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     });
   };
 
-  // Delete saved client
+  // Delete saved client — opens modal
   const handleDeleteClient = (id: string, name: string) => {
-    if (window.confirm(`Delete client record for ${name}?`)) {
-      dataStorage.deleteClient(id);
-      toast({
-        title: "Client Removed",
-        description: "Client contact removed from directory.",
-      });
+    setClientDeleteTarget({ id, name });
+    setClientDeleteInput("");
+  };
+
+  const executeClientDelete = () => {
+    if (!clientDeleteTarget) return;
+    if (clientDeleteInput.trim().toLowerCase() !== clientDeleteTarget.name.toLowerCase()) {
+      toast({ title: "Name doesn't match", description: "Type the exact client name to confirm deletion.", variant: "destructive" });
+      return;
     }
+    dataStorage.deleteClient(clientDeleteTarget.id);
+    toast({ title: "Client Removed", description: "Client contact removed from directory." });
+    setClientDeleteTarget(null);
+    setClientDeleteInput("");
   };
 
   // WhatsApp Message Generator for Invoices / Quotes
@@ -733,6 +787,25 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               <Settings className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Company Branding</span>
               <span className="sm:hidden">Settings</span>
+            </span>
+          </button>
+
+          <button
+            onClick={() => setSubView("bin")}
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              subView === "bin"
+                ? "bg-rose-600/80 text-white shadow-md"
+                : "bg-navy-900 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Recycle Bin</span>
+              {deletedInvoices.length > 0 && (
+                <span className={`text-[10px] font-mono px-1.5 rounded-full font-bold ${subView === "bin" ? "bg-white/20 text-white" : "bg-rose-500/20 text-rose-300"}`}>
+                  {deletedInvoices.length}
+                </span>
+              )}
             </span>
           </button>
 
@@ -1076,11 +1149,11 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                                 <MessageCircle className="w-3.5 h-3.5" />
                               </a>
 
-                              {/* Delete */}
+                              {/* Move to Bin */}
                               <button
-                                onClick={() => handleDeleteDoc(doc.id, doc.docNumber)}
-                                title="Delete Document"
-                                className="p-1.5 rounded-lg bg-navy-950 text-rose-400 hover:bg-rose-500/20 border border-border"
+                                onClick={() => handleDeleteDoc(doc)}
+                                title="Move to Recycle Bin"
+                                className="p-1.5 rounded-lg bg-navy-950 text-rose-400 hover:bg-rose-500/20 border border-border transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -2420,11 +2493,135 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       )}
 
       {/* ========================================================================= */}
+      {/* 5. RECYCLE BIN VIEW                                                       */}
+      {/* ========================================================================= */}
+      {subView === "bin" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Header Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-navy-900 border border-rose-500/30">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSubView("list")}
+                className="p-2 rounded-xl bg-navy-950 text-slate-400 hover:text-white border border-border"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <div>
+                <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
+                  <Trash2 className="w-4 h-4 text-rose-400" />
+                  <span>Recycle Bin</span>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    {deletedInvoices.length} {deletedInvoices.length === 1 ? "document" : "documents"}
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Documents remain safely here until restored or permanently erased.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSubView("list")}
+              className="px-4 py-2 rounded-xl bg-navy-950 text-slate-300 hover:text-white border border-border text-xs font-bold transition-all"
+            >
+              Back to Active Documents
+            </button>
+          </div>
+
+          {deletedInvoices.length === 0 ? (
+            <div className="p-12 text-center rounded-3xl bg-navy-900 border border-border/80 space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-navy-950 border border-border/80 flex items-center justify-center mx-auto text-slate-500">
+                <Trash2 className="w-6 h-6 text-slate-400" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-heading font-bold text-base text-white">Recycle Bin is Empty</h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  When you delete a quotation or invoice, it will be moved here for safe recovery before any permanent removal.
+                </p>
+              </div>
+              <button
+                onClick={() => setSubView("list")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all"
+              >
+                <span>View Active Documents</span>
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-3xl bg-navy-900 border border-border overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-navy-950/80 text-slate-400 uppercase font-mono text-[10px] tracking-wider border-b border-border">
+                    <tr>
+                      <th className="py-3.5 px-4">Document</th>
+                      <th className="py-3.5 px-4">Client / Company</th>
+                      <th className="py-3.5 px-4">Deleted On</th>
+                      <th className="py-3.5 px-4 text-right">Amount</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {deletedInvoices.map((doc) => {
+                      const totals = calculateDocTotals(doc);
+                      return (
+                        <tr key={doc.id} className="hover:bg-navy-800/40 transition-colors">
+                          <td className="py-4 px-4 font-mono font-bold text-white">
+                            <div className="flex items-center gap-2">
+                              <span>{doc.docNumber}</span>
+                              <span className="text-[10px] uppercase px-1.5 py-0.5 rounded font-mono bg-navy-950 text-slate-400 border border-border">
+                                {doc.docType}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="font-bold text-white block">{doc.client.company || doc.client.name}</span>
+                            <span className="text-[11px] text-slate-400 block">{doc.client.name}</span>
+                          </td>
+                          <td className="py-4 px-4 font-mono text-slate-400">
+                            {doc.deletedAt ? new Date(doc.deletedAt).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recently"}
+                          </td>
+                          <td className="py-4 px-4 text-right font-mono font-bold text-slate-300">
+                            {doc.currency} {totals.grandTotal.toLocaleString()}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {/* Restore Button */}
+                              <button
+                                onClick={() => handleRestoreDoc(doc.id, doc.docNumber)}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 text-xs font-bold transition-all flex items-center gap-1.5"
+                                title="Restore to active documents"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>Restore</span>
+                              </button>
+
+                              {/* Permanent Delete Button */}
+                              <button
+                                onClick={() => handlePermanentDeleteDoc(doc)}
+                                className="px-3 py-1.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-500/20 text-xs font-bold transition-all flex items-center gap-1.5"
+                                title="Erase permanently (irreversible)"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Erase</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* CLIENT MODAL                                                              */}
       {/* ========================================================================= */}
       {showClientModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-teal-500/30 p-6 space-y-4 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-teal-500/30 p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
             <h3 className="font-heading font-bold text-base text-white">
               Add New Client to Directory
             </h3>
@@ -2517,6 +2714,157 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* NAME-CONFIRM DELETE DOCUMENT MODAL (Recycle Bin / Permanent)              */}
+      {/* ========================================================================= */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-rose-500/40 p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-base text-white">
+                  {isPermanentDelete ? "Permanently Erase Document?" : "Move Document to Recycle Bin?"}
+                </h3>
+                <p className="text-xs text-slate-400 font-mono">
+                  {deleteTarget.docNumber}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-navy-950 border border-border/80 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Client:</span>
+                <span className="font-bold text-white">{deleteTarget.client.company || deleteTarget.client.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Total Value:</span>
+                <span className="font-mono font-bold text-teal-400">
+                  {deleteTarget.currency} {calculateDocTotals(deleteTarget).grandTotal.toLocaleString()}
+                </span>
+              </div>
+              <p className="pt-2 border-t border-border text-slate-400 leading-relaxed">
+                {isPermanentDelete ? (
+                  <span className="text-rose-300 font-semibold">
+                    ⚠️ Irreversible Action: This document will be completely deleted from system storage and cannot be recovered.
+                  </span>
+                ) : (
+                  <span>
+                    📦 Safe Action: This document will be moved to the <strong>Recycle Bin</strong> where you can restore it anytime.
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* Confirmation input */}
+            <div className="space-y-2">
+              <label className="text-xs text-slate-300 block">
+                To confirm, type the exact document number:{" "}
+                <strong className="text-rose-400 font-mono select-all bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                  {deleteTarget.docNumber}
+                </strong>
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={deleteConfirmInput}
+                onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && deleteConfirmInput.trim() === deleteTarget.docNumber && executeDeleteConfirm()}
+                placeholder={`Type "${deleteTarget.docNumber}"`}
+                className="w-full px-4 py-2.5 text-xs rounded-xl bg-navy-950 border border-rose-500/40 text-white font-mono placeholder-slate-600 focus:ring-2 focus:ring-rose-500/50 outline-none"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeleteConfirmInput("");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 text-xs font-semibold border border-border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteConfirmInput.trim() !== deleteTarget.docNumber}
+                onClick={executeDeleteConfirm}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isPermanentDelete ? "Permanently Erase" : "Move to Recycle Bin"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* NAME-CONFIRM DELETE CLIENT MODAL                                          */}
+      {/* ========================================================================= */}
+      {clientDeleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-rose-500/40 p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-base text-white">
+                  Remove Client from Directory?
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {clientDeleteTarget.name}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs text-slate-300 block">
+                To confirm deletion, type the client's name:{" "}
+                <strong className="text-rose-400 select-all bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                  {clientDeleteTarget.name}
+                </strong>
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={clientDeleteInput}
+                onChange={(e) => setClientDeleteInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && clientDeleteInput.trim().toLowerCase() === clientDeleteTarget.name.toLowerCase() && executeClientDelete()}
+                placeholder={`Type "${clientDeleteTarget.name}"`}
+                className="w-full px-4 py-2.5 text-xs rounded-xl bg-navy-950 border border-rose-500/40 text-white placeholder-slate-600 focus:ring-2 focus:ring-rose-500/50 outline-none"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setClientDeleteTarget(null);
+                  setClientDeleteInput("");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 text-xs font-semibold border border-border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={clientDeleteInput.trim().toLowerCase() !== clientDeleteTarget.name.toLowerCase()}
+                onClick={executeClientDelete}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Client Record</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -136,6 +136,7 @@ export interface InvoiceDocument {
   notes: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string; // ISO string when soft-deleted; undefined = active
 }
 
 export interface SubscriberItem {
@@ -750,9 +751,21 @@ class DataStorageService {
         localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(INITIAL_INVOICES));
         return INITIAL_INVOICES;
       }
-      return JSON.parse(stored);
+      // Only return non-deleted documents
+      return (JSON.parse(stored) as InvoiceDocument[]).filter((inv) => !inv.deletedAt);
     } catch {
       return INITIAL_INVOICES;
+    }
+  }
+
+  /** Returns only soft-deleted documents (recycle bin) */
+  public getDeletedInvoices(): InvoiceDocument[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      if (!stored) return [];
+      return (JSON.parse(stored) as InvoiceDocument[]).filter((inv) => Boolean(inv.deletedAt));
+    } catch {
+      return [];
     }
   }
 
@@ -789,10 +802,49 @@ class DataStorageService {
     }
   }
 
+  /** Soft-delete: moves to recycle bin (sets deletedAt timestamp) */
+  public softDeleteInvoice(id: string) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      const all: InvoiceDocument[] = stored ? JSON.parse(stored) : [];
+      const updated = all.map((inv) =>
+        inv.id === id ? { ...inv, deletedAt: new Date().toISOString(), updatedAt: new Date().toISOString() } : inv
+      );
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
+      this.notify();
+    } catch { /* silent */ }
+  }
+
+  /** Restore from recycle bin */
+  public restoreInvoice(id: string) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      const all: InvoiceDocument[] = stored ? JSON.parse(stored) : [];
+      const updated = all.map((inv) => {
+        if (inv.id === id) {
+          const { deletedAt: _removed, ...rest } = inv;
+          return { ...rest, updatedAt: new Date().toISOString() };
+        }
+        return inv;
+      });
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
+      this.notify();
+    } catch { /* silent */ }
+  }
+
+  /** Permanently erase from storage — no recovery */
+  public permanentDeleteInvoice(id: string) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      const all: InvoiceDocument[] = stored ? JSON.parse(stored) : [];
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all.filter((inv) => inv.id !== id)));
+      this.notify();
+    } catch { /* silent */ }
+  }
+
+  /** @deprecated Use softDeleteInvoice instead */
   public deleteInvoice(id: string) {
-    const all = this.getInvoices().filter((inv) => inv.id !== id);
-    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
-    this.notify();
+    this.softDeleteInvoice(id);
   }
 
   public duplicateInvoice(id: string): InvoiceDocument | undefined {
