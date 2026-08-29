@@ -41,6 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     <p><strong>Message:</strong> ${message || "No text provided."}</p>
   `;
 
+  try {
     const result = await resend.emails.send({
       from: senderFrom,
       to: Array.isArray(recipientTo) ? recipientTo : [recipientTo],
