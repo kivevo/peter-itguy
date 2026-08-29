@@ -1,8 +1,17 @@
-import React from "react";
-import { CLIENT_PARTNERS } from "@/config/site";
+import React, { useState, useEffect } from "react";
+import { dataStorage } from "@/services/dataStorage";
 import { Building2, ExternalLink, ShieldCheck } from "lucide-react";
 
 export const ClientLogoStrip: React.FC = () => {
+  const [partners, setPartners] = useState(dataStorage.getSiteContent().partners);
+
+  useEffect(() => {
+    const load = () => setPartners(dataStorage.getSiteContent().partners);
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
+
   return (
     <section className="py-10 bg-muted/40 dark:bg-navy-950/70 border-y border-border/70 select-none">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +29,7 @@ export const ClientLogoStrip: React.FC = () => {
 
         {/* Responsive Client Badges Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {CLIENT_PARTNERS.map((partner) => (
+          {partners.map((partner) => (
             <div
               key={partner.name}
               className="p-3.5 rounded-2xl bg-card dark:bg-navy-900 border border-border/80 flex flex-col justify-between hover:border-teal-500/50 transition-all duration-200 shadow-sm group"

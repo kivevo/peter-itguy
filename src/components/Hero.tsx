@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { SITE_CONFIG, getWhatsAppUrl } from "@/config/site";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
+import DigitalContactCardModal from "@/components/DigitalContactCardModal";
 import { 
   MessageCircle, 
   ArrowRight, 
@@ -12,7 +14,7 @@ import {
   Globe2, 
   CheckCircle2, 
   Clock, 
-  FileText
+  QrCode
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
@@ -30,6 +32,15 @@ export const Hero: React.FC = () => {
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeNode, setActiveNode] = useState<string>("gateway");
+  const [siteInfo, setSiteInfo] = useState(dataStorage.getSiteContent().siteInfo);
+  const [contactCardOpen, setContactCardOpen] = useState(false);
+
+  useEffect(() => {
+    const load = () => setSiteInfo(dataStorage.getSiteContent().siteInfo);
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const currentPhrase = SERVICE_PHRASES[phraseIndex];
@@ -61,6 +72,7 @@ export const Hero: React.FC = () => {
   ];
 
   return (
+    <>
     <section
       id="home"
       className="relative min-h-[92vh] pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
@@ -131,20 +143,16 @@ export const Hero: React.FC = () => {
                 <span>Message Peter on WhatsApp</span>
               </a>
 
-              {/* Download Profile One-Pager */}
-              <a
-                href="/Peter_Kivevo_IT_Profile.pdf"
-                download="Peter_Kivevo_IT_Consultant_Profile.pdf"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.print();
-                }}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm sm:text-base transition-all duration-200 hover:-translate-y-0.5"
-                title="Download Executive Profile / CV (PDF)"
+              {/* Save Digital Contact Card (QR / vCard) */}
+              <button
+                type="button"
+                onClick={() => setContactCardOpen(true)}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm sm:text-base transition-all duration-200 hover:-translate-y-0.5 group"
+                title="Save Peter's contact to your phone"
               >
-                <FileText className="w-4 h-4 text-teal-500" />
-                <span>Print Profile / CV</span>
-              </a>
+                <QrCode className="w-4 h-4 text-teal-500 group-hover:scale-110 transition-transform" />
+                <span>Save My Contact Card</span>
+              </button>
             </div>
 
             {/* Quick Proof Signals Strip */}
@@ -261,6 +269,12 @@ export const Hero: React.FC = () => {
         </div>
       </div>
     </section>
+
+    <DigitalContactCardModal
+      isOpen={contactCardOpen}
+      onClose={() => setContactCardOpen(false)}
+    />
+  </>
   );
 };
 export default Hero;

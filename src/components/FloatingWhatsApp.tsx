@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { getWhatsAppUrl, SITE_CONFIG } from "@/config/site";
-import { dataStorage } from "@/services/dataStorage";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage, InquiryLead } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
-import { MessageCircle, X, Send, CheckCircle2, Phone } from "lucide-react";
+import { MessageCircle, X, Send, CheckCircle2, Phone, Sparkles } from "lucide-react";
 
 export const FloatingWhatsApp: React.FC = () => {
   const { toast } = useToast();
@@ -37,18 +38,26 @@ export const FloatingWhatsApp: React.FC = () => {
       return;
     }
 
-    dataStorage.addInquiry({
+    const lead: InquiryLead = {
+      id: `inq_${Date.now()}`,
       source: "floating_chat",
       name: senderName.trim() || "Chat Visitor",
       phone: senderPhone.trim(),
       service: "Quick Help Inquiry",
       details: customMsg.trim() || "General IT / website inquiry via floating chat widget",
-    });
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+
+    dataStorage.addInquiry(lead);
+
+    // Send immediate email alert to Peter via Resend
+    resendService.notifyNewInquiry(lead);
 
     setIsSentDirectly(true);
     toast({
-      title: "Message Sent to Peter! 🚀",
-      description: `Thank you! Peter has received your message and will call or WhatsApp ${senderPhone} shortly.`,
+      title: "Message Dispatched to Peter! 🚀",
+      description: `Peter has been alerted via email and will call or WhatsApp ${senderPhone} shortly.`,
     });
 
     setTimeout(() => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { SERVICES, getWhatsAppUrl } from "@/config/site";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { 
   Headphones, 
   ShieldCheck, 
@@ -16,17 +17,31 @@ import {
 
 export const Services: React.FC = () => {
   const location = useLocation();
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES[0].id);
+  const [services, setServices] = useState(dataStorage.getSiteServices());
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(services[0]?.id || "it-support");
+
+  useEffect(() => {
+    const load = () => {
+      const current = dataStorage.getSiteServices();
+      setServices(current);
+      if (!current.some((s) => s.id === selectedServiceId) && current[0]) {
+        setSelectedServiceId(current[0].id);
+      }
+    };
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, [selectedServiceId]);
 
   useEffect(() => {
     if (location.hash) {
       const targetId = location.hash.replace("#", "");
-      const found = SERVICES.find((s) => s.id === targetId);
+      const found = services.find((s) => s.id === targetId);
       if (found) {
         setSelectedServiceId(found.id);
       }
     }
-  }, [location.hash]);
+  }, [location.hash, services]);
 
   const iconMap: Record<string, React.ElementType> = {
     Headphones,
@@ -35,8 +50,19 @@ export const Services: React.FC = () => {
     Cpu,
   };
 
-  const selectedService = SERVICES.find((s) => s.id === selectedServiceId) || SERVICES[0];
-  const SelectedIcon = iconMap[selectedService.iconName] || Headphones;
+  const selectedService = services.find((s) => s.id === selectedServiceId) || services[0] || {
+    id: "default",
+    title: "IT Support",
+    shortDesc: "Fast IT help.",
+    fullDesc: "Support for offices.",
+    iconName: "ShieldCheck",
+    badge: "Fast Support",
+    whatsIncluded: [],
+    whoItsFor: "",
+    typicalTurnaround: "",
+    miniCaseStudy: { client: "", challenge: "", result: "" },
+  };
+  const SelectedIcon = iconMap[selectedService.iconName] || ShieldCheck;
 
   return (
     <section id="services" className="py-20 lg:py-28 bg-background dark:bg-navy-950 relative">
@@ -58,7 +84,7 @@ export const Services: React.FC = () => {
 
         {/* Service Selector Tabs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {SERVICES.map((service) => {
+          {services.map((service) => {
             const Icon = iconMap[service.iconName] || Headphones;
             const isSelected = service.id === selectedServiceId;
 

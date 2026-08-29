@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { dataStorage } from "@/services/dataStorage";
+import { dataStorage, ReviewItem } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Star, 
@@ -39,7 +40,7 @@ export const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !company.trim() || !content.trim()) {
       toast({
@@ -59,7 +60,8 @@ export const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
       .substring(0, 2)
       .toUpperCase() || "CL";
 
-    dataStorage.addReview({
+    const newRev: ReviewItem = {
+      id: `rev_${Date.now()}`,
       name: name.trim(),
       role: role.trim() || "Client / Partner",
       company: company.trim(),
@@ -68,18 +70,22 @@ export const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
       rating,
       highlight: highlight.trim() || "Fast & Reliable IT Resolution",
       content: content.trim(),
-      status: "approved", // Published immediately
-    });
+      status: "approved",
+      createdAt: new Date().toISOString(),
+    };
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      toast({
-        title: "Review Published! ⭐⭐⭐⭐⭐",
-        description: `Thank you, ${name}! Your review has been added to Peter's verified client showcase.`,
-      });
-      if (onSuccess) onSuccess();
-    }, 500);
+    dataStorage.addReview(newRev);
+
+    // Send immediate email alert to Peter via Resend
+    await resendService.notifyNewReview(newRev);
+
+    setIsSubmitting(false);
+    setIsSuccess(true);
+    toast({
+      title: "Review Published! ⭐⭐⭐⭐⭐",
+      description: `Thank you, ${name}! Your review has been added to Peter's verified client showcase.`,
+    });
+    if (onSuccess) onSuccess();
   };
 
   const handleClose = () => {

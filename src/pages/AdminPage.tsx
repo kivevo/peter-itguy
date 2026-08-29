@@ -14,6 +14,8 @@ import {
   TrafficStats 
 } from "@/services/activityTracker";
 import { KrenovateInvoiceManager } from "@/components/admin/KrenovateInvoiceManager";
+import { SiteContentManager } from "@/components/admin/SiteContentManager";
+import { ResendBroadcastManager } from "@/components/admin/ResendBroadcastManager";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -37,6 +39,7 @@ import {
   Printer,
   Radio,
   KeyRound,
+  Mail,
   TrendingUp,
   MapPin,
   Sparkles,
@@ -71,13 +74,14 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "inquiries" | "jobs" | "invoice" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [inquiries, setInquiries] = useState<InquiryLead[]>([]);
   const [jobs, setJobs] = useState<JobScheduleItem[]>([]);
+  const [subscribers, setSubscribers] = useState(dataStorage.getSubscribers());
   const [bannerConfig, setBannerConfig] = useState<SiteBannerConfig>(dataStorage.getBannerConfig());
   const [supabaseSettings, setSupabaseSettings] = useState<SupabaseSettings>(dataStorage.getSupabaseSettings());
   
@@ -154,6 +158,7 @@ export const AdminPage: React.FC = () => {
       setReviews(dataStorage.getReviews());
       setInquiries(dataStorage.getInquiries());
       setJobs(dataStorage.getJobs());
+      setSubscribers(dataStorage.getSubscribers());
       setBannerConfig(dataStorage.getBannerConfig());
       setSupabaseSettings(dataStorage.getSupabaseSettings());
       setActivityLog(activityTracker.getActivityLog());
@@ -566,11 +571,13 @@ export const AdminPage: React.FC = () => {
         { id: "inquiries" as const, label: "Customer Leads CRM", icon: MessageSquare, count: inquiries.filter((i) => i.status === "new").length },
         { id: "jobs" as const, label: "On-Site Job Dispatch", icon: Calendar, count: jobs.filter((j) => j.status === "scheduled").length },
         { id: "invoice" as const, label: "Krenovate Invoices & Quotes", icon: FileText, count: null },
+        { id: "broadcast" as const, label: "Email Broadcasts & Resend", icon: Mail, count: `${subscribers.filter(s => s.status === 'subscribed').length} SUBS` },
       ],
     },
     {
       group: "CONTENT & REPUTATION",
       items: [
+        { id: "cms" as const, label: "Website Content CMS", icon: Globe, count: "ALL PAGES" },
         { id: "reviews" as const, label: "Testimonials", icon: Star, count: reviews.length },
         { id: "banner" as const, label: "Live Site Banner", icon: Radio, count: bannerConfig.enabled ? "ON" : "OFF" },
       ],
@@ -724,6 +731,8 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
                 {activeTab === "jobs" && "On-Site Dispatch & Appointment Calendar"}
                 {activeTab === "invoice" && "Official Quotation & Invoice Generator"}
+                {activeTab === "cms" && "Website Content & CMS Studio (Live Edit)"}
+                {activeTab === "broadcast" && "Resend Email Notifications & Subscriber Broadcast Studio"}
                 {activeTab === "reviews" && "Verified Client Reviews & Testimonials"}
                 {activeTab === "banner" && "Live Website Emergency Notice Bar"}
                 {activeTab === "database" && "Supabase Cloud Database Synchronization"}
@@ -1521,7 +1530,17 @@ export const AdminPage: React.FC = () => {
             <KrenovateInvoiceManager initialLead={leadForQuote} />
           )}
 
-          {/* TAB 5: ⭐ REVIEWS MODERATION */}
+          {/* TAB 5: 🌐 WEBSITE CONTENT CMS STUDIO */}
+          {activeTab === "cms" && (
+            <SiteContentManager />
+          )}
+
+          {/* TAB 6: ✉️ RESEND EMAIL NOTIFICATIONS & SUBSCRIBER BROADCASTS */}
+          {activeTab === "broadcast" && (
+            <ResendBroadcastManager />
+          )}
+
+          {/* TAB 7: ⭐ REVIEWS MODERATION */}
           {activeTab === "reviews" && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

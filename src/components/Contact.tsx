@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SocialLinks } from "@/components/SocialLinks";
-import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage, InquiryLead } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Phone, 
@@ -9,17 +11,30 @@ import {
   Send, 
   MessageCircle, 
   CheckCircle2,
-  Clock
+  Clock,
+  Sparkles
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
 export const Contact: React.FC = () => {
   const { toast } = useToast();
+  const [siteContent, setSiteContent] = useState(dataStorage.getSiteContent());
+
+  useEffect(() => {
+    const load = () => setSiteContent(dataStorage.getSiteContent());
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
+
+  const siteInfo = siteContent.siteInfo;
+  const services = siteContent.services;
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
-    service: SERVICES[0].title,
+    service: services[0]?.title || "Computer & IT Support",
     urgency: "Standard (This Week)",
     message: "",
   });
@@ -41,37 +56,113 @@ export const Contact: React.FC = () => {
   };
 
   const generateWhatsAppMessage = () => {
-    return `Hi Peter,\n\nMy name is ${formData.name || "[Your Name]"}.\nService Needed: ${formData.service}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
+    return `Hi Peter,\n\nMy name is ${formData.name || "[Client]"}.\nService Needed: ${formData.service}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
   };
 
   const handleSendViaWhatsApp = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.phone.trim()) {
+      toast({
+        title: "Name & Phone Required",
+        description: "Please fill in your name and phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Save lead to local storage
+    const newInquiry: InquiryLead = {
+      id: `inq_${Date.now()}`,
+      source: "direct_modal",
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      service: formData.service,
+      urgency: formData.urgency,
+      details: formData.message.trim(),
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+    dataStorage.addInquiry(newInquiry);
+
+    // If email provided, save subscriber
+    if (formData.email.trim() && formData.email.includes("@")) {
+      dataStorage.addSubscriber({
+        email: formData.email.trim(),
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        source: "Contact Form WhatsApp",
+      });
+      resendService.sendWelcomeEmail({ email: formData.email.trim(), name: formData.name.trim() });
+    }
+
+    // Fire email notification to Peter
+    resendService.notifyNewInquiry(newInquiry);
+
+    // Open WhatsApp
     const url = getWhatsAppUrl(generateWhatsAppMessage());
     window.open(url, "_blank");
     toast({
-      title: "Opening WhatsApp...",
-      description: "Your message has been prepared for Peter.",
+      title: "Opening WhatsApp... 🚀",
+      description: "Peter has also received an email alert with your details.",
     });
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    if (!formData.name.trim() || !formData.phone.trim()) {
       toast({
-        title: "Message Received!",
-        description: "Thank you! Peter will review your details and respond shortly.",
+        title: "Name & Phone Required",
+        description: "Please enter your name and phone number.",
+        variant: "destructive",
       });
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        service: SERVICES[0].title,
-        urgency: "Standard (This Week)",
-        message: "",
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const newInquiry: InquiryLead = {
+      id: `inq_${Date.now()}`,
+      source: "direct_modal",
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      service: formData.service,
+      urgency: formData.urgency,
+      details: `${formData.message.trim()}${formData.email ? ` (Email: ${formData.email.trim()})` : ""}`,
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+    dataStorage.addInquiry(newInquiry);
+
+    // If email provided, subscribe and send welcome email
+    if (formData.email.trim() && formData.email.includes("@")) {
+      dataStorage.addSubscriber({
+        email: formData.email.trim(),
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        source: "Website Contact Form",
       });
-    }, 800);
+      resendService.sendWelcomeEmail({ email: formData.email.trim(), name: formData.name.trim() });
+    }
+
+    // Send instant email alert to Peter via Resend
+    const resendResult = await resendService.notifyNewInquiry(newInquiry);
+
+    setIsSubmitting(false);
+    toast({
+      title: "Inquiry Sent to Peter! 📬",
+      description: resendResult.success
+        ? "Thank you! Peter has received your request and will call or WhatsApp you shortly."
+        : "Thank you! Peter has received your request and will contact you shortly.",
+    });
+
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      service: services[0]?.title || "Computer & IT Support",
+      urgency: "Standard (This Week)",
+      message: "",
+    });
   };
 
   return (
@@ -120,7 +211,7 @@ export const Contact: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-teal-900 font-bold text-sm shadow-md transition-transform duration-200 hover:scale-[1.02]"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-600" />
-                <span>Message {SITE_CONFIG.phoneDisplay}</span>
+                <span>Message {siteInfo.phoneDisplay}</span>
               </a>
             </div>
 
@@ -135,10 +226,10 @@ export const Contact: React.FC = () => {
                     Phone &amp; WhatsApp Call
                   </h4>
                   <a
-                    href={`tel:${SITE_CONFIG.phoneTel}`}
+                    href={`tel:${siteInfo.phoneTel}`}
                     className="font-mono text-sm sm:text-base font-bold text-foreground hover:text-teal-500 transition-colors"
                   >
-                    {SITE_CONFIG.phoneDisplay}
+                    {siteInfo.phoneDisplay}
                   </a>
                   <p className="text-xs text-muted-foreground mt-0.5">Calls answered promptly</p>
                 </div>
@@ -153,10 +244,10 @@ export const Contact: React.FC = () => {
                     Email Address
                   </h4>
                   <a
-                    href={`mailto:${SITE_CONFIG.email}`}
+                    href={`mailto:${siteInfo.email}`}
                     className="font-mono text-sm sm:text-base font-bold text-foreground hover:text-teal-500 transition-colors break-all"
                   >
-                    {SITE_CONFIG.email}
+                    {siteInfo.email}
                   </a>
                   <p className="text-xs text-muted-foreground mt-0.5">For formal quotes and contracts</p>
                 </div>
@@ -171,10 +262,10 @@ export const Contact: React.FC = () => {
                     Location &amp; Availability
                   </h4>
                   <p className="font-semibold text-sm sm:text-base text-foreground">
-                    {SITE_CONFIG.location}
+                    {siteInfo.location}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {SITE_CONFIG.officeHours}
+                    {siteInfo.officeHours}
                   </p>
                 </div>
               </div>
@@ -239,7 +330,7 @@ export const Contact: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
                     >
-                      {SERVICES.map((s) => (
+                      {services.map((s) => (
                         <option key={s.id} value={s.title}>
                           {s.title}
                         </option>

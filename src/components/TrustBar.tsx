@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { SITE_CONFIG } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { 
   Building2, 
   Zap, 
@@ -7,14 +7,6 @@ import {
   GraduationCap, 
   SmilePlus,
 } from "lucide-react";
-
-interface StatItem {
-  value: string;
-  label: string;
-  description: string;
-  numericValue: number;
-  suffix: string;
-}
 
 // Parse numeric + suffix from stat value strings
 const parseStatValue = (raw: string): { numeric: number; suffix: string } => {
@@ -28,7 +20,20 @@ const ICONS = [Building2, Zap, ShieldAlert, GraduationCap, SmilePlus];
 export const TrustBar: React.FC = () => {
   const ref = useRef<HTMLElement>(null!);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const [counts, setCounts] = useState(SITE_CONFIG.stats.map(() => 0));
+  const [stats, setStats] = useState(dataStorage.getSiteContent().siteInfo?.stats || []);
+  const [counts, setCounts] = useState((dataStorage.getSiteContent().siteInfo?.stats || []).map(() => 0));
+
+  useEffect(() => {
+    const load = () => {
+      const newStats = dataStorage.getSiteContent().siteInfo?.stats || [];
+      setStats(newStats);
+      setCounts(newStats.map(() => 0));
+      setHasAnimated(false);
+    };
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -41,7 +46,7 @@ export const TrustBar: React.FC = () => {
           observer.disconnect();
 
           // Stagger the count-up per stat
-          SITE_CONFIG.stats.forEach((stat, i) => {
+          stats.forEach((stat, i) => {
             const { numeric } = parseStatValue(stat.value);
             if (numeric === 0) {
               setCounts((prev) => {
@@ -81,7 +86,7 @@ export const TrustBar: React.FC = () => {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasAnimated]);
+  }, [hasAnimated, stats]);
 
   return (
     <section
@@ -94,7 +99,7 @@ export const TrustBar: React.FC = () => {
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 lg:gap-6 items-start">
-          {SITE_CONFIG.stats.map((stat, idx) => {
+          {stats.map((stat, idx) => {
             const Icon = ICONS[idx % ICONS.length];
             const { numeric, suffix } = parseStatValue(stat.value);
             const isNonNumeric = numeric === 0;

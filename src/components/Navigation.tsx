@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
 import { useTheme } from "@/hooks/use-theme";
-import { SITE_CONFIG, getWhatsAppUrl } from "@/config/site";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
+import { NetworkStatusPill } from "@/components/NetworkStatusPill";
+import CommandPalette from "@/components/CommandPalette";
+import DigitalContactCardModal from "@/components/DigitalContactCardModal";
 import { 
   Sun, 
   Moon, 
@@ -17,7 +21,8 @@ import {
   Sparkles,
   FolderGit2,
   UserCheck,
-  FileText
+  FileText,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +31,29 @@ export const Navigation: React.FC = () => {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteInfo, setSiteInfo] = useState(dataStorage.getSiteContent().siteInfo);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [contactCardOpen, setContactCardOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K keyboard shortcut
+  const handleGlobalKey = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      setCommandOpen((prev) => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleGlobalKey);
+    return () => window.removeEventListener("keydown", handleGlobalKey);
+  }, [handleGlobalKey]);
+
+  useEffect(() => {
+    const load = () => setSiteInfo(dataStorage.getSiteContent().siteInfo);
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,15 +123,23 @@ export const Navigation: React.FC = () => {
           </nav>
 
           {/* Right Action Area */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Live Availability Pill */}
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-medium text-teal-700 dark:text-teal-300">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-              </span>
-              <span>Available in Nairobi</span>
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Live Network Status Pill (replaces static availability pill) */}
+            <div className="hidden xl:block">
+              <NetworkStatusPill />
             </div>
+
+            {/* Command Palette Trigger (Ctrl+K / Cmd+K) */}
+            <button
+              onClick={() => setCommandOpen(true)}
+              aria-label="Open command palette (Ctrl+K)"
+              title="Search commands, tools & services (Ctrl+K)"
+              className="hidden lg:inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-mono transition-colors"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Search...</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted/60 border border-border text-[10px] font-mono">⌘K</kbd>
+            </button>
 
             {/* Dark Mode Toggle */}
             <button
@@ -118,21 +154,6 @@ export const Navigation: React.FC = () => {
               )}
             </button>
 
-            {/* Download Profile PDF */}
-            <a
-              href="/Peter_Kivevo_IT_Profile.pdf"
-              download="Peter_Kivevo_IT_Consultant_Profile.pdf"
-              onClick={(e) => {
-                e.preventDefault();
-                window.print();
-              }}
-              className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-              title="Download Executive Profile / CV (PDF)"
-            >
-              <FileText className="w-3.5 h-3.5 text-teal-500" />
-              <span>Profile (PDF)</span>
-            </a>
-
             {/* WhatsApp Direct CTA */}
             <a
               href={getWhatsAppUrl("Hi Peter, I need IT support / consultation for my business.")}
@@ -144,6 +165,17 @@ export const Navigation: React.FC = () => {
               <span>WhatsApp Peter</span>
             </a>
           </div>
+
+          {/* Command Palette & Digital Contact Card Modals */}
+          <CommandPalette
+            isOpen={commandOpen}
+            onClose={() => setCommandOpen(false)}
+            onOpenContactCard={() => setContactCardOpen(true)}
+          />
+          <DigitalContactCardModal
+            isOpen={contactCardOpen}
+            onClose={() => setContactCardOpen(false)}
+          />
 
           {/* Mobile Menu & Theme Toggle */}
           <div className="flex sm:hidden items-center gap-2">
@@ -221,11 +253,11 @@ export const Navigation: React.FC = () => {
               <span>Chat on WhatsApp</span>
             </a>
             <a
-              href={`tel:${SITE_CONFIG.phoneTel}`}
+              href={`tel:${siteInfo.phoneTel}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-foreground font-medium text-sm hover:bg-muted"
             >
               <Phone className="w-4 h-4 text-teal-500" />
-              <span>Call: {SITE_CONFIG.phoneDisplay}</span>
+              <span>Call: {siteInfo.phoneDisplay}</span>
             </a>
           </div>
 

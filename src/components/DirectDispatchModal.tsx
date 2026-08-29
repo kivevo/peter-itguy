@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
-import { dataStorage } from "@/services/dataStorage";
+import React, { useState, useEffect } from "react";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage, InquiryLead } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
@@ -30,13 +31,24 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
   initialService,
 }) => {
   const { toast } = useToast();
+  const [siteContent, setSiteContent] = useState(dataStorage.getSiteContent());
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [service, setService] = useState(initialService || SERVICES[0].title);
+  const [service, setService] = useState(initialService || siteContent.services[0]?.title || "Computer & IT Support");
   const [urgency, setUrgency] = useState("Urgent (Today / Within Hours)");
   const [message, setMessage] = useState(initialMessage || "Hi Peter, I need IT help for my business.");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    const load = () => setSiteContent(dataStorage.getSiteContent());
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
+
+  const siteInfo = siteContent.siteInfo;
+  const services = siteContent.services;
 
   // Sync initialMessage when modal opens
   React.useEffect(() => {
@@ -50,7 +62,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
       toast({
@@ -63,25 +75,30 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
     setIsSubmitting(true);
 
-    // Save lead to persistent storage for Peter's Admin Panel
-    dataStorage.addInquiry({
+    const newLead: InquiryLead = {
+      id: `inq_${Date.now()}`,
       source: "direct_modal",
       name: name.trim(),
       phone: phone.trim(),
       service,
       urgency,
       details: message.trim(),
-    });
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
 
-    // Simulate direct message dispatch to Peter's phone
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      toast({
-        title: "Message Sent Successfully! 🚀",
-        description: `Thank you, ${name}! Peter has received your request and will contact ${phone} shortly.`,
-      });
-    }, 400);
+    // Save lead to persistent storage for Peter's Admin Panel
+    dataStorage.addInquiry(newLead);
+
+    // Send immediate email alert to Peter via Resend
+    await resendService.notifyNewInquiry(newLead);
+
+    setIsSubmitting(false);
+    setIsSuccess(true);
+    toast({
+      title: "Direct Request Sent! 📬",
+      description: "Peter has been notified and will call or WhatsApp you shortly.",
+    });
   };
 
   const handleResetAndClose = () => {
@@ -111,7 +128,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
             Send Message to Peter Kivevo
           </h3>
           <p className="text-xs text-muted-foreground">
-            Direct line: <strong className="text-foreground">{SITE_CONFIG.phoneDisplay}</strong> • Average reply within 15 minutes.
+            Direct line: <strong className="text-foreground">{siteInfo.phoneDisplay}</strong> • Average reply within 15 minutes.
           </p>
         </div>
 
@@ -187,7 +204,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                   onChange={(e) => setService(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50"
                 >
-                  {SERVICES.map((s) => (
+                  {services.map((s) => (
                     <option key={s.id} value={s.title}>
                       {s.title}
                     </option>

@@ -1,4 +1,15 @@
-import { TESTIMONIALS } from "@/config/site";
+import { 
+  TESTIMONIALS, 
+  SITE_CONFIG, 
+  SERVICES, 
+  CASE_STUDIES, 
+  CLIENT_PARTNERS, 
+  CREDENTIALS_LIST,
+  ServiceItem, 
+  CaseStudyItem, 
+  ClientPartnerItem, 
+  CredentialBadgeItem 
+} from "@/config/site";
 
 export interface ReviewItem {
   id: string;
@@ -126,6 +137,62 @@ export interface InvoiceDocument {
   updatedAt: string;
 }
 
+export interface SubscriberItem {
+  id: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  source: string;
+  status: "subscribed" | "unsubscribed";
+  subscribedAt: string;
+  lastEmailedAt?: string;
+}
+
+export interface ResendSettings {
+  apiKey: string;
+  fromEmail: string; // e.g. "Peter Kivevo <onboarding@resend.dev>" or "Peter Kivevo <hello@kivevo.co.ke>"
+  recipientEmail: string; // e.g. "peterkivevo001@gmail.com"
+  notifyOnInquiry: boolean;
+  notifyOnReview: boolean;
+  welcomeEmailEnabled: boolean;
+}
+
+export interface EmailBroadcastItem {
+  id: string;
+  subject: string;
+  previewText?: string;
+  headline: string;
+  body: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  recipientCount: number;
+  sentAt: string;
+  status: "sent" | "failed" | "draft";
+  logs?: string;
+}
+
+export interface SiteContent {
+  siteInfo: {
+    name: string;
+    brandName: string;
+    shortTitle: string;
+    tagline: string;
+    subtagline: string;
+    phoneDisplay: string;
+    phoneTel: string;
+    whatsappNumber: string;
+    email: string;
+    location: string;
+    officeHours: string;
+    social: Record<string, string>;
+    stats: { value: string; label: string; description: string; methodology?: string }[];
+  };
+  services: ServiceItem[];
+  caseStudies: CaseStudyItem[];
+  partners: ClientPartnerItem[];
+  credentials: CredentialBadgeItem[];
+}
+
 const STORAGE_KEYS = {
   REVIEWS: "itguy_custom_reviews_v1",
   INQUIRIES: "itguy_inquiries_leads_v1",
@@ -137,6 +204,80 @@ const STORAGE_KEYS = {
   COMPANY_PROFILE: "krenovate_company_profile_v1",
   CLIENTS: "krenovate_clients_v1",
   INVOICES: "krenovate_invoices_v1",
+  SITE_CONTENT: "itguy_site_content_v1",
+  SUBSCRIBERS: "itguy_subscribers_v1",
+  RESEND_SETTINGS: "itguy_resend_config_v1",
+  BROADCAST_HISTORY: "itguy_email_broadcasts_v1",
+};
+
+export const DEFAULT_RESEND_SETTINGS: ResendSettings = {
+  apiKey: typeof import.meta !== "undefined" && import.meta.env?.VITE_RESEND_API_KEY ? import.meta.env.VITE_RESEND_API_KEY : "",
+  fromEmail: "Peter Kivevo <onboarding@resend.dev>",
+  recipientEmail: "xkivevo@gmail.com",
+  notifyOnInquiry: true,
+  notifyOnReview: true,
+  welcomeEmailEnabled: true,
+};
+
+export const INITIAL_SUBSCRIBERS: SubscriberItem[] = [
+  {
+    id: "sub-1",
+    email: "samuel.k@samchitelecom.co.ke",
+    name: "Samuel Kariuki",
+    phone: "+254 722 100 200",
+    source: "Client - Samchi Telecom",
+    status: "subscribed",
+    subscribedAt: "2026-06-15T09:00:00.000Z",
+  },
+  {
+    id: "sub-2",
+    email: "gm@after40hotel.com",
+    name: "General Manager",
+    phone: "+254 733 456 789",
+    source: "Client - After 40 Hotel",
+    status: "subscribed",
+    subscribedAt: "2026-07-02T11:30:00.000Z",
+  },
+  {
+    id: "sub-3",
+    email: "director@snlvenue.co.ke",
+    name: "Operations Director",
+    phone: "+254 720 998 877",
+    source: "Client - SNL Venue",
+    status: "subscribed",
+    subscribedAt: "2026-07-20T14:15:00.000Z",
+  },
+  {
+    id: "sub-4",
+    email: "info@solarkenyagroup.com",
+    name: "Evans Omondi",
+    phone: "+254 711 345 678",
+    source: "Website Lead",
+    status: "subscribed",
+    subscribedAt: "2026-08-10T16:40:00.000Z",
+  },
+];
+
+export const DEFAULT_SITE_CONTENT: SiteContent = {
+  siteInfo: {
+    name: SITE_CONFIG.name,
+    brandName: SITE_CONFIG.brandName,
+    shortTitle: SITE_CONFIG.shortTitle,
+    tagline: SITE_CONFIG.tagline,
+    subtagline: SITE_CONFIG.subtagline,
+    phoneDisplay: SITE_CONFIG.phoneDisplay,
+    phoneTel: SITE_CONFIG.phoneTel,
+    whatsappNumber: SITE_CONFIG.whatsappNumber,
+    email: SITE_CONFIG.email,
+    location: SITE_CONFIG.location,
+    officeHours: SITE_CONFIG.officeHours,
+    social: { ...SITE_CONFIG.social },
+    stats: [...SITE_CONFIG.stats],
+  },
+  services: [...SERVICES],
+  caseStudies: [...CASE_STUDIES],
+  partners: [...CLIENT_PARTNERS],
+  credentials: [...CREDENTIALS_LIST],
 };
 
 export const DEFAULT_SUPABASE_CONFIG: SupabaseSettings = {
@@ -364,7 +505,7 @@ class DataStorageService {
     return this.getReviews().filter((r) => r.status === "approved");
   }
 
-  public addReview(review: Omit<ReviewItem, "id" | "createdAt" | "status"> & { status?: "approved" | "pending" }): ReviewItem {
+  public addReview(review: Omit<ReviewItem, "id" | "createdAt" | "status"> & { status?: "approved" | "pending" | "rejected"; id?: string; createdAt?: string }): ReviewItem {
     const all = this.getReviews();
     const initials = review.name
       .split(" ")
@@ -375,10 +516,10 @@ class DataStorageService {
 
     const newReview: ReviewItem = {
       ...review,
-      id: `rev-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: review.id || `rev-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       avatarText: review.avatarText || initials,
       status: review.status || "approved",
-      createdAt: new Date().toISOString(),
+      createdAt: review.createdAt || new Date().toISOString(),
     };
 
     const updated = [newReview, ...all];
@@ -863,10 +1004,212 @@ class DataStorageService {
           this.notify();
         }
       }
-    } catch (err) {
-      console.warn("Background fetch from Supabase:", err);
+    } catch (err: unknown) {
+      console.warn("fetchFromSupabase failed:", err);
     }
   }
+
+  // --- WEBSITE CONTENT CMS ---
+  public getSiteContent(): SiteContent {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SITE_CONTENT);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(DEFAULT_SITE_CONTENT));
+        return DEFAULT_SITE_CONTENT;
+      }
+      const parsed = JSON.parse(stored);
+      return {
+        siteInfo: { ...DEFAULT_SITE_CONTENT.siteInfo, ...(parsed.siteInfo || {}) },
+        services: parsed.services?.length ? parsed.services : DEFAULT_SITE_CONTENT.services,
+        caseStudies: parsed.caseStudies?.length ? parsed.caseStudies : DEFAULT_SITE_CONTENT.caseStudies,
+        partners: parsed.partners?.length ? parsed.partners : DEFAULT_SITE_CONTENT.partners,
+        credentials: parsed.credentials?.length ? parsed.credentials : DEFAULT_SITE_CONTENT.credentials,
+      };
+    } catch {
+      return DEFAULT_SITE_CONTENT;
+    }
+  }
+
+  public saveSiteContent(content: SiteContent) {
+    localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(content));
+    this.notify();
+  }
+
+  public restoreDefaultSiteContent(): SiteContent {
+    localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(DEFAULT_SITE_CONTENT));
+    this.notify();
+    return DEFAULT_SITE_CONTENT;
+  }
+
+  public getSiteServices(): ServiceItem[] {
+    return this.getSiteContent().services;
+  }
+
+  public saveSiteServices(services: ServiceItem[]) {
+    const current = this.getSiteContent();
+    this.saveSiteContent({ ...current, services });
+  }
+
+  public getSiteCaseStudies(): CaseStudyItem[] {
+    return this.getSiteContent().caseStudies;
+  }
+
+  public saveSiteCaseStudies(caseStudies: CaseStudyItem[]) {
+    const current = this.getSiteContent();
+    this.saveSiteContent({ ...current, caseStudies });
+  }
+
+  // --- SUBSCRIBERS & EMAIL BROADCASTS ---
+  public getSubscribers(): SubscriberItem[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(INITIAL_SUBSCRIBERS));
+        return INITIAL_SUBSCRIBERS;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_SUBSCRIBERS;
+    }
+  }
+
+  public addSubscriber(sub: Omit<SubscriberItem, "id" | "subscribedAt" | "status"> & { id?: string; status?: "subscribed" | "unsubscribed" }): { success: boolean; isNew: boolean; subscriber: SubscriberItem } {
+    const current = this.getSubscribers();
+    const cleanEmail = sub.email.trim().toLowerCase();
+    const existingIndex = current.findIndex((s) => s.email.toLowerCase() === cleanEmail);
+
+    if (existingIndex >= 0) {
+      // Update existing
+      const updated: SubscriberItem = {
+        ...current[existingIndex],
+        name: sub.name || current[existingIndex].name,
+        phone: sub.phone || current[existingIndex].phone,
+        status: "subscribed",
+      };
+      current[existingIndex] = updated;
+      localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(current));
+      this.notify();
+      return { success: true, isNew: false, subscriber: updated };
+    }
+
+    const newSub: SubscriberItem = {
+      id: sub.id || `sub_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      email: cleanEmail,
+      name: sub.name?.trim() || "",
+      phone: sub.phone?.trim() || "",
+      source: sub.source || "Website Form",
+      status: "subscribed",
+      subscribedAt: new Date().toISOString(),
+    };
+
+    const next = [newSub, ...current];
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(next));
+    this.notify();
+    return { success: true, isNew: true, subscriber: newSub };
+  }
+
+  public updateSubscriberStatus(id: string, status: "subscribed" | "unsubscribed") {
+    const current = this.getSubscribers();
+    const next = current.map((s) => (s.id === id ? { ...s, status } : s));
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(next));
+    this.notify();
+  }
+
+  public removeSubscriber(id: string) {
+    const current = this.getSubscribers();
+    const next = current.filter((s) => s.id !== id);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(next));
+    this.notify();
+  }
+
+  public importSubscribers(list: { email: string; name?: string; phone?: string; source?: string }[]): { added: number; updated: number } {
+    const current = this.getSubscribers();
+    let added = 0;
+    let updated = 0;
+
+    list.forEach((item) => {
+      const cleanEmail = item.email.trim().toLowerCase();
+      if (!cleanEmail || !cleanEmail.includes("@")) return;
+
+      const idx = current.findIndex((s) => s.email.toLowerCase() === cleanEmail);
+      if (idx >= 0) {
+        current[idx] = {
+          ...current[idx],
+          name: item.name?.trim() || current[idx].name,
+          phone: item.phone?.trim() || current[idx].phone,
+          source: item.source || current[idx].source,
+          status: "subscribed",
+        };
+        updated++;
+      } else {
+        current.unshift({
+          id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          email: cleanEmail,
+          name: item.name?.trim() || "",
+          phone: item.phone?.trim() || "",
+          source: item.source || "CSV Import",
+          status: "subscribed",
+          subscribedAt: new Date().toISOString(),
+        });
+        added++;
+      }
+    });
+
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(current));
+    this.notify();
+    return { added, updated };
+  }
+
+  // --- RESEND SETTINGS ---
+  public getResendSettings(): ResendSettings {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.RESEND_SETTINGS);
+      if (!stored) return DEFAULT_RESEND_SETTINGS;
+      const parsed = JSON.parse(stored);
+      return {
+        ...DEFAULT_RESEND_SETTINGS,
+        ...parsed,
+        apiKey: parsed.apiKey?.trim() ? parsed.apiKey.trim() : DEFAULT_RESEND_SETTINGS.apiKey,
+      };
+    } catch {
+      return DEFAULT_RESEND_SETTINGS;
+    }
+  }
+
+  public saveResendSettings(settings: ResendSettings) {
+    localStorage.setItem(STORAGE_KEYS.RESEND_SETTINGS, JSON.stringify(settings));
+    this.notify();
+  }
+
+  // --- BROADCAST HISTORY ---
+  public getBroadcastHistory(): EmailBroadcastItem[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.BROADCAST_HISTORY);
+      if (!stored) return [];
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public addBroadcastItem(item: Omit<EmailBroadcastItem, "id" | "sentAt"> & { id?: string; sentAt?: string }): EmailBroadcastItem {
+    const current = this.getBroadcastHistory();
+    const newItem: EmailBroadcastItem = {
+      id: item.id || `bc_${Date.now()}`,
+      sentAt: item.sentAt || new Date().toISOString(),
+      ...item,
+    };
+    const next = [newItem, ...current];
+    localStorage.setItem(STORAGE_KEYS.BROADCAST_HISTORY, JSON.stringify(next));
+    this.notify();
+    return newItem;
+  }
+
+  public clearBroadcastHistory() {
+    localStorage.setItem(STORAGE_KEYS.BROADCAST_HISTORY, JSON.stringify([]));
+    this.notify();
+  }
+
 
   private async syncReviewToSupabase(review: ReviewItem) {
     const config = this.getSupabaseSettings();

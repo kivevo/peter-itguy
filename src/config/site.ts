@@ -227,7 +227,21 @@ export const getWhatsAppUrl = (customMessage?: string, service?: string): string
     : `Hi Peter, I need quick IT help with my computers / Wi-Fi / website. Are you available?`;
   
   const text = customMessage || defaultText;
-  return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(text)}`;
+  let phone = SITE_CONFIG.whatsappNumber;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("itguy_site_content_v1");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.siteInfo?.whatsappNumber) {
+          phone = parsed.siteInfo.whatsappNumber.replace(/[^0-9]/g, "");
+        }
+      }
+    } catch (_err) {
+      // Fallback to default SITE_CONFIG.whatsappNumber
+    }
+  }
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 };
 
 export const getWhatsAppWebUrl = (customMessage?: string, service?: string): string => {
@@ -236,7 +250,21 @@ export const getWhatsAppWebUrl = (customMessage?: string, service?: string): str
     : `Hi Peter, I need quick IT help with my computers / Wi-Fi / website. Are you available?`;
   
   const text = customMessage || defaultText;
-  return `https://web.whatsapp.com/send?phone=${SITE_CONFIG.whatsappNumber}&text=${encodeURIComponent(text)}`;
+  let phone = SITE_CONFIG.whatsappNumber;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("itguy_site_content_v1");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.siteInfo?.whatsappNumber) {
+          phone = parsed.siteInfo.whatsappNumber.replace(/[^0-9]/g, "");
+        }
+      }
+    } catch (_err) {
+      // Fallback to default SITE_CONFIG.whatsappNumber
+    }
+  }
+  return `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
 };
 
 export const getWhatsAppAppUrl = (customMessage?: string, service?: string): string => {

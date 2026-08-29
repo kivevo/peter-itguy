@@ -1,5 +1,5 @@
-import React from "react";
-import { SITE_CONFIG } from "@/config/site";
+import React, { useState, useEffect } from "react";
+import { dataStorage } from "@/services/dataStorage";
 import { 
   MessageCircle, 
   Linkedin, 
@@ -46,6 +46,14 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
   className = "",
   showLabels = false,
 }) => {
+  const [siteInfo, setSiteInfo] = useState(dataStorage.getSiteContent().siteInfo);
+
+  useEffect(() => {
+    const load = () => setSiteInfo(dataStorage.getSiteContent().siteInfo);
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
   const iconSizes = {
     sm: "w-3.5 h-3.5",
     md: "w-4 h-4",
@@ -61,49 +69,49 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
   const socialItems = [
     {
       name: "WhatsApp",
-      url: SITE_CONFIG.social.whatsapp,
+      url: siteInfo.social.whatsapp,
       icon: MessageCircle,
       color: "hover:bg-emerald-500 hover:text-white hover:border-emerald-500",
-      handle: "+254 758 896 553",
+      handle: siteInfo.phoneDisplay,
     },
     {
       name: "Instagram",
-      url: SITE_CONFIG.social.instagram,
+      url: siteInfo.social.instagram,
       customIcon: InstagramIcon,
       color: "hover:bg-gradient-to-tr hover:from-amber-500 hover:via-pink-500 hover:to-purple-600 hover:text-white hover:border-pink-500",
       handle: "@kivevo_",
     },
     {
       name: "TikTok",
-      url: SITE_CONFIG.social.tiktok,
+      url: siteInfo.social.tiktok,
       customIcon: TikTokIcon,
       color: "hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-slate-400",
       handle: "@kivevo1",
     },
     {
       name: "X (Twitter)",
-      url: SITE_CONFIG.social.twitter,
+      url: siteInfo.social.twitter,
       customIcon: TwitterXIcon,
       color: "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-900 hover:border-slate-500",
       handle: "@kivevo_",
     },
     {
       name: "LinkedIn",
-      url: SITE_CONFIG.social.linkedin,
+      url: siteInfo.social.linkedin,
       icon: Linkedin,
       color: "hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2]",
       handle: "kivevo",
     },
     {
       name: "GitHub",
-      url: SITE_CONFIG.social.github,
+      url: siteInfo.social.github,
       icon: Github,
       color: "hover:bg-slate-800 hover:text-white hover:border-slate-800",
       handle: "kivevo",
     },
     {
       name: "YouTube",
-      url: SITE_CONFIG.social.youtube,
+      url: siteInfo.social.youtube,
       customIcon: YouTubeIcon,
       color: "hover:bg-[#FF0000] hover:text-white hover:border-[#FF0000]",
       handle: "@kivevo",

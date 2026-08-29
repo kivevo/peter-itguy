@@ -1,18 +1,35 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SocialLinks } from "@/components/SocialLinks";
-import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
+import { resendService } from "@/services/resendService";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Phone, 
   Mail, 
   MapPin, 
   ArrowUp, 
   MessageCircle, 
-  ExternalLink 
+  ExternalLink,
+  Send,
+  CheckCircle2
 } from "lucide-react";
 
 export const Footer: React.FC = () => {
+  const [siteContent, setSiteContent] = useState(dataStorage.getSiteContent());
+
+  useEffect(() => {
+    const load = () => setSiteContent(dataStorage.getSiteContent());
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
+
+  const siteInfo = siteContent.siteInfo;
+  const services = siteContent.services;
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -45,19 +62,19 @@ export const Footer: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
                 <a 
-                  href={`tel:${SITE_CONFIG.phoneTel}`} 
+                  href={`tel:${siteInfo.phoneTel}`} 
                   className="hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors"
                 >
-                  {SITE_CONFIG.phoneDisplay}
+                  {siteInfo.phoneDisplay}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
                 <a 
-                  href={`mailto:${SITE_CONFIG.email}`} 
+                  href={`mailto:${siteInfo.email}`} 
                   className="hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors"
                 >
-                  {SITE_CONFIG.email}
+                  {siteInfo.email}
                 </a>
               </div>
               <div className="flex items-center gap-2">
@@ -68,7 +85,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   className="hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors inline-flex items-center gap-1"
                 >
-                  <span>{SITE_CONFIG.location}</span>
+                  <span>{siteInfo.location}</span>
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </div>
@@ -111,7 +128,7 @@ export const Footer: React.FC = () => {
               Core Services
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
-              {SERVICES.map((s) => (
+              {services.map((s) => (
                 <li key={s.id}>
                   <Link
                     to={`/services#${s.id}`}
@@ -137,8 +154,26 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* Newsletter & Tech Alert Subscription Box */}
+        <div className="mt-14 p-6 sm:p-8 rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+          <div className="space-y-1.5 max-w-md">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-[10px] font-mono font-bold">
+              <Mail className="w-3 h-3" />
+              <span>Priority Kenyan IT Newsletter</span>
+            </div>
+            <h4 className="font-heading font-extrabold text-base sm:text-lg text-foreground">
+              Stay Ahead of Network Downtime &amp; Tech Headaches
+            </h4>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Get occasional insights on Wi-Fi optimization, payment security, and business tech tips for Kenyan businesses.
+            </p>
+          </div>
+
+          <FooterNewsletterForm />
+        </div>
+
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div>
             © {new Date().getFullYear()} Peter Kivevo John (The IT Guy). All rights reserved. • Nairobi, Kenya
           </div>
@@ -164,4 +199,86 @@ export const Footer: React.FC = () => {
   );
 };
 
+const FooterNewsletterForm: React.FC = () => {
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      toast({ title: "Valid email required", variant: "destructive" });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const subRes = dataStorage.addSubscriber({
+      email: email.trim(),
+      name: name.trim(),
+      source: "Footer Newsletter",
+    });
+
+    // Send welcome email via Resend
+    await resendService.sendWelcomeEmail({
+      email: email.trim(),
+      name: name.trim(),
+    });
+
+    setIsSubmitting(false);
+    setIsSuccess(true);
+
+    toast({
+      title: "Subscribed to Tech Alerts! 🚀",
+      description: "Welcome to Peter's network newsletter! Check your inbox for confirmation.",
+    });
+
+    setTimeout(() => {
+      setEmail("");
+      setName("");
+      setIsSuccess(false);
+    }, 4000);
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold animate-in fade-in">
+        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+        <span>Welcome aboard! You will receive our next network update.</span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch gap-2.5 w-full md:w-auto">
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Your Name (Optional)"
+        className="px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs focus:ring-2 focus:ring-teal-500/50 outline-none w-full sm:w-36"
+      />
+      <input
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@company.co.ke"
+        className="px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs font-mono focus:ring-2 focus:ring-teal-500/50 outline-none w-full sm:w-56"
+      />
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all hover:scale-105 whitespace-nowrap"
+      >
+        <Send className="w-3.5 h-3.5" />
+        <span>{isSubmitting ? "Joining..." : "Subscribe"}</span>
+      </button>
+    </form>
+  );
+};
+
 export default Footer;
+

@@ -1,8 +1,17 @@
-import React from "react";
-import { getWhatsAppUrl, SITE_CONFIG } from "@/config/site";
+import React, { useState, useEffect } from "react";
+import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { MessageCircle, Phone, ShieldCheck, Zap, Clock } from "lucide-react";
 
 export const CallToActionBand: React.FC = () => {
+  const [siteInfo, setSiteInfo] = useState(dataStorage.getSiteContent().siteInfo);
+
+  useEffect(() => {
+    const load = () => setSiteInfo(dataStorage.getSiteContent().siteInfo);
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
   return (
     <section className="py-16 lg:py-20 bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 text-white relative overflow-hidden border-t border-teal-500/20">
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -56,11 +65,11 @@ export const CallToActionBand: React.FC = () => {
             </a>
 
             <a
-              href={`tel:${SITE_CONFIG.phoneTel}`}
+              href={`tel:${siteInfo.phoneTel}`}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-white/20 hover:bg-white/10 text-white font-semibold text-sm sm:text-base transition-colors"
             >
               <Phone className="w-4 h-4 text-teal-400" />
-              <span>Call: {SITE_CONFIG.phoneDisplay}</span>
+              <span>Call: {siteInfo.phoneDisplay}</span>
             </a>
           </div>
         </div>

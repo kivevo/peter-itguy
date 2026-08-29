@@ -1,5 +1,6 @@
-import React from "react";
-import { CASE_STUDIES, WEB_PORTFOLIO_LINKS, getWhatsAppUrl } from "@/config/site";
+import React, { useState, useEffect } from "react";
+import { WEB_PORTFOLIO_LINKS, getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { 
   ExternalLink, 
   CheckCircle2, 
@@ -10,6 +11,15 @@ import {
 } from "lucide-react";
 
 export const Portfolio: React.FC = () => {
+  const [caseStudies, setCaseStudies] = useState(dataStorage.getSiteCaseStudies());
+
+  useEffect(() => {
+    const load = () => setCaseStudies(dataStorage.getSiteCaseStudies());
+    load();
+    const unsub = dataStorage.subscribe(load);
+    return () => unsub();
+  }, []);
+
   return (
     <section id="case-studies" className="py-20 lg:py-28 bg-muted/30 dark:bg-navy-900/60 relative border-t border-border/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -30,7 +40,7 @@ export const Portfolio: React.FC = () => {
 
         {/* Deep Dive Case Studies Grid */}
         <div className="grid lg:grid-cols-3 gap-8 mb-16">
-          {CASE_STUDIES.filter((c) => c.id !== "web-showcase").map((study) => (
+          {caseStudies.filter((c) => c.id !== "web-showcase").map((study) => (
             <div
               key={study.id}
               className="rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-6 sm:p-7 flex flex-col justify-between hover:border-teal-500/50 transition-all duration-300 group"
