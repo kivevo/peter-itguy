@@ -449,29 +449,29 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* TOP NAVIGATION TABS FOR INVOICE SUITE */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-border/80">
-        <div className="flex items-center gap-2">
-          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/80">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0">
             <Receipt className="w-5 h-5" />
           </div>
-          <div>
-            <h2 className="font-heading font-extrabold text-xl text-white flex items-center gap-2">
+          <div className="min-w-0">
+            <h2 className="font-heading font-extrabold text-lg text-white flex flex-wrap items-center gap-2">
               <span>Krenovate Systems</span>
-              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold">
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold whitespace-nowrap">
                 Invoice &amp; Quote Engine
               </span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 hidden sm:block">
               Create, customize, print, and export branded client proposals and tax invoices.
             </p>
           </div>
         </div>
 
         {/* View Switcher Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setSubView("list")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               subView === "list"
                 ? "bg-teal-600 text-white shadow-md"
                 : "bg-navy-900 text-slate-300 hover:text-white border border-border"
@@ -479,13 +479,15 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           >
             <span className="flex items-center gap-1.5">
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>All Documents ({invoices.length})</span>
+              <span className="hidden sm:inline">All Docs</span>
+              <span className="sm:hidden">Docs</span>
+              <span>({invoices.length})</span>
             </span>
           </button>
 
           <button
             onClick={() => setSubView("clients")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               subView === "clients"
                 ? "bg-teal-600 text-white shadow-md"
                 : "bg-navy-900 text-slate-300 hover:text-white border border-border"
@@ -493,13 +495,13 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           >
             <span className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" />
-              <span>Saved Clients ({clients.length})</span>
+              <span>Clients ({clients.length})</span>
             </span>
           </button>
 
           <button
             onClick={() => setSubView("settings")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               subView === "settings"
                 ? "bg-teal-600 text-white shadow-md"
                 : "bg-navy-900 text-slate-300 hover:text-white border border-border"
@@ -507,16 +509,18 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           >
             <span className="flex items-center gap-1.5">
               <Settings className="w-3.5 h-3.5" />
-              <span>Company Branding</span>
+              <span className="hidden sm:inline">Company Branding</span>
+              <span className="sm:hidden">Settings</span>
             </span>
           </button>
 
           <button
             onClick={() => handleCreateNewDoc("quotation")}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shadow-glow"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shadow-glow whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
-            <span>New Quote / Invoice</span>
+            <span className="hidden sm:inline">New Quote / Invoice</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
@@ -621,8 +625,8 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
           {/* Invoices & Quotes Table */}
           <div className="rounded-3xl bg-navy-900 border border-border/80 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto -mx-0">
+              <table className="w-full min-w-[700px] text-left text-xs">
                 <thead>
                   <tr className="bg-navy-950/80 border-b border-border/80 text-slate-400 font-mono text-[11px]">
                     <th className="py-3.5 px-4 font-bold">DOC #</th>
@@ -718,7 +722,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
                           {/* Actions */}
                           <td className="py-3.5 px-4 text-center">
-                            <div className="inline-flex items-center gap-1.5">
+                            <div className="flex flex-wrap items-center justify-center gap-1.5">
                               {/* Preview */}
                               <button
                                 onClick={() => {

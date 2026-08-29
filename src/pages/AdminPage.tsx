@@ -721,7 +721,7 @@ export const AdminPage: React.FC = () => {
         </header>
 
         {/* Content Body Container */}
-        <main className="flex-1 p-6 sm:p-10 space-y-8 max-w-7xl">
+        <main className="flex-1 p-4 sm:p-6 lg:p-10 space-y-8 max-w-7xl">
           {/* TAB 1: 📊 ANALYTICS & OVERVIEW */}
           {activeTab === "analytics" && (
             <div className="space-y-8 animate-in fade-in duration-200">
