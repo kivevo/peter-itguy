@@ -21,40 +21,23 @@ export const WhatsAppProvider: React.FC<WhatsAppProviderProps> = ({ children }) 
     setIsOpen(false);
   };
 
-  // Intercept all WhatsApp / external chat link clicks to show on-site direct form
+  // Direct Message triggers via explicit custom handlers rather than intercepting external links
   useEffect(() => {
-    const handleGlobalLinkClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest("a");
+    const handleExplicitDispatchTrigger = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest("[data-open-dispatch='true']");
       if (!target) return;
 
-      const href = target.getAttribute("href") || "";
-      if (
-        href.includes("wa.me") || 
-        href.includes("web.whatsapp.com") || 
-        href.includes("api.whatsapp.com")
-      ) {
-        // Prevent navigating outside the website
-        e.preventDefault();
-        e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
-        let extractedMessage = "";
-        try {
-          const urlObj = new URL(href, window.location.origin);
-          extractedMessage = urlObj.searchParams.get("text") || "";
-        } catch {
-          const textMatch = href.match(/text=([^&]+)/);
-          if (textMatch) {
-            extractedMessage = decodeURIComponent(textMatch[1]);
-          }
-        }
-
-        openDirectMessage(extractedMessage || undefined);
-      }
+      const customMsg = target.getAttribute("data-dispatch-message");
+      const serviceParam = target.getAttribute("data-dispatch-service");
+      openDirectMessage(customMsg || undefined, serviceParam || undefined);
     };
 
-    document.addEventListener("click", handleGlobalLinkClick, true);
+    document.addEventListener("click", handleExplicitDispatchTrigger, true);
     return () => {
-      document.removeEventListener("click", handleGlobalLinkClick, true);
+      document.removeEventListener("click", handleExplicitDispatchTrigger, true);
     };
   }, []);
 
