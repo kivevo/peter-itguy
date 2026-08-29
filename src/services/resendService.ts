@@ -58,19 +58,21 @@ class ResendEmailService {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+      if (response.ok && data.success !== false) {
         return { success: true, messageId: data.id || data.data?.id };
+      } else if (data.error) {
+        return { success: false, error: data.error };
       }
     } catch {
-      // Fall through to direct Resend API call if local endpoint isn't running
+      // Fall through to direct Resend API call if local endpoint isn't running or network failure
     }
 
     // Direct Resend API Fallback (useful if API key is provided directly in admin panel)
     if (!apiKey) {
       return {
         success: false,
-        error: "Resend API Key is missing. Please add your Resend API Key in Admin Panel -> Email Broadcasts & Resend tab.",
+        error: "Resend API Key is missing. Please add your Resend API Key in Admin Panel -> Email Broadcast Studio -> Resend API & Alerts tab.",
       };
     }
 
