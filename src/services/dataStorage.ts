@@ -56,7 +56,74 @@ export interface SupabaseSettings {
   url: string;
   anonKey: string;
   enabled: boolean;
-  lastSyncedAt?: string;
+}
+
+export interface CompanyProfile {
+  name: string;
+  tagline: string;
+  logoUrl: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: string;
+  kraPin: string;
+  authorizedSignatory: string;
+  mpesaType: "Paybill" | "Till" | "Buy Goods";
+  mpesaNumber: string;
+  mpesaAccount: string;
+  bankName: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+  bankBranch: string;
+  currency: string;
+  defaultVatPercent: number;
+  defaultPaymentTermsDays: number;
+  notesTemplate: string;
+}
+
+export interface SavedClient {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  address: string;
+  kraPin?: string;
+  createdAt: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  desc: string;
+  qty: number;
+  unitPrice: number;
+}
+
+export interface InvoiceDocument {
+  id: string;
+  docType: "quotation" | "invoice" | "receipt";
+  docNumber: string;
+  issueDate: string;
+  dueDate: string;
+  status: "draft" | "sent" | "paid" | "overdue" | "accepted";
+  client: {
+    id?: string;
+    name: string;
+    company: string;
+    email?: string;
+    phone: string;
+    address: string;
+    kraPin?: string;
+  };
+  items: InvoiceItem[];
+  discountType: "percentage" | "flat";
+  discountValue: number;
+  vatEnabled: boolean;
+  vatPercent: number;
+  currency: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const STORAGE_KEYS = {
@@ -67,6 +134,9 @@ const STORAGE_KEYS = {
   ADMIN_PIN: "itguy_admin_pin_v1",
   SUPABASE_SETTINGS: "itguy_supabase_config_v1",
   ADMIN_AUTH: "itguy_admin_authenticated",
+  COMPANY_PROFILE: "krenovate_company_profile_v1",
+  CLIENTS: "krenovate_clients_v1",
+  INVOICES: "krenovate_invoices_v1",
 };
 
 export const DEFAULT_SUPABASE_CONFIG: SupabaseSettings = {
@@ -82,6 +152,125 @@ const DEFAULT_BANNER: SiteBannerConfig = {
   linkText: "Request Fast Fix",
   variant: "teal",
 };
+
+export const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
+  name: "Krenovate Systems",
+  tagline: "Enterprise IT Support, Network Engineering & Digital Systems",
+  logoUrl: "",
+  email: "info@krenovatesystems.com",
+  phone: "+254 722 000 000",
+  website: "www.krenovatesystems.com",
+  address: "P.O. Box 79240-00200, Nairobi, Kenya",
+  kraPin: "P051892401K",
+  authorizedSignatory: "Krenovate Systems",
+  mpesaType: "Paybill",
+  mpesaNumber: "247247",
+  mpesaAccount: "Krenovate Systems",
+  bankName: "NCBA Bank Kenya",
+  bankAccountName: "Krenovate Systems Limited",
+  bankAccountNumber: "10023456789",
+  bankBranch: "Nairobi Westlands Branch",
+  currency: "KES",
+  defaultVatPercent: 16,
+  defaultPaymentTermsDays: 14,
+  notesTemplate: "1. Payment is due within 14 days of invoice date.\n2. All hardware installations carry a 30-day comprehensive support warranty.\n3. Make all payments directly via official M-Pesa Paybill or Bank details above.",
+};
+
+const INITIAL_CLIENTS: SavedClient[] = [
+  {
+    id: "client-1",
+    name: "David Mwangi",
+    company: "Peak Logistics Hub Ltd",
+    email: "david@peaklogistics.co.ke",
+    phone: "+254 722 345 678",
+    address: "Mombasa Rd, Nairobi",
+    kraPin: "P051122334A",
+    createdAt: "2026-08-01T10:00:00.000Z",
+  },
+  {
+    id: "client-2",
+    name: "Mary Wanjiku",
+    company: "After40 Hotel",
+    email: "gm@after40hotel.com",
+    phone: "+254 733 987 654",
+    address: "Biashara Street, Nairobi CBD",
+    kraPin: "P058899112B",
+    createdAt: "2026-08-05T11:00:00.000Z",
+  },
+  {
+    id: "client-3",
+    name: "Kennedy Omondi",
+    company: "SNL Lounge & Garden",
+    email: "management@snllounge.co.ke",
+    phone: "+254 711 456 789",
+    address: "Mtwapa, Mombasa / Kilimani",
+    kraPin: "P054455667C",
+    createdAt: "2026-08-10T12:00:00.000Z",
+  },
+];
+
+const INITIAL_INVOICES: InvoiceDocument[] = [
+  {
+    id: "inv-1",
+    docType: "quotation",
+    docNumber: "KRN-QT-2026-001",
+    issueDate: new Date().toISOString().slice(0, 10),
+    dueDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+    status: "sent",
+    client: {
+      id: "client-1",
+      name: "David Mwangi",
+      company: "Peak Logistics Hub Ltd",
+      email: "david@peaklogistics.co.ke",
+      phone: "+254 722 345 678",
+      address: "Mombasa Rd, Nairobi",
+      kraPin: "P051122334A",
+    },
+    items: [
+      { id: "item-1", desc: "Ubiquiti UniFi U6+ Long-Range Wi-Fi 6 Access Points (Installed & Configured)", qty: 2, unitPrice: 18500 },
+      { id: "item-2", desc: "16-Port Gigabit Managed PoE+ Network Switch with VLAN Separation", qty: 1, unitPrice: 24500 },
+      { id: "item-3", desc: "Pure Copper Solid Cat6 Structured Network Cabling & Patch Panel Runs", qty: 1, unitPrice: 16000 },
+      { id: "item-4", desc: "On-Site Network Deployment, Isolated Guest Wi-Fi & Bandwidth Shaping Labor", qty: 1, unitPrice: 20000 },
+    ],
+    discountType: "flat",
+    discountValue: 2000,
+    vatEnabled: true,
+    vatPercent: 16,
+    currency: "KES",
+    notes: "Turnkey Wi-Fi rollout. Includes guest network isolation so payment machines never freeze.",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "inv-2",
+    docType: "invoice",
+    docNumber: "KRN-INV-2026-001",
+    issueDate: new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10),
+    dueDate: new Date(Date.now() + 11 * 86400000).toISOString().slice(0, 10),
+    status: "paid",
+    client: {
+      id: "client-2",
+      name: "Mary Wanjiku",
+      company: "After40 Hotel",
+      email: "gm@after40hotel.com",
+      phone: "+254 733 987 654",
+      address: "Biashara Street, Nairobi CBD",
+      kraPin: "P058899112B",
+    },
+    items: [
+      { id: "item-1", desc: "High-Performance Business Website Revamp & Cloud Hosting Deployment", qty: 1, unitPrice: 45000 },
+      { id: "item-2", desc: "Monthly Enterprise IT & Network Retainer SLA (Unlimited Remote & Maintenance)", qty: 1, unitPrice: 25000 },
+    ],
+    discountType: "percentage",
+    discountValue: 0,
+    vatEnabled: false,
+    vatPercent: 16,
+    currency: "KES",
+    notes: "Payment received in full via M-Pesa Paybill. Thank you for your partnership!",
+    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+    updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+  },
+];
 
 const INITIAL_JOBS: JobScheduleItem[] = [
   {
@@ -347,6 +536,161 @@ class DataStorageService {
   public setAdminPin(newPin: string) {
     localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, newPin);
     this.notify();
+  }
+
+  // --- KRENOVATE SYSTEMS: COMPANY PROFILE ---
+  public getCompanyProfile(): CompanyProfile {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.COMPANY_PROFILE);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.COMPANY_PROFILE, JSON.stringify(DEFAULT_COMPANY_PROFILE));
+        return DEFAULT_COMPANY_PROFILE;
+      }
+      return { ...DEFAULT_COMPANY_PROFILE, ...JSON.parse(stored) };
+    } catch {
+      return DEFAULT_COMPANY_PROFILE;
+    }
+  }
+
+  public saveCompanyProfile(profile: CompanyProfile) {
+    localStorage.setItem(STORAGE_KEYS.COMPANY_PROFILE, JSON.stringify(profile));
+    this.notify();
+  }
+
+  // --- KRENOVATE SYSTEMS: SAVED CLIENTS ---
+  public getClients(): SavedClient[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.CLIENTS);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(INITIAL_CLIENTS));
+        return INITIAL_CLIENTS;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_CLIENTS;
+    }
+  }
+
+  public saveClient(client: Omit<SavedClient, "id" | "createdAt"> & { id?: string }): SavedClient {
+    const all = this.getClients();
+    if (client.id) {
+      const updated = all.map((c) =>
+        c.id === client.id ? { ...c, ...client } : c
+      );
+      localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(updated));
+      this.notify();
+      return all.find((c) => c.id === client.id)!;
+    } else {
+      const newClient: SavedClient = {
+        ...client,
+        id: `client-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        createdAt: new Date().toISOString(),
+      };
+      const updated = [newClient, ...all];
+      localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(updated));
+      this.notify();
+      return newClient;
+    }
+  }
+
+  public deleteClient(id: string) {
+    const all = this.getClients().filter((c) => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(all));
+    this.notify();
+  }
+
+  // --- KRENOVATE SYSTEMS: INVOICES & QUOTATIONS ---
+  public getInvoices(): InvoiceDocument[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(INITIAL_INVOICES));
+        return INITIAL_INVOICES;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_INVOICES;
+    }
+  }
+
+  public getInvoiceById(id: string): InvoiceDocument | undefined {
+    return this.getInvoices().find((inv) => inv.id === id);
+  }
+
+  public saveInvoice(doc: Omit<InvoiceDocument, "id" | "createdAt" | "updatedAt"> & { id?: string }): InvoiceDocument {
+    const all = this.getInvoices();
+    if (doc.id) {
+      const updated = all.map((inv) =>
+        inv.id === doc.id
+          ? {
+              ...inv,
+              ...doc,
+              updatedAt: new Date().toISOString(),
+            }
+          : inv
+      );
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
+      this.notify();
+      return this.getInvoiceById(doc.id)!;
+    } else {
+      const newDoc: InvoiceDocument = {
+        ...doc,
+        id: `inv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const updated = [newDoc, ...all];
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
+      this.notify();
+      return newDoc;
+    }
+  }
+
+  public deleteInvoice(id: string) {
+    const all = this.getInvoices().filter((inv) => inv.id !== id);
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    this.notify();
+  }
+
+  public duplicateInvoice(id: string): InvoiceDocument | undefined {
+    const original = this.getInvoiceById(id);
+    if (!original) return undefined;
+
+    const newDocType = original.docType;
+    const nextNumber = this.getNextDocNumber(newDocType);
+
+    const cloned: Omit<InvoiceDocument, "id" | "createdAt" | "updatedAt"> = {
+      ...original,
+      docNumber: nextNumber,
+      issueDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+      status: "draft",
+      items: original.items.map((item) => ({
+        ...item,
+        id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      })),
+    };
+
+    return this.saveInvoice(cloned);
+  }
+
+  public updateInvoiceStatus(id: string, status: InvoiceDocument["status"]) {
+    const all = this.getInvoices().map((inv) =>
+      inv.id === id ? { ...inv, status, updatedAt: new Date().toISOString() } : inv
+    );
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    this.notify();
+  }
+
+  public getNextDocNumber(docType: "quotation" | "invoice" | "receipt"): string {
+    const all = this.getInvoices();
+    const prefix = docType === "quotation" ? "KRN-QT" : docType === "invoice" ? "KRN-INV" : "KRN-REC";
+    const year = new Date().getFullYear();
+    
+    // Count existing for this prefix and year
+    const matching = all.filter((inv) => inv.docNumber.startsWith(`${prefix}-${year}`));
+    const nextSeq = matching.length + 1;
+    return `${prefix}-${year}-${String(nextSeq).padStart(3, "0")}`;
   }
 
   // --- SUPABASE CLOUD SYNC ---

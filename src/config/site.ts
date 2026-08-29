@@ -266,7 +266,7 @@ export const SERVICES: ServiceItem[] = [
       challenge: "Frequent POS till and computer freezes across 30+ branches without full-time IT staff at each location.",
       result: "Set up fast remote support tools, solved issues 65% faster, and established same-day physical backup for Nairobi shops.",
     },
-    startingPrice: "From KES 3,500 / Incident or Monthly SLA",
+    startingPrice: "Custom Scope & Monthly SLA",
   },
   {
     id: "networking-security",

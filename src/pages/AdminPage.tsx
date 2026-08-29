@@ -8,6 +8,7 @@ import {
   SiteBannerConfig, 
   SupabaseSettings 
 } from "@/services/dataStorage";
+import { KrenovateInvoiceManager } from "@/components/admin/KrenovateInvoiceManager";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -110,26 +111,6 @@ export const AdminPage: React.FC = () => {
     hardwareSerialNumbers: "",
   });
 
-  // Invoice / Quotation Builder State
-  const [invoiceData, setInvoiceData] = useState({
-    docType: "Formal Quotation" as "Formal Quotation" | "Official Tax Invoice" | "Job Completion Receipt",
-    docNumber: `PK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-    date: new Date().toISOString().slice(0, 10),
-    dueDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
-    clientName: "David Mwangi",
-    company: "Peak Logistics Hub Ltd",
-    clientPhone: "+254 722 000 000",
-    clientLocation: "Mombasa Rd, Nairobi",
-    items: [
-      { desc: "Ubiquiti UniFi U6+ Long-Range Wi-Fi 6 Access Points (Installed & Configured)", qty: 2, unitPrice: 18500 },
-      { desc: "16-Port Gigabit Managed PoE+ Network Switch with VLAN Separation", qty: 1, unitPrice: 24500 },
-      { desc: "Pure Copper Solid Cat6 Structured Network Cabling & Patch Panel Runs", qty: 1, unitPrice: 16000 },
-      { desc: "On-Site Network Deployment, Isolated Guest Wi-Fi & Bandwidth Shaping Labor", qty: 1, unitPrice: 20000 },
-    ],
-    includeVat: false,
-    notes: "30-day warranty on all hardware installations. Turnkey setup includes isolated payment machine traffic.",
-  });
-
   // Security PIN state
   const [currentPinInput, setCurrentPinInput] = useState("");
   const [newPinInput, setNewPinInput] = useState("");
@@ -208,15 +189,10 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  const [leadForQuote, setLeadForQuote] = useState<InquiryLead | null>(null);
+
   const handlePopulateInvoiceFromLead = (inq: InquiryLead) => {
-    setInvoiceData((prev) => ({
-      ...prev,
-      clientName: inq.name,
-      company: inq.name + " Business",
-      clientPhone: inq.phone,
-      clientLocation: inq.location || "Nairobi",
-      notes: `Quotation based on initial request: ${inq.service}. ${inq.details}`,
-    }));
+    setLeadForQuote(inq);
     setActiveTab("invoice");
     toast({
       title: "Loaded Lead into Quote Builder",
@@ -399,32 +375,6 @@ export const AdminPage: React.FC = () => {
     });
   };
 
-  // Invoice calculations
-  const invoiceSubtotal = invoiceData.items.reduce((acc, item) => acc + item.qty * item.unitPrice, 0);
-  const invoiceVat = invoiceData.includeVat ? invoiceSubtotal * 0.16 : 0;
-  const invoiceTotal = invoiceSubtotal + invoiceVat;
-
-  const handleAddInvoiceItem = () => {
-    setInvoiceData((prev) => ({
-      ...prev,
-      items: [...prev.items, { desc: "New IT Service / Hardware item", qty: 1, unitPrice: 5000 }],
-    }));
-  };
-
-  const handleRemoveInvoiceItem = (index: number) => {
-    setInvoiceData((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, idx) => idx !== index),
-    }));
-  };
-
-  const handleUpdateInvoiceItem = (index: number, field: "desc" | "qty" | "unitPrice", value: string | number) => {
-    setInvoiceData((prev) => ({
-      ...prev,
-      items: prev.items.map((item, idx) => (idx === index ? { ...item, [field]: value } : item)),
-    }));
-  };
-
   // CSV Export
   const exportToCSV = (type: "reviews" | "inquiries" | "jobs") => {
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -577,7 +527,7 @@ export const AdminPage: React.FC = () => {
       items: [
         { id: "inquiries" as const, label: "Customer Leads CRM", icon: MessageSquare, count: inquiries.filter((i) => i.status === "new").length },
         { id: "jobs" as const, label: "On-Site Job Dispatch", icon: Calendar, count: jobs.filter((j) => j.status === "scheduled").length },
-        { id: "invoice" as const, label: "Quotes & Invoices", icon: FileText, count: null },
+        { id: "invoice" as const, label: "Krenovate Invoices & Quotes", icon: FileText, count: null },
       ],
     },
     {
@@ -1239,221 +1189,9 @@ export const AdminPage: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 4: 🧾 QUOTATION & INVOICE BUILDER */}
+          {/* TAB 4: 🧾 KRENOVATE SYSTEMS INVOICE & QUOTE ENGINE */}
           {activeTab === "invoice" && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="font-heading font-bold text-lg text-white">
-                    Official IT Quotation &amp; Invoice Generator
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    Generate professional, itemized PDF documents for corporate &amp; small business clients.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all hover:shadow-glow"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>Print / Save as PDF</span>
-                </button>
-              </div>
-
-              {/* Invoice Canvas */}
-              <div className="p-8 sm:p-10 rounded-3xl bg-navy-900 border border-border shadow-2xl space-y-8 max-w-5xl">
-                {/* Header Controls */}
-                <div className="grid sm:grid-cols-3 gap-4 border-b border-border/80 pb-6">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300">Document Type</label>
-                    <select
-                      value={invoiceData.docType}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, docType: e.target.value as "Formal Quotation" | "Official Tax Invoice" | "Job Completion Receipt" })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-bold"
-                    >
-                      <option value="Formal Quotation">Formal Quotation</option>
-                      <option value="Official Tax Invoice">Official Tax Invoice</option>
-                      <option value="Job Completion Receipt">Job Completion Receipt</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300">Reference / Quote #</label>
-                    <input
-                      type="text"
-                      value={invoiceData.docNumber}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, docNumber: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300">Date Issued</label>
-                    <input
-                      type="date"
-                      value={invoiceData.date}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, date: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Client Info Grid */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-mono font-bold uppercase text-teal-400">Client Details:</span>
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={invoiceData.clientName}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, clientName: e.target.value })}
-                        placeholder="Contact Person (e.g. David Mwangi)"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
-                      />
-                      <input
-                        type="text"
-                        value={invoiceData.company}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, company: e.target.value })}
-                        placeholder="Company Name (e.g. Peak Logistics Ltd)"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-mono font-bold uppercase text-teal-400">Contact &amp; Location:</span>
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={invoiceData.clientPhone}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, clientPhone: e.target.value })}
-                        placeholder="Phone / WhatsApp (+254...)"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
-                      />
-                      <input
-                        type="text"
-                        value={invoiceData.clientLocation}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, clientLocation: e.target.value })}
-                        placeholder="Office Address / Nairobi Location"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Line Items Table */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
-                      Itemized Services &amp; Hardware
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleAddInvoiceItem}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-500/10 text-teal-300 border border-teal-500/20 text-xs font-bold"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Add Item</span>
-                    </button>
-                  </div>
-
-                  <div className="border border-border rounded-2xl overflow-hidden">
-                    <div className="grid grid-cols-12 bg-navy-950 p-3.5 text-[11px] font-mono font-bold text-slate-400 uppercase border-b border-border">
-                      <div className="col-span-7">Item Description</div>
-                      <div className="col-span-2 text-center">Qty</div>
-                      <div className="col-span-2 text-right">Unit (KES)</div>
-                      <div className="col-span-1 text-center"></div>
-                    </div>
-
-                    <div className="divide-y divide-border/60">
-                      {invoiceData.items.map((item, idx) => (
-                        <div key={idx} className="grid grid-cols-12 p-3 gap-2 items-center text-xs">
-                          <div className="col-span-7">
-                            <input
-                              type="text"
-                              value={item.desc}
-                              onChange={(e) => handleUpdateInvoiceItem(idx, "desc", e.target.value)}
-                              className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white text-xs"
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.qty}
-                              onChange={(e) => handleUpdateInvoiceItem(idx, "qty", parseInt(e.target.value) || 1)}
-                              className="w-full px-3 py-2 text-center rounded-xl bg-navy-950 border border-border text-white font-mono text-xs"
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <input
-                              type="number"
-                              step="500"
-                              value={item.unitPrice}
-                              onChange={(e) => handleUpdateInvoiceItem(idx, "unitPrice", parseInt(e.target.value) || 0)}
-                              className="w-full px-3 py-2 text-right rounded-xl bg-navy-950 border border-border text-white font-mono text-xs"
-                            />
-                          </div>
-                          <div className="col-span-1 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveInvoiceItem(idx)}
-                              className="p-1.5 text-rose-400 hover:bg-rose-500/10 rounded-lg"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Total and Bank/Till Details */}
-                <div className="grid sm:grid-cols-2 gap-6 pt-4 border-t border-border">
-                  <div className="space-y-3 text-xs">
-                    <span className="text-[11px] font-mono font-bold uppercase text-slate-400">Payment Instructions:</span>
-                    <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-slate-200 font-mono space-y-1">
-                      <p className="font-bold text-teal-300">M-Pesa Buy Goods / Till: 896553</p>
-                      <p>Account Name: Peter Kivevo John</p>
-                      <p>Direct Line: +254 758 896 553</p>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <input
-                        type="checkbox"
-                        id="vatToggle"
-                        checked={invoiceData.includeVat}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, includeVat: e.target.checked })}
-                        className="w-4 h-4 accent-teal-600 rounded"
-                      />
-                      <label htmlFor="vatToggle" className="text-xs text-slate-300 cursor-pointer">
-                        Include 16% VAT in quotation calculation
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-right">
-                    <div className="flex justify-between text-xs text-slate-400 font-mono">
-                      <span>Subtotal:</span>
-                      <span>KES {invoiceSubtotal.toLocaleString()}</span>
-                    </div>
-                    {invoiceData.includeVat && (
-                      <div className="flex justify-between text-xs text-slate-400 font-mono">
-                        <span>VAT (16%):</span>
-                        <span>KES {invoiceVat.toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-2xl font-heading font-black text-teal-400 border-t border-border pt-2 font-mono">
-                      <span>Total KES:</span>
-                      <span>KES {invoiceTotal.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <KrenovateInvoiceManager initialLead={leadForQuote} />
           )}
 
           {/* TAB 5: ⭐ REVIEWS MODERATION */}

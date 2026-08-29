@@ -8,24 +8,23 @@ import {
   MessageCircle, 
   Send,
   Sparkles, 
-  ArrowRight, 
   ShieldCheck,
   CheckCircle2,
-  FileText
+  FileText,
+  Clock
 } from "lucide-react";
 
 interface ScopeOption {
   id: string;
   name: string;
   category: "support" | "network" | "web" | "cctv";
-  basePrice: number;
+  deliveryTag: string;
   description: string;
 }
 
 export const QuickQuoteEstimator: React.FC = () => {
   const { toast } = useToast();
   const [selectedScopes, setSelectedScopes] = useState<string[]>(["wifi_setup"]);
-  const [urgencyMultiplier, setUrgencyMultiplier] = useState<number>(1.0);
   const [urgencyLabel, setUrgencyLabel] = useState<string>("Standard (This Week)");
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -35,44 +34,44 @@ export const QuickQuoteEstimator: React.FC = () => {
   const scopeCatalog: ScopeOption[] = [
     {
       id: "emergency_triage",
-      name: "Emergency Remote Help",
+      name: "Emergency Remote IT Help",
       category: "support",
-      basePrice: 2500,
-      description: "Immediate 15-minute remote connection for slow PCs, frozen apps, or viruses",
+      deliveryTag: "15-Min Remote Connection",
+      description: "Immediate remote connection for slow PCs, frozen business apps, or virus removal",
     },
     {
       id: "onsite_dispatch",
       name: "Same-Day On-Site Visit (Nairobi)",
       category: "support",
-      basePrice: 3500,
-      description: "Hands-on hardware troubleshooting, cable repairs, and router diagnostics",
+      deliveryTag: "Same-Day On-Site",
+      description: "Hands-on hardware troubleshooting, structured cable repairs, and router diagnostics",
     },
     {
       id: "wifi_setup",
       name: "Office Wi-Fi & Access Point Setup",
       category: "network",
-      basePrice: 12000,
+      deliveryTag: "1–2 Days Installation",
       description: "High-speed UniFi/MikroTik access point setup with isolated guest Wi-Fi",
     },
     {
       id: "pos_isolation",
       name: "Protected Payment Till Setup",
       category: "network",
-      basePrice: 8500,
+      deliveryTag: "Priority Lane Setup",
       description: "Separate private lane for M-Pesa & card machines so payments never freeze",
     },
     {
       id: "cctv_4ch",
       name: "4-Channel HD CCTV Camera Setup",
       category: "cctv",
-      basePrice: 28000,
+      deliveryTag: "Turnkey Installation",
       description: "HD night-vision cameras with encrypted live phone viewing app for manager",
     },
     {
       id: "business_website",
       name: "Custom Fast Business Website",
       category: "web",
-      basePrice: 25000,
+      deliveryTag: "5–10 Days Delivery",
       description: "Sub-2s mobile load speed, WhatsApp ordering buttons, and Google Search setup",
     },
   ];
@@ -88,22 +87,12 @@ export const QuickQuoteEstimator: React.FC = () => {
     }
   };
 
-  const calculateSubtotal = () => {
-    const rawTotal = selectedScopes.reduce((acc, currentId) => {
-      const item = scopeCatalog.find((s) => s.id === currentId);
-      return acc + (item ? item.basePrice : 0);
-    }, 0);
-    return Math.round(rawTotal * urgencyMultiplier);
-  };
-
-  const subtotal = calculateSubtotal();
-
   const handleDirectWebSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientPhone.trim()) {
       toast({
         title: "Phone number required",
-        description: "Please provide a phone number so Peter can deliver your quote.",
+        description: "Please provide a phone number so Peter can deliver your custom proposal.",
         variant: "destructive",
       });
       return;
@@ -118,15 +107,15 @@ export const QuickQuoteEstimator: React.FC = () => {
       source: "quote_estimator",
       name: clientName.trim() || "Website Visitor",
       phone: clientPhone.trim(),
-      service: `Quote: ${selectedNames}`,
+      service: `Custom Scope: ${selectedNames}`,
       urgency: urgencyLabel,
-      details: `Selected Items: ${selectedNames} | Estimated Subtotal: KES ${subtotal.toLocaleString()} | Timeline: ${urgencyLabel}`,
+      details: `Selected Scope: ${selectedNames} | Timeline: ${urgencyLabel}`,
     });
 
     setIsSubmitted(true);
     toast({
-      title: "Quote Request Received! 🚀",
-      description: `Thank you! Peter has received your customized estimate for KES ${subtotal.toLocaleString()} and will contact ${clientPhone} right away.`,
+      title: "Scope Request Received! 🚀",
+      description: `Thank you! Peter has received your customized project scope and will contact ${clientPhone} right away.`,
     });
   };
 
@@ -136,7 +125,7 @@ export const QuickQuoteEstimator: React.FC = () => {
       .filter(Boolean)
       .join("\n• ");
 
-    return `Hi Peter,\n\nI built a project quote estimate on your website:\n\nServices Needed:\n• ${selectedNames}\n\nTimeline: ${urgencyLabel}\nEstimated Range: KES ${subtotal.toLocaleString()}\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nCould you provide a detailed consultation / quote for my business?`;
+    return `Hi Peter,\n\nI selected my project requirements on your website:\n\nServices Needed:\n• ${selectedNames}\n\nTimeline: ${urgencyLabel}\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nCould you review these requirements and provide a custom proposal / quote?`;
   };
 
   return (
@@ -146,14 +135,14 @@ export const QuickQuoteEstimator: React.FC = () => {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
             <Calculator className="w-3.5 h-3.5" />
-            <span>Instant Cost Calculator</span>
+            <span>Interactive Scope Builder</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-            Transparent Pricing: <br className="hidden sm:inline" />
-            <span className="text-gradient-teal">Build Your Project Estimate</span>
+            Custom Project Scope: <br className="hidden sm:inline" />
+            <span className="text-gradient-teal">Tailored to Your Business</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            Select the services you need to calculate an instant cost estimate. You can send it directly from the site or open in WhatsApp.
+            Select the services your business needs. Peter will review your requirements and provide an exact, itemized proposal.
           </p>
         </div>
 
@@ -198,8 +187,8 @@ export const QuickQuoteEstimator: React.FC = () => {
                         </p>
                       </div>
 
-                      <span className="font-mono text-xs font-bold text-teal-600 dark:text-teal-400 flex-shrink-0 pt-0.5">
-                        ~KES {item.basePrice.toLocaleString()}
+                      <span className="font-mono text-[11px] font-bold text-teal-600 dark:text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-full flex-shrink-0 pt-0.5 border border-teal-500/20">
+                        {item.deliveryTag}
                       </span>
                     </div>
                   );
@@ -207,31 +196,28 @@ export const QuickQuoteEstimator: React.FC = () => {
               </div>
             </div>
 
-            {/* Urgency Slider */}
+            {/* Urgency Selector */}
             <div className="rounded-3xl bg-card dark:bg-navy-900 border border-border/90 p-6 space-y-3">
               <label className="font-heading font-bold text-sm text-foreground block">
                 Required Project Timeline:
               </label>
               <div className="grid sm:grid-cols-3 gap-2.5">
                 {[
-                  { label: "Standard (This Week)", multiplier: 1.0 },
-                  { label: "Urgent (Within 48h)", multiplier: 1.15 },
-                  { label: "Emergency (Today)", multiplier: 1.3 },
-                ].map((tier) => (
+                  "Standard (This Week)",
+                  "Urgent (Within 48h)",
+                  "Emergency (Today)",
+                ].map((label) => (
                   <button
-                    key={tier.label}
+                    key={label}
                     type="button"
-                    onClick={() => {
-                      setUrgencyMultiplier(tier.multiplier);
-                      setUrgencyLabel(tier.label);
-                    }}
+                    onClick={() => setUrgencyLabel(label)}
                     className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                      urgencyLabel === tier.label
+                      urgencyLabel === label
                         ? "bg-teal-600 text-white border-teal-600 shadow-sm"
                         : "bg-muted text-foreground border-border hover:bg-muted/80"
                     }`}
                   >
-                    {tier.label}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -243,30 +229,37 @@ export const QuickQuoteEstimator: React.FC = () => {
             <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/40 shadow-card-dark dark:shadow-glow p-6 sm:p-8 space-y-6">
               <div className="space-y-1 pb-4 border-b border-border">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-                  Estimated Total Investment
+                  Custom Proposal Summary
                 </span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold font-heading text-foreground">
-                    KES {subtotal.toLocaleString()}
+                  <span className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
+                    Itemized Scope
                   </span>
                   <span className="text-xs text-muted-foreground font-mono">
-                    (Est. Quote)
+                    ({selectedScopes.length} deliverables)
                   </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+                  <Clock className="w-3.5 h-3.5 text-teal-500" />
+                  <span>Timeline: <strong className="text-foreground">{urgencyLabel}</strong></span>
                 </div>
               </div>
 
               {/* Scope Checklist */}
               <div className="space-y-2 text-xs">
                 <span className="font-mono text-muted-foreground uppercase tracking-wider text-[10px] block">
-                  Included in this estimate ({selectedScopes.length} items):
+                  Included in this scope:
                 </span>
                 {selectedScopes.map((id) => {
                   const item = scopeCatalog.find((s) => s.id === id);
                   return (
                     <div key={id} className="flex items-center justify-between text-foreground">
-                      <span>• {item?.name}</span>
-                      <span className="font-mono text-muted-foreground">
-                        KES {item?.basePrice.toLocaleString()}
+                      <span className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+                        {item?.name}
+                      </span>
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        {item?.deliveryTag}
                       </span>
                     </div>
                   );
@@ -277,10 +270,10 @@ export const QuickQuoteEstimator: React.FC = () => {
                 <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 space-y-2 text-center animate-in fade-in">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
                   <p className="font-heading font-bold text-sm">
-                    Quote Request Sent Successfully!
+                    Scope Request Sent Successfully!
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Peter has received your selected scope and will reach out to you directly.
+                    Peter has received your selected scope and will reach out to discuss your custom proposal.
                   </p>
                 </div>
               ) : (
@@ -288,7 +281,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                   {showDirectForm ? (
                     <form onSubmit={handleDirectWebSubmit} className="space-y-2.5 p-3.5 rounded-2xl bg-muted/40 border border-border">
                       <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                        <span>Send Quote Directly from Web</span>
+                        <span>Send Scope Directly from Web</span>
                         <button
                           type="button"
                           onClick={() => setShowDirectForm(false)}
@@ -320,7 +313,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Submit Quote Request</span>
+                        <span>Submit Project Scope</span>
                       </button>
                     </form>
                   ) : (
@@ -331,7 +324,7 @@ export const QuickQuoteEstimator: React.FC = () => {
                         className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
                       >
                         <Send className="w-4 h-4" />
-                        <span>Request Formal Quotation</span>
+                        <span>Request Custom Quotation</span>
                       </button>
 
                       <div className="flex gap-2">
@@ -361,7 +354,7 @@ export const QuickQuoteEstimator: React.FC = () => {
               )}
 
               <p className="text-[11px] text-center text-muted-foreground">
-                🔒 Free initial consultation. Transparent itemized invoices.
+                🔒 Free initial consultation. Transparent, itemized pricing discussed directly with Peter.
               </p>
             </div>
           </div>

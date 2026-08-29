@@ -47,7 +47,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "Office laptops & phones disconnect during work hours",
       advice: "Most office Wi-Fi drops occur because basic ISP home routers get overwhelmed by 10+ devices. Peter installs smart access points to isolate traffic and speed up your connection.",
       turnaround: "15-min remote triage • Same-day Nairobi visit",
-      priceEstimate: "From KES 3,500 (Diagnostic / Fix)",
+      priceEstimate: "Fast diagnostic & resolution",
     },
     {
       id: "pos",
@@ -56,7 +56,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "M-Pesa, card machines or till PCs timing out",
       advice: "Customer phones on guest Wi-Fi are likely crowding out your payment tills. Peter isolates your tills onto a private priority lane so transactions never freeze.",
       turnaround: "Priority 1-hour emergency dispatch",
-      priceEstimate: "From KES 4,500",
+      priceEstimate: "Emergency priority dispatch",
     },
     {
       id: "computer",
@@ -65,7 +65,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "Windows crashing, blue screen, or suspicious popups",
       advice: "Peter can connect remotely within 15 minutes to remove viruses, speed up startup, or visit your office to replace failed hard drives with super-fast SSDs.",
       turnaround: "15-minute remote connection",
-      priceEstimate: "From KES 2,500 (Remote) / KES 3,500 (On-site)",
+      priceEstimate: "Remote or on-site support",
     },
     {
       id: "printer",
@@ -74,7 +74,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "Staff cannot print invoices or documents over Wi-Fi",
       advice: "Peter configures dedicated IP sharing and network print queues so all staff can print seamlessly from any laptop or desktop.",
       turnaround: "Same-day resolution",
-      priceEstimate: "From KES 2,500",
+      priceEstimate: "Quick configuration",
     },
     {
       id: "office_setup",
@@ -83,7 +83,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "Need complete cabling, Wi-Fi, cameras, and staff PCs",
       advice: "Turnkey office setup: structured network cabling, long-range Wi-Fi, HD security cameras with mobile phone streaming, and staff workstations.",
       turnaround: "2–5 days full turnkey installation",
-      priceEstimate: "Custom package (Free written quote)",
+      priceEstimate: "Free site survey & written proposal",
     },
     {
       id: "website",
@@ -92,7 +92,7 @@ export const InstantIssueWizard: React.FC = () => {
       sub: "Want a modern site that brings WhatsApp orders & calls",
       advice: "Peter builds fast, mobile-friendly websites that load in under 2 seconds on Kenyan phones and feature direct WhatsApp order buttons.",
       turnaround: "5–10 days ready to launch",
-      priceEstimate: "From KES 25,000",
+      priceEstimate: "Custom package based on your goals",
     },
   ];
 

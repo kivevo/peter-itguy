@@ -16,7 +16,8 @@ import {
   MessageCircle, 
   Sparkles,
   ArrowRight,
-  HardDrive
+  HardDrive,
+  FileCheck
 } from "lucide-react";
 
 export const OfficeHardwarePlanner: React.FC = () => {
@@ -37,53 +38,31 @@ export const OfficeHardwarePlanner: React.FC = () => {
   const calculatePlan = () => {
     let accessPoints = 1;
     let switchType = "8-Port Gigabit PoE+ Managed Switch";
-    let switchCost = 14500;
     const apType = "Ubiquiti UniFi U6+ Long-Range Wi-Fi 6 AP";
-    const apUnitCost = 18500;
     let routerType = "Mikrotik hEX Gigabit Multi-WAN Router";
-    let routerCost = 9500;
     let cabinetType = "6U Wall-Mount Data Cabinet with PDU";
-    let cabinetCost = 12000;
     let cablingMeters = 150;
-    let cablingCost = 16000;
-    let laborCost = 18000;
 
     if (officeSize === "small") {
       accessPoints = 1 * floors;
       switchType = "8-Port Gigabit PoE+ Switch (Ubiquiti/Hikvision)";
-      switchCost = 12500;
       cablingMeters = 100 * floors;
-      cablingCost = 12000 * floors;
-      laborCost = 15000;
     } else if (officeSize === "medium") {
       accessPoints = 2 * floors;
       switchType = "16-Port Gigabit PoE+ Managed Switch";
-      switchCost = 24500;
       cablingMeters = 250 * floors;
-      cablingCost = 25000 * floors;
-      laborCost = 28000;
     } else if (officeSize === "large") {
       accessPoints = 4 * floors;
       switchType = "24-Port Gigabit PoE+ Managed Switch";
-      switchCost = 38000;
       routerType = "UniFi Dream Machine Pro / Mikrotik Cloud Router";
-      routerCost = 26000;
       cabinetType = "9U Wall-Mount Server Cabinet with Patch Panel";
-      cabinetCost = 18000;
       cablingMeters = 500 * floors;
-      cablingCost = 48000 * floors;
-      laborCost = 45000;
     } else if (officeSize === "enterprise") {
       accessPoints = 6 * floors;
       switchType = "48-Port Enterprise PoE+ Core Switch";
-      switchCost = 65000;
       routerType = "Enterprise Dual-WAN Firewall & Bandwidth Shaper";
-      routerCost = 36000;
       cabinetType = "12U Enterprise Server Rack Cabinet";
-      cabinetCost = 26000;
       cablingMeters = 1000 * floors;
-      cablingCost = 85000 * floors;
-      laborCost = 75000;
     }
 
     if (staffCount === "large" && accessPoints < 3) {
@@ -92,45 +71,27 @@ export const OfficeHardwarePlanner: React.FC = () => {
 
     // CCTV specs
     let cctvHardware = "No security cameras selected";
-    let cctvCost = 0;
     if (cctvOption === "4cam") {
-      cctvHardware = "4x Hikvision 4K HD Infrared Dome/Bullet Cameras + 4CH NVR & 2TB Surveillance Hard Drive";
-      cctvCost = 38500;
+      cctvHardware = "4x Hikvision 4K HD Infrared Dome/Bullet Cameras + 4CH NVR & 2TB Surveillance Storage";
     } else if (cctvOption === "8cam") {
-      cctvHardware = "8x Hikvision 4K Ultra-HD Cameras + 8CH NVR + 4TB Surveillance Storage & Mobile Phone App";
-      cctvCost = 68000;
+      cctvHardware = "8x Hikvision 4K Ultra-HD Cameras + 8CH NVR + 4TB Surveillance Storage & Mobile App";
     } else if (cctvOption === "16cam") {
       cctvHardware = "16x 4K IP Security Cameras + 16CH Smart NVR + 8TB Storage & Remote Phone Streaming";
-      cctvCost = 125000;
     }
 
-    // 4G Failover
-    const failoverCost = need4GFailover ? 14500 : 0;
     const failoverDesc = need4GFailover 
-      ? "Automatic 4G SIM Backup Router (Switches seamlessly in 1 second when fiber line drops)"
+      ? "Automatic 4G SIM Backup Router (Switches seamlessly in 1 second when fiber cuts)"
       : "Not included";
-
-    const totalApCost = accessPoints * apUnitCost;
-    const estimatedTotal = totalApCost + switchCost + routerCost + cabinetCost + cablingCost + laborCost + cctvCost + failoverCost;
 
     return {
       accessPoints,
       apType,
-      totalApCost,
       switchType,
-      switchCost,
       routerType,
-      routerCost,
       cabinetType,
-      cabinetCost,
       cablingMeters,
-      cablingCost,
       cctvHardware,
-      cctvCost,
       failoverDesc,
-      failoverCost,
-      laborCost,
-      estimatedTotal,
     };
   };
 
@@ -151,8 +112,8 @@ export const OfficeHardwarePlanner: React.FC = () => {
       source: "hardware_planner",
       name: clientName.trim(),
       phone: clientPhone.trim(),
-      service: `Turnkey Office Setup Plan (Est: KES ${plan.estimatedTotal.toLocaleString()})`,
-      details: `Office Plan: ${officeSize.toUpperCase()} (${floors} floor/s) | APs: ${plan.accessPoints}x ${plan.apType} | Switch: ${plan.switchType} | CCTV: ${cctvOption} | 4G Failover: ${need4GFailover ? "YES" : "NO"} | Est: KES ${plan.estimatedTotal.toLocaleString()}`,
+      service: `Turnkey Office Hardware Plan: ${officeSize.toUpperCase()}`,
+      details: `Office Plan: ${officeSize.toUpperCase()} (${floors} floor/s) | APs: ${plan.accessPoints}x ${plan.apType} | Switch: ${plan.switchType} | CCTV: ${cctvOption} | 4G Failover: ${need4GFailover ? "YES" : "NO"}`,
     });
 
     setIsSubmitted(true);
@@ -163,7 +124,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
   };
 
   const generatePlanWhatsApp = () => {
-    return `Hi Peter,\n\nI used the Office Wi-Fi & CCTV Hardware Planner on your website:\n\n🏢 Office Specs: ${officeSize.toUpperCase()} (${floors} floor/s, ${staffCount} staff capacity)\n📡 Wi-Fi: ${plan.accessPoints}x ${plan.apType}\n🔌 Switch: ${plan.switchType}\n📹 Security: ${plan.cctvHardware}\n📶 4G Backup: ${need4GFailover ? "Yes (Auto-Failover)" : "No"}\n💰 Turnkey Range: KES ${plan.estimatedTotal.toLocaleString()}\n\nCould you review this hardware configuration and provide an on-site survey / written quote?`;
+    return `Hi Peter,\n\nI used the Office Wi-Fi & CCTV Hardware Planner on your website:\n\n🏢 Office Specs: ${officeSize.toUpperCase()} (${floors} floor/s, ${staffCount} staff capacity)\n📡 Wi-Fi: ${plan.accessPoints}x ${plan.apType}\n🔌 Switch: ${plan.switchType}\n📹 Security: ${plan.cctvHardware}\n📶 4G Backup: ${need4GFailover ? "Yes (Auto-Failover)" : "No"}\n\nCould you review this hardware configuration and provide an on-site survey / written proposal?`;
   };
 
   return (
@@ -180,25 +141,27 @@ export const OfficeHardwarePlanner: React.FC = () => {
             <span className="text-gradient-teal">Hardware Architecture Planner</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground">
-            Configure your office parameters below to instantly generate an enterprise-grade equipment list and turnkey implementation estimate.
+            Configure your office footprint to get a recommended enterprise Bill of Materials (BOM) including Ubiquiti Wi-Fi, PoE Switches, and CCTV cameras.
           </p>
         </div>
 
+        {/* Simulator Grid */}
         <div className="grid lg:grid-cols-12 gap-8 items-start">
-          {/* Controls Column */}
+          {/* Left Column: Office Inputs */}
           <div className="lg:col-span-6 space-y-6">
-            {/* 1. Office Floor Area */}
-            <div className="p-5 rounded-2xl bg-card dark:bg-navy-900 border border-border space-y-3">
-              <label className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 flex items-center gap-2">
-                <Building2 className="w-4 h-4" />
-                <span>1. Office Size &amp; Layout</span>
-              </label>
+            {/* Step 1: Office Floor Size */}
+            <div className="p-6 rounded-3xl bg-card dark:bg-navy-900 border border-border/80 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 text-foreground font-heading font-bold text-sm">
+                <Building2 className="w-4 h-4 text-teal-500" />
+                <span>1. Select Office Scale &amp; Footprint:</span>
+              </div>
+
               <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  { id: "small", label: "Shop / Small Office", sub: "< 800 sq ft" },
-                  { id: "medium", label: "Standard Office", sub: "1,000 – 2,500 sq ft" },
-                  { id: "large", label: "Medium Enterprise", sub: "3,000 – 6,000 sq ft" },
-                  { id: "enterprise", label: "Multi-Unit / Warehouse", sub: "7,000+ sq ft" },
+                  { id: "small", label: "Small Office", sub: "Under 1,500 sq ft (1–10 Staff)" },
+                  { id: "medium", label: "Standard Office", sub: "1,500 – 4,000 sq ft (10–30 Staff)" },
+                  { id: "large", label: "Large Office / Floor", sub: "4,000 – 10,000 sq ft (30–80 Staff)" },
+                  { id: "enterprise", label: "Multi-Floor / Hub", sub: "10,000+ sq ft (80+ Staff)" },
                 ].map((s) => (
                   <button
                     key={s.id}
@@ -206,128 +169,148 @@ export const OfficeHardwarePlanner: React.FC = () => {
                     onClick={() => setOfficeSize(s.id as "small" | "medium" | "large" | "enterprise")}
                     className={`p-3 rounded-xl border text-left transition-all text-xs ${
                       officeSize === s.id
-                        ? "bg-teal-500/10 border-teal-500 ring-2 ring-teal-500/30 text-foreground font-bold"
-                        : "bg-muted/40 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
+                        ? "bg-teal-600 text-white border-teal-600 font-bold shadow-sm"
+                        : "bg-muted/40 hover:bg-muted text-foreground border-border"
                     }`}
                   >
-                    <p className="font-semibold text-foreground">{s.label}</p>
-                    <span className="text-[11px] text-muted-foreground block">{s.sub}</span>
+                    <span className="font-heading block">{s.label}</span>
+                    <span className={`text-[10px] block mt-0.5 ${officeSize === s.id ? "text-teal-100" : "text-muted-foreground"}`}>
+                      {s.sub}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 2. Floors & Staff */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-card dark:bg-navy-900 border border-border space-y-2">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-teal-500" />
-                  <span>Number of Floors</span>
-                </label>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => setFloors(num)}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
-                        floors === num
-                          ? "bg-teal-600 text-white border-teal-600"
-                          : "bg-muted/40 border-border text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {num} {num === 1 ? "Floor" : "Floors"}
-                    </button>
-                  ))}
+            {/* Step 2: Floors Count & Staff Load */}
+            <div className="p-6 rounded-3xl bg-card dark:bg-navy-900 border border-border/80 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 text-foreground font-heading font-bold text-sm">
+                <Users className="w-4 h-4 text-teal-500" />
+                <span>2. Floors &amp; Concurrency Load:</span>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1.5">
+                    Number of Floors:
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4].map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => setFloors(f)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
+                          floors === f
+                            ? "bg-teal-600 text-white border-teal-600"
+                            : "bg-muted text-foreground border-border hover:bg-muted/80"
+                        }`}
+                      >
+                        {f} {f === 1 ? "Floor" : "Floors"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1.5">
+                    Staff &amp; Guest Density:
+                  </label>
+                  <select
+                    value={staffCount}
+                    onChange={(e) => setStaffCount(e.target.value as "starter" | "standard" | "large")}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  >
+                    <option value="starter">Light (1–15 Connected Devices)</option>
+                    <option value="standard">Moderate (15–50 Devices)</option>
+                    <option value="large">Heavy / High Traffic (50+ Devices)</option>
+                  </select>
                 </div>
               </div>
-
-              <div className="p-4 rounded-2xl bg-card dark:bg-navy-900 border border-border space-y-2">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-teal-500" />
-                  <span>Staff &amp; Devices</span>
-                </label>
-                <select
-                  value={staffCount}
-                  onChange={(e) => setStaffCount(e.target.value as "starter" | "standard" | "large")}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                >
-                  <option value="starter">5 &ndash; 15 Devices (Starter)</option>
-                  <option value="standard">15 &ndash; 40 Devices (Standard)</option>
-                  <option value="large">40 &ndash; 100+ Devices (High Density)</option>
-                </select>
-              </div>
             </div>
 
-            {/* 3. Security Cameras (CCTV) */}
-            <div className="p-5 rounded-2xl bg-card dark:bg-navy-900 border border-border space-y-3">
-              <label className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 flex items-center gap-2">
-                <Video className="w-4 h-4" />
-                <span>2. HD Security Cameras (CCTV)</span>
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "none", label: "No Cameras", sub: "Network only" },
-                  { id: "4cam", label: "4x 4K Cameras", sub: "Reception & Tills" },
-                  { id: "8cam", label: "8x 4K Cameras", sub: "Full Office Coverage" },
-                  { id: "16cam", label: "16x 4K Cameras", sub: "Building / Warehouse" },
-                ].map((c) => (
+            {/* Step 3: CCTV & 4G Failover Options */}
+            <div className="p-6 rounded-3xl bg-card dark:bg-navy-900 border border-border/80 space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 text-foreground font-heading font-bold text-sm">
+                <Video className="w-4 h-4 text-teal-500" />
+                <span>3. Security Cameras &amp; Internet Failover:</span>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1.5">
+                    HD Security Cameras (CCTV):
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { id: "none", label: "No CCTV" },
+                      { id: "4cam", label: "4x 4K Cameras" },
+                      { id: "8cam", label: "8x 4K Cameras" },
+                      { id: "16cam", label: "16x 4K Cameras" },
+                    ].map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setCctvOption(c.id as "none" | "4cam" | "8cam" | "16cam")}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition-all text-center ${
+                          cctvOption === c.id
+                            ? "bg-teal-600 text-white border-teal-600"
+                            : "bg-muted text-foreground border-border hover:bg-muted/80"
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-foreground block">
+                      Automatic 4G Backup Failover Gateway
+                    </span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      Switches in 1 sec if fiber cuts so payment tills stay online.
+                    </span>
+                  </div>
+
                   <button
-                    key={c.id}
                     type="button"
-                    onClick={() => setCctvOption(c.id as "none" | "4cam" | "8cam" | "16cam")}
-                    className={`p-3 rounded-xl border text-left transition-all text-xs ${
-                      cctvOption === c.id
-                        ? "bg-teal-500/10 border-teal-500 ring-2 ring-teal-500/30 text-foreground font-bold"
-                        : "bg-muted/40 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
+                    onClick={() => setNeed4GFailover(!need4GFailover)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                      need4GFailover
+                        ? "bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/40"
+                        : "bg-muted text-muted-foreground border-border"
                     }`}
                   >
-                    <p className="font-semibold text-foreground">{c.label}</p>
-                    <span className="text-[11px] text-muted-foreground block">{c.sub}</span>
+                    {need4GFailover ? "✓ Included" : "+ Add Backup"}
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-
-            {/* 4. Automatic 4G Backup Failover */}
-            <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <p className="font-heading font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-teal-500" />
-                  <span>Automatic 4G Backup Router</span>
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Prevents payment machine freezes when primary fiber drops.
-                </p>
-              </div>
-              <input
-                type="checkbox"
-                checked={need4GFailover}
-                onChange={(e) => setNeed4GFailover(e.target.checked)}
-                className="w-5 h-5 accent-teal-600 rounded cursor-pointer"
-              />
             </div>
           </div>
 
-          {/* Output Architecture BOM Column */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="p-6 sm:p-7 rounded-3xl bg-navy-950 border border-teal-500/40 text-white shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-border/80 pb-4">
+          {/* Right Column: Architected Bill of Materials (BOM) Output */}
+          <div className="lg:col-span-6 sticky top-28 space-y-6">
+            <div className="rounded-3xl bg-navy-950 border border-teal-500/40 p-6 sm:p-8 space-y-5 shadow-2xl text-slate-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex items-center justify-between pb-4 border-b border-border/80">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-teal-400 font-bold block">
-                    Architected Bill of Materials
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 block">
+                    Recommended Architecture
                   </span>
-                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-white">
-                    Recommended Hardware Rig
+                  <h3 className="font-heading font-extrabold text-lg text-white">
+                    Hardware Bill of Materials (BOM)
                   </h3>
                 </div>
-                <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                  <Cpu className="w-5 h-5" />
+                <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                  <Server className="w-5 h-5" />
                 </div>
               </div>
 
-              {/* Itemized Hardware List */}
-              <div className="space-y-3.5 text-xs font-mono">
+              {/* Hardware List */}
+              <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-navy-900/90 border border-border/70 flex items-start gap-3">
                   <Wifi className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
@@ -335,19 +318,19 @@ export const OfficeHardwarePlanner: React.FC = () => {
                       {plan.accessPoints}x {plan.apType}
                     </p>
                     <span className="text-[11px] text-slate-400 block">
-                      Ceiling-mounted enterprise Wi-Fi 6 roaming antennas with isolated Guest &amp; Till channels.
+                      Multi-SSID with Isolated Guest Wi-Fi &amp; Fast Roaming.
                     </span>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-xl bg-navy-900/90 border border-border/70 flex items-start gap-3">
-                  <Server className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <Cpu className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-white text-xs">
-                      {plan.switchType}
+                      1x {plan.switchType}
                     </p>
                     <span className="text-[11px] text-slate-400 block">
-                      Dedicated PoE power for all Wi-Fi APs &amp; CCTV cameras without power bricks.
+                      Dedicated PoE power for all Wi-Fi APs &amp; CCTV cameras without messy adapters.
                     </span>
                   </div>
                 </div>
@@ -393,20 +376,15 @@ export const OfficeHardwarePlanner: React.FC = () => {
                 )}
               </div>
 
-              {/* Total Summary */}
-              <div className="pt-4 border-t border-border/80 space-y-1">
-                <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-                  <span>Estimated Turnkey Implementation:</span>
-                  <span className="text-teal-400 font-bold">Hardware + Cabling + Labor</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="font-heading font-black text-2xl sm:text-3xl text-teal-400 font-mono">
-                    KES {plan.estimatedTotal.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    Turnkey Package Range
-                  </span>
-                </div>
+              {/* Turnkey Scope Deliverables Note */}
+              <div className="p-3.5 rounded-2xl bg-teal-950/60 border border-teal-500/30 space-y-1.5">
+                <span className="text-xs font-bold text-teal-300 flex items-center gap-1.5">
+                  <FileCheck className="w-3.5 h-3.5" />
+                  Turnkey Installation &amp; Service Scope:
+                </span>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Includes ~{plan.cablingMeters}m pure copper Cat6 cabling, rack organization, bandwidth isolation for payment tills, and on-site staff training.
+                </p>
               </div>
 
               {/* Dispatch Action */}
@@ -468,7 +446,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
                     className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all hover:shadow-glow"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Request On-Site Survey</span>
+                    <span>Request On-Site Survey &amp; Quote</span>
                   </button>
 
                   <a

@@ -7,7 +7,7 @@ export const EngagementPricing: React.FC = () => {
     {
       name: "One-Time Emergency Fix",
       badge: "Pay As You Need",
-      price: "From KES 3,500",
+      price: "Per Incident Scope",
       desc: "Great for quick computer breakdowns, virus removal, printer jams, or Wi-Fi troubleshooting.",
       features: [
         "15-minute quick remote help",
@@ -22,7 +22,7 @@ export const EngagementPricing: React.FC = () => {
     {
       name: "Monthly Office IT Support",
       badge: "Most Popular for Businesses",
-      price: "From KES 15,000 / month",
+      price: "Custom Monthly SLA",
       desc: "Full IT department for your office, retail shops, or restaurant without hiring full-time staff.",
       features: [
         "Guaranteed 15-minute fast response on WhatsApp",
@@ -38,7 +38,7 @@ export const EngagementPricing: React.FC = () => {
     {
       name: "Complete Project Setup",
       badge: "Fixed-Price Delivery",
-      price: "Custom Itemized Quote",
+      price: "Itemized Project Quote",
       desc: "Moving to a new office, wiring network cables, setting up Wi-Fi & CCTV, or building a new website.",
       features: [
         "Free initial site survey & written quote",
