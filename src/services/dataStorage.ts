@@ -82,6 +82,7 @@ export interface CompanyProfile {
   mpesaType: "Paybill" | "Till" | "Buy Goods";
   mpesaNumber: string;
   mpesaAccount: string;
+  includeBankDetails?: boolean;
   bankName: string;
   bankAccountName: string;
   bankAccountNumber: string;
@@ -307,6 +308,7 @@ export const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
   mpesaType: "Paybill",
   mpesaNumber: "247247",
   mpesaAccount: "Krenovate Systems",
+  includeBankDetails: true,
   bankName: "NCBA Bank Kenya",
   bankAccountName: "Krenovate Systems Limited",
   bankAccountNumber: "10023456789",

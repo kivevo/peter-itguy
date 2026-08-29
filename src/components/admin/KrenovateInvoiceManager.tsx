@@ -581,11 +581,19 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const generateDocWhatsAppMessage = (doc: InvoiceDocument) => {
     const totals = calculateDocTotals(doc);
     const profile = companyProfile;
+    const hasBank =
+      profile.includeBankDetails !== false &&
+      Boolean(profile.bankName?.trim()) &&
+      Boolean(profile.bankAccountNumber?.trim());
+
+    const paymentLine = hasBank
+      ? `Payment via ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount}) or Bank: ${profile.bankName} Acc: ${profile.bankAccountNumber}`
+      : `Payment via M-Pesa ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})`;
 
     if (doc.docType === "quotation") {
-      return `Dear ${doc.client.name},\n\n*${profile.name}* has prepared your formal quotation:\n\n📄 *Quote No:* ${doc.docNumber}\n🏢 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Valid Until:* ${doc.dueDate}\n\n*Key Deliverables:*\n${doc.items.map((i) => `• ${i.desc} (${i.qty}x)`).join("\n")}\n\nPayment via ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount}) or Bank: ${profile.bankName} Acc: ${profile.bankAccountNumber}.\n\nPlease let us know if you would like us to schedule on-site deployment.`;
+      return `Dear ${doc.client.name},\n\n*${profile.name}* has prepared your formal quotation:\n\n📄 *Quote No:* ${doc.docNumber}\n🏢 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Valid Until:* ${doc.dueDate}\n\n*Key Deliverables:*\n${doc.items.map((i) => `• ${i.desc} (${i.qty}x)`).join("\n")}\n\n${paymentLine}.\n\nPlease let us know if you would like us to schedule on-site deployment.`;
     } else {
-      return `Dear ${doc.client.name},\n\n*${profile.name}* Official Tax Invoice:\n\n📄 *Invoice No:* ${doc.docNumber}\n🏢 *Bill To:* ${doc.client.company}\n💰 *Amount Due:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n📌 *Status:* ${doc.status.toUpperCase()}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})\n• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}\n\nThank you for choosing ${profile.name}!`;
+      return `Dear ${doc.client.name},\n\n*${profile.name}* Official Tax Invoice:\n\n📄 *Invoice No:* ${doc.docNumber}\n🏢 *Bill To:* ${doc.client.company}\n💰 *Amount Due:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n📌 *Status:* ${doc.status.toUpperCase()}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})${hasBank ? `\n• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}` : ""}\n\nThank you for choosing ${profile.name}!`;
     }
   };
 
@@ -1665,9 +1673,11 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                     Edit Branding
                   </button>
                 </div>
-                <p>PIN: <strong className="text-slate-200">{companyProfile.kraPin}</strong></p>
-                <p>M-Pesa: <strong className="text-slate-200">{companyProfile.mpesaType} {companyProfile.mpesaNumber}</strong></p>
-                <p>Bank: <strong className="text-slate-200">{companyProfile.bankName} - {companyProfile.bankAccountNumber}</strong></p>
+                <p>PIN: <strong className="text-slate-200">{companyProfile.kraPin || "N/A"}</strong></p>
+                <p>M-Pesa: <strong className="text-slate-200">{companyProfile.mpesaType} {companyProfile.mpesaNumber} ({companyProfile.mpesaAccount})</strong></p>
+                {companyProfile.includeBankDetails !== false && companyProfile.bankName?.trim() && (
+                  <p>Bank: <strong className="text-slate-200">{companyProfile.bankName} - {companyProfile.bankAccountNumber}</strong></p>
+                )}
               </div>
             </div>
           </div>
@@ -1898,8 +1908,12 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200 text-teal-950 space-y-0.5 font-mono text-[11px]">
                     <p><strong>M-Pesa {companyProfile.mpesaType}:</strong> {companyProfile.mpesaNumber}</p>
                     <p><strong>Account Name:</strong> {companyProfile.mpesaAccount}</p>
-                    <p><strong>Bank:</strong> {companyProfile.bankName} &bull; Acc: {companyProfile.bankAccountNumber}</p>
-                    <p><strong>Branch:</strong> {companyProfile.bankBranch}</p>
+                    {companyProfile.includeBankDetails !== false && Boolean(companyProfile.bankName?.trim()) && Boolean(companyProfile.bankAccountNumber?.trim()) && (
+                      <>
+                        <p><strong>Bank:</strong> {companyProfile.bankName} &bull; Acc: {companyProfile.bankAccountNumber}</p>
+                        {companyProfile.bankBranch?.trim() && <p><strong>Branch:</strong> {companyProfile.bankBranch}</p>}
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -2117,37 +2131,62 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300 block mb-1">Bank Name</label>
+                {/* Include Bank Details Toggle */}
+                <div className="pt-2 pb-1">
+                  <label className="flex items-start gap-3 p-3.5 rounded-2xl bg-navy-950 border border-border cursor-pointer hover:border-teal-500/40 transition-colors">
                     <input
-                      type="text"
-                      value={companyProfile.bankName}
-                      onChange={(e) => setCompanyProfile({ ...companyProfile, bankName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
+                      type="checkbox"
+                      checked={companyProfile.includeBankDetails !== false}
+                      onChange={(e) => setCompanyProfile({ ...companyProfile, includeBankDetails: e.target.checked })}
+                      className="mt-0.5 w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
                     />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300 block mb-1">Bank Account Number</label>
-                    <input
-                      type="text"
-                      value={companyProfile.bankAccountNumber}
-                      onChange={(e) => setCompanyProfile({ ...companyProfile, bankAccountNumber: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300 block mb-1">Branch</label>
-                    <input
-                      type="text"
-                      value={companyProfile.bankBranch}
-                      onChange={(e) => setCompanyProfile({ ...companyProfile, bankBranch: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
-                    />
-                  </div>
+                    <div>
+                      <span className="text-xs font-bold text-white block">
+                        Include Bank Transfer Details on Quotations &amp; Invoices
+                      </span>
+                      <span className="text-[11px] text-slate-400 block mt-0.5">
+                        Uncheck this if you only accept M-Pesa Till / Paybill payments so no blank bank details appear on your documents.
+                      </span>
+                    </div>
+                  </label>
                 </div>
+
+                {companyProfile.includeBankDetails !== false && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 animate-in fade-in duration-200">
+                    <div>
+                      <label className="text-xs font-semibold text-slate-300 block mb-1">Bank Name</label>
+                      <input
+                        type="text"
+                        value={companyProfile.bankName}
+                        onChange={(e) => setCompanyProfile({ ...companyProfile, bankName: e.target.value })}
+                        placeholder="e.g. NCBA Bank Kenya"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-300 block mb-1">Bank Account Number</label>
+                      <input
+                        type="text"
+                        value={companyProfile.bankAccountNumber}
+                        onChange={(e) => setCompanyProfile({ ...companyProfile, bankAccountNumber: e.target.value })}
+                        placeholder="e.g. 10023456789"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-300 block mb-1">Branch</label>
+                      <input
+                        type="text"
+                        value={companyProfile.bankBranch}
+                        onChange={(e) => setCompanyProfile({ ...companyProfile, bankBranch: e.target.value })}
+                        placeholder="e.g. Westlands Branch"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Default Terms Template */}
