@@ -1,16 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { 
-  CheckCircle2, 
-  MessageCircle, 
-  Phone, 
-  Clock, 
-  ShieldCheck, 
-  X, 
+import {
+  CheckCircle2,
+  MessageCircle,
+  Phone,
+  X,
   ExternalLink,
-  Sparkles,
-  Ticket,
-  MapPin
+  Send,
+  ArrowRight,
 } from "lucide-react";
 
 export interface SubmissionDetails {
@@ -21,6 +18,7 @@ export interface SubmissionDetails {
   service: string;
   location?: string;
   urgency?: string;
+  waUrl: string; // pre-built WhatsApp URL to open
 }
 
 interface SubmissionSuccessModalProps {
@@ -34,106 +32,124 @@ export const SubmissionSuccessModal: React.FC<SubmissionSuccessModalProps> = ({
   onClose,
   details,
 }) => {
+  // Auto-open WhatsApp as soon as the modal mounts
+  useEffect(() => {
+    if (isOpen && details?.waUrl) {
+      const timer = setTimeout(() => {
+        window.open(details.waUrl, "_blank", "noopener,noreferrer");
+      }, 400); // slight delay so modal renders first
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, details?.waUrl]);
+
   if (!isOpen || !details) return null;
 
-  const waMessage = `Hi Peter,\n\nI just submitted Ticket #${details.ticketId} on your website for *${details.service}* in *${details.location || "Nairobi"}*.\nMy Name: ${details.name}\nPhone: ${details.phone}\n\nCan we discuss next steps?`;
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/40 shadow-2xl p-6 sm:p-8 space-y-6 animate-in zoom-in-95 duration-200 max-h-[94vh] overflow-y-auto">
-        {/* Close button */}
+    <div className="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md rounded-3xl bg-card dark:bg-navy-900 border border-emerald-500/40 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
-          aria-label="Close modal"
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+          aria-label="Close"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Header Badge */}
-        <div className="text-center space-y-2 pt-2">
-          <div className="w-16 h-16 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto shadow-glow">
-            <CheckCircle2 className="w-10 h-10 text-teal-500 animate-bounce" />
+        {/* Step 1 — Confirmed Banner */}
+        <div className="bg-emerald-600 px-6 py-5 text-white text-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="font-bold text-sm uppercase tracking-wider">Step 1 Complete — Request Logged</span>
           </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 font-mono text-xs font-bold border border-teal-500/25">
-            <Ticket className="w-3.5 h-3.5" />
-            <span>Ticket Dispatched: #{details.ticketId}</span>
-          </div>
-
-          <h3 className="font-heading font-extrabold text-2xl text-foreground">
-            Request Received by Peter Kivevo!
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            Thank you, <strong className="text-foreground">{details.name}</strong>! Your inquiry has been logged into Peter's on-call technician queue.
+          <p className="text-xs text-emerald-100">
+            Ticket <span className="font-mono font-bold">#{details.ticketId}</span> saved · Peter notified by email
           </p>
         </div>
 
-        {/* Live Status Tracker */}
-        <div className="rounded-2xl bg-teal-500/10 border border-teal-500/25 p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between text-xs font-mono">
-            <span className="font-bold text-teal-800 dark:text-teal-200 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
-              Status: Assigned to Senior Engineer
-            </span>
-            <span className="text-teal-600 dark:text-teal-400 font-bold">Response: &lt; 15 Mins</span>
+        {/* Step 2 — WhatsApp CTA (main action) */}
+        <div className="px-6 py-6 space-y-5">
+          <div className="text-center space-y-2">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto">
+              <MessageCircle className="w-9 h-9 text-emerald-500" />
+            </div>
+            <h3 className="font-heading font-extrabold text-xl text-foreground">
+              Step 2: Send Your Message on WhatsApp
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              WhatsApp should have opened automatically with your message pre-filled.
+              <strong className="text-foreground"> Just tap the green Send button</strong> to deliver it to Peter.
+            </p>
           </div>
 
-          <div className="space-y-2 text-xs border-t border-teal-500/20 pt-3 text-foreground/90">
+          {/* WhatsApp step diagram */}
+          <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 space-y-2">
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+              <span className="text-foreground/80">WhatsApp opens with your inquiry pre-filled</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+              <span className="text-foreground/80">Tap the <strong className="text-emerald-600">green send ▶ button</strong> in WhatsApp</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+              <span className="text-foreground/80">Peter receives it instantly and calls or replies</span>
+            </div>
+          </div>
+
+          {/* Manual open in case auto-open was blocked */}
+          <a
+            href={details.waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2.5 py-4 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold text-base shadow-lg transition-all group"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span>Open WhatsApp &amp; Send Now</span>
+            <ExternalLink className="w-4 h-4 opacity-80 group-hover:translate-x-0.5 transition-transform" />
+          </a>
+
+          <p className="text-[11px] text-center text-muted-foreground">
+            If WhatsApp didn't open automatically, tap the button above.
+          </p>
+
+          {/* Secondary: direct call */}
+          <div className="pt-1 border-t border-border/60">
+            <a
+              href="tel:+254758896553"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border hover:bg-muted text-foreground font-semibold text-sm transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5 text-teal-500" />
+              <span>Or call Peter directly: +254 758 896 553</span>
+            </a>
+          </div>
+
+          {/* Summary card */}
+          <div className="rounded-xl bg-muted/50 p-3 space-y-1.5 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Service:</span>
-              <span className="font-semibold">{details.service}</span>
+              <span className="font-semibold text-foreground">{details.service}</span>
             </div>
             {details.location && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Location:</span>
-                <span className="font-semibold text-right max-w-[240px] truncate">{details.location}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground flex-shrink-0">Location:</span>
+                <span className="font-semibold text-foreground text-right">{details.location}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Direct Callback Number:</span>
-              <span className="font-mono font-bold text-teal-700 dark:text-teal-300">{details.phone}</span>
+              <span className="text-muted-foreground">Your Phone:</span>
+              <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{details.phone}</span>
             </div>
             {details.email && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Email Receipt:</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">✅ Confirmation Sent</span>
+                <span className="text-muted-foreground">Email receipt:</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">✅ Sent</span>
               </div>
             )}
           </div>
         </div>
-
-        {/* Direct Action Hub */}
-        <div className="space-y-3">
-          <p className="text-xs text-center text-muted-foreground">
-            Want immediate direct assistance? Start a WhatsApp chat with Peter right now:
-          </p>
-
-          <a
-            href={getWhatsAppUrl(waMessage)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClose}
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-md transition-all hover:shadow-glow group"
-          >
-            <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            <span>Open WhatsApp Chat with Peter (1-Tap)</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-          </a>
-
-          <a
-            href="tel:+254758896553"
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
-          >
-            <Phone className="w-3.5 h-3.5 text-teal-500" />
-            <span>Call Peter Directly (+254 758 896 553)</span>
-          </a>
-        </div>
-
-        {/* Footer Note */}
-        <p className="text-[11px] text-center text-muted-foreground">
-          🔒 Your contact info is strictly confidential. No spam, ever.
-        </p>
       </div>
     </div>
   );

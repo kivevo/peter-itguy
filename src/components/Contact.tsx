@@ -155,12 +155,15 @@ export const Contact: React.FC = () => {
       resendService.sendClientInquiryConfirmation(newInquiry, formData.email.trim());
     }
 
+    const waText = `Hi Peter,\n\nI'm reaching out from your website contact form.\n\n*Ticket:* #${ticketId}\n*Name:* ${formData.name.trim()}\n*Phone:* ${formData.phone.trim()}\n*Service:* ${formData.service}\n*Urgency:* ${formData.urgency}\n*Location:* ${location}\n*Message:* ${formData.message.trim()}`;
+    const waUrl = getWhatsAppUrl(waText);
+
     // Send instant email alert to Peter via Resend
-    await resendService.notifyNewInquiry(newInquiry);
+    resendService.notifyNewInquiry(newInquiry);
 
     setIsSubmitting(false);
 
-    // Show rich success modal to the client
+    // Show rich success modal to the client (auto-opens WhatsApp)
     setSuccessModalDetails({
       ticketId,
       name: formData.name.trim(),
@@ -169,6 +172,7 @@ export const Contact: React.FC = () => {
       service: formData.service,
       location,
       urgency: formData.urgency,
+      waUrl,
     });
 
     setFormData({

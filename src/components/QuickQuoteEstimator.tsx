@@ -4,6 +4,7 @@ import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
+import SubmissionSuccessModal, { SubmissionDetails } from "@/components/SubmissionSuccessModal";
 import { 
   Calculator, 
   Check, 
@@ -34,6 +35,7 @@ export const QuickQuoteEstimator: React.FC = () => {
   const [clientPhone, setClientPhone] = useState("");
   const [showDirectForm, setShowDirectForm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successModalDetails, setSuccessModalDetails] = useState<SubmissionDetails | null>(null);
 
   const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
     setLocation(loc.formattedLocation);
@@ -111,6 +113,7 @@ export const QuickQuoteEstimator: React.FC = () => {
       .filter(Boolean)
       .join(", ");
 
+    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
     const lead: InquiryLead = {
       id: `inq_${Date.now()}`,
       source: "quote_estimator",
@@ -125,13 +128,23 @@ export const QuickQuoteEstimator: React.FC = () => {
 
     dataStorage.addInquiry(lead);
 
-    // Instant lead email alert to Peter
-    await resendService.notifyNewInquiry(lead);
+    // Instant lead email alert to Peter (fire-and-forget)
+    resendService.notifyNewInquiry(lead);
+
+    const waText = `Hi Peter,\n\nI built a custom project scope on your website.\n\n*Ticket:* #${ticketId}\n*Name:* ${clientName.trim() || "Client"}\n*Phone:* ${clientPhone.trim()}\n*Services Needed:*\n• ${selectedNames}\n\n*Location:* ${location}\n*Timeline:* ${urgencyLabel}\n\nPlease review and provide a quotation.`;
+    const waUrl = getWhatsAppUrl(waText);
 
     setIsSubmitted(true);
-    toast({
-      title: "Scope Request Received! 🚀",
-      description: `Thank you! Peter has received your customized project scope for ${location} and will contact ${clientPhone} right away.`,
+
+    // Show rich success modal that auto-opens WhatsApp
+    setSuccessModalDetails({
+      ticketId,
+      name: clientName.trim() || "Client",
+      phone: clientPhone.trim(),
+      service: `Custom Scope (${selectedScopes.length} items)`,
+      location,
+      urgency: urgencyLabel,
+      waUrl,
     });
   };
 
@@ -145,6 +158,7 @@ export const QuickQuoteEstimator: React.FC = () => {
   };
 
   return (
+    <>
     <section className="py-20 lg:py-28 bg-background dark:bg-navy-950 relative border-t border-border/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl">
         {/* Section Header */}
@@ -393,6 +407,14 @@ export const QuickQuoteEstimator: React.FC = () => {
         </div>
       </div>
     </section>
+
+    {/* Client Submission Confirmation Modal */}
+    <SubmissionSuccessModal
+      isOpen={!!successModalDetails}
+      onClose={() => setSuccessModalDetails(null)}
+      details={successModalDetails}
+    />
+    </>
   );
 };
 

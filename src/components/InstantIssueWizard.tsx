@@ -4,6 +4,7 @@ import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
+import SubmissionSuccessModal, { SubmissionDetails } from "@/components/SubmissionSuccessModal";
 import { 
   Wifi, 
   CreditCard, 
@@ -40,6 +41,7 @@ export const InstantIssueWizard: React.FC = () => {
   const [clientPhone, setClientPhone] = useState("");
   const [showDirectForm, setShowDirectForm] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successModalDetails, setSuccessModalDetails] = useState<SubmissionDetails | null>(null);
 
   const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
     setLocation(loc.formattedLocation);
@@ -115,6 +117,7 @@ export const InstantIssueWizard: React.FC = () => {
       return;
     }
 
+    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
     const lead: InquiryLead = {
       id: `inq_${Date.now()}`,
       source: "issue_wizard",
@@ -122,26 +125,36 @@ export const InstantIssueWizard: React.FC = () => {
       phone: clientPhone.trim(),
       service: currentIssue.title,
       urgency,
-      details: `Location: ${location} | Urgency: ${urgency} | Problem: ${currentIssue.title} (${currentIssue.priceEstimate})`,
+      details: `Location: ${location} | Urgency: ${urgency} | Problem Diagnostic: ${currentIssue.title} (${currentIssue.advice})`,
       status: "new",
       createdAt: new Date().toISOString(),
     };
-
     dataStorage.addInquiry(lead);
 
-    // Instant lead email dispatch to Peter
-    await resendService.notifyNewInquiry(lead);
+    // Instant lead email dispatch to Peter (fire-and-forget)
+    resendService.notifyNewInquiry(lead);
+
+    const waText = `Hi Peter,\n\nI used your Interactive Troubleshooter.\n\n*Ticket:* #${ticketId}\n*Name:* ${clientName.trim()}\n*Phone:* ${clientPhone.trim()}\n*Issue:* ${currentIssue.title}\n*Location:* ${location}\n*Urgency:* ${urgency}\n\nPlease let me know your availability.`;
+    const waUrl = getWhatsAppUrl(waText);
 
     setIsSubmitted(true);
-    toast({
-      title: "Request Received Successfully! 🚀",
-      description: `Thank you, ${clientName}! Peter has received your ${currentIssue.title} request for ${location} and will call or message ${clientPhone} immediately.`,
+
+    // Show rich success modal that auto-opens WhatsApp
+    setSuccessModalDetails({
+      ticketId,
+      name: clientName.trim(),
+      phone: clientPhone.trim(),
+      service: currentIssue.title,
+      location,
+      urgency,
+      waUrl,
     });
   };
 
   const generatedWhatsAppText = `Hi Peter,\n\nI need help with: *${currentIssue.title}*\nLocation: *${location}*\nUrgency: *${urgency}*\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nPlease let me know your availability.`;
 
   return (
+    <>
     <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-6 sm:p-8 lg:p-10 space-y-8">
       {/* Header */}
       <div className="max-w-2xl space-y-2">
@@ -374,6 +387,14 @@ export const InstantIssueWizard: React.FC = () => {
       </div>
 
     </div>
+
+    {/* Client Submission Confirmation Modal */}
+    <SubmissionSuccessModal
+      isOpen={!!successModalDetails}
+      onClose={() => setSuccessModalDetails(null)}
+      details={successModalDetails}
+    />
+    </>
   );
 };
 

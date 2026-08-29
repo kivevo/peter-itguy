@@ -97,11 +97,15 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
       createdAt: new Date().toISOString(),
     };
 
+    // Build the WhatsApp message with full context
+    const waText = `Hi Peter,\n\nI'm reaching out from your website.\n\n*Ticket:* #${ticketId}\n*Name:* ${name.trim()}\n*Phone:* ${phone.trim()}\n*Service:* ${service}\n*Urgency:* ${urgency}\n*Location:* ${location}\n*Message:* ${message.trim()}`;
+    const waUrl = getWhatsAppUrl(waText);
+
     // Save lead to persistent storage for Peter's Admin Panel
     dataStorage.addInquiry(newLead);
 
-    // Send immediate email alert to Peter via Resend
-    await resendService.notifyNewInquiry(newLead);
+    // Send immediate email alert to Peter via Resend (fire-and-forget)
+    resendService.notifyNewInquiry(newLead);
 
     // Send client confirmation receipt if email was provided
     if (email.trim() && email.includes("@")) {
@@ -110,7 +114,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
     setIsSubmitting(false);
 
-    // Show rich success modal
+    // Show success modal — it will auto-open WhatsApp
     setSuccessModalDetails({
       ticketId,
       name: name.trim(),
@@ -119,9 +123,11 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
       service,
       location,
       urgency,
+      waUrl,
     });
     onClose();
   };
+
 
   const handleResetAndClose = () => {
     setSuccessModalDetails(null);
