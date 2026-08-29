@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SITE_CONFIG, SERVICES, getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
@@ -62,6 +63,16 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
     setIsSubmitting(true);
 
+    // Save lead to persistent storage for Peter's Admin Panel
+    dataStorage.addInquiry({
+      source: "direct_modal",
+      name: name.trim(),
+      phone: phone.trim(),
+      service,
+      urgency,
+      details: message.trim(),
+    });
+
     // Simulate direct message dispatch to Peter's phone
     setTimeout(() => {
       setIsSubmitting(false);
@@ -70,7 +81,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
         title: "Message Sent Successfully! 🚀",
         description: `Thank you, ${name}! Peter has received your request and will contact ${phone} shortly.`,
       });
-    }, 600);
+    }, 400);
   };
 
   const handleResetAndClose = () => {

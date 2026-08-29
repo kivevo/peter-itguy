@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Globe, 
@@ -184,7 +185,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
     const securityScore = 95;
     const overallScore = Math.round((speedScore * 0.5) + (mobileScore * 0.3) + (securityScore * 0.2));
 
-    const isPeterSite = domain.includes("after40hotel") || domain.includes("linensndecor") || domain.includes("stratbridge") || domain.includes("chomazoze");
+    const isPeterSite = domain.includes("after40hotel") || domain.includes("linensndecor") || domain.includes("stratbridge") || domain.includes("chomazone");
 
     // Dynamic Strengths & Recommendations based on real metrics
     const strengths: string[] = [];
@@ -248,6 +249,16 @@ export const WebsiteSpeedChecker: React.FC = () => {
         variant: "destructive",
       });
       return;
+    }
+
+    if (auditResult) {
+      dataStorage.addInquiry({
+        source: "speed_checker",
+        name: directName.trim() || "Website Owner",
+        phone: directPhone.trim(),
+        service: `Website Speed Audit: ${auditResult.cleanDomain}`,
+        details: `Domain: ${auditResult.cleanDomain} | Score: ${auditResult.overallScore}/100 | Avg Latency: ${auditResult.avgLatency}ms | Mobile Load: ${auditResult.estimatedMobileLoad}`,
+      });
     }
 
     setIsLeadSubmitted(true);

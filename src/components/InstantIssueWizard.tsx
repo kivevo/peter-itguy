@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Wifi, 
@@ -107,6 +108,16 @@ export const InstantIssueWizard: React.FC = () => {
       });
       return;
     }
+
+    dataStorage.addInquiry({
+      source: "issue_wizard",
+      name: clientName.trim(),
+      phone: clientPhone.trim(),
+      service: currentIssue.title,
+      urgency,
+      location,
+      details: `Client chose: ${currentIssue.title} | Location: ${location} | Urgency: ${urgency} | Price estimate: ${currentIssue.priceEstimate}`,
+    });
 
     setIsSubmitted(true);
     toast({

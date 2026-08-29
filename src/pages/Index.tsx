@@ -22,6 +22,8 @@ import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
 import InstantIssueWizard from "@/components/InstantIssueWizard";
 import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
+import OfficeHardwarePlanner from "@/components/OfficeHardwarePlanner";
+import EmergencyBanner from "@/components/EmergencyBanner";
 import { Download, Sparkles } from "lucide-react";
 
 // Lazy-loaded interactive components
@@ -40,6 +42,9 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
+      {/* Dynamic Live On-Call Emergency Banner */}
+      <EmergencyBanner />
+
       <Navigation />
       
       <main className="flex-1">
@@ -152,7 +157,10 @@ const Index: React.FC = () => {
         {/* 18. Support Plans & Transparent Pricing */}
         <EngagementPricing />
 
-        {/* 19. Instant WhatsApp Project Scope Estimator */}
+        {/* 19. Interactive Office Wi-Fi & CCTV Hardware Architecture Planner */}
+        <OfficeHardwarePlanner />
+
+        {/* 20. Instant WhatsApp Project Scope Estimator */}
         <QuickQuoteEstimator />
 
         {/* 20. Frequently Asked Questions */}

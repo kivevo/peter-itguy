@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getWhatsAppUrl } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calculator, 
@@ -9,7 +10,8 @@ import {
   Sparkles, 
   ArrowRight, 
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  FileText
 } from "lucide-react";
 
 interface ScopeOption {
@@ -106,6 +108,20 @@ export const QuickQuoteEstimator: React.FC = () => {
       });
       return;
     }
+
+    const selectedNames = selectedScopes
+      .map((id) => scopeCatalog.find((s) => s.id === id)?.name)
+      .filter(Boolean)
+      .join(", ");
+
+    dataStorage.addInquiry({
+      source: "quote_estimator",
+      name: clientName.trim() || "Website Visitor",
+      phone: clientPhone.trim(),
+      service: `Quote: ${selectedNames}`,
+      urgency: urgencyLabel,
+      details: `Selected Items: ${selectedNames} | Estimated Subtotal: KES ${subtotal.toLocaleString()} | Timeline: ${urgencyLabel}`,
+    });
 
     setIsSubmitted(true);
     toast({
@@ -318,15 +334,27 @@ export const QuickQuoteEstimator: React.FC = () => {
                         <span>Request Formal Quotation</span>
                       </button>
 
-                      <a
-                        href={getWhatsAppUrl(generateWhatsAppMessage())}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        <span>Chat on WhatsApp</span>
-                      </a>
+                      <div className="flex gap-2">
+                        <a
+                          href={getWhatsAppUrl(generateWhatsAppMessage())}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>WhatsApp Quote</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          title="Print or Save as PDF Proposal"
+                          className="px-3.5 py-3 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold flex items-center gap-1.5 transition-all"
+                        >
+                          <FileText className="w-4 h-4 text-teal-500" />
+                          <span>Save PDF</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

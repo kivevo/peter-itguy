@@ -147,6 +147,9 @@ export const Footer: React.FC = () => {
             <Link to="/contact" className="hover:text-foreground transition-colors">
               Get In Touch
             </Link>
+            <Link to="/admin" className="text-muted-foreground/60 hover:text-teal-500 transition-colors">
+              Admin Portal
+            </Link>
             <button
               onClick={scrollToTop}
               className="inline-flex items-center gap-1 hover:text-foreground font-medium transition-colors"

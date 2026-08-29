@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getWhatsAppUrl, SITE_CONFIG } from "@/config/site";
+import { dataStorage } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, X, Send, CheckCircle2, Phone } from "lucide-react";
 
@@ -35,6 +36,14 @@ export const FloatingWhatsApp: React.FC = () => {
       });
       return;
     }
+
+    dataStorage.addInquiry({
+      source: "floating_chat",
+      name: senderName.trim() || "Chat Visitor",
+      phone: senderPhone.trim(),
+      service: "Quick Help Inquiry",
+      details: customMsg.trim() || "General IT / website inquiry via floating chat widget",
+    });
 
     setIsSentDirectly(true);
     toast({

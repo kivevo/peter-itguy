@@ -159,10 +159,10 @@ export const CLIENT_PARTNERS: ClientPartnerItem[] = [
     badgeText: "Corporate Web",
   },
   {
-    name: "Chomazoze Mtwapa",
+    name: "Chomazone Mtwapa",
     industry: "Hospitality & Venue",
     projectType: "Digital Menu & Table Reservation Website",
-    website: "https://chomazozemtwapa.co.ke",
+    website: "https://chomazonemtwapa.co.ke",
     badgeText: "Restaurant Web",
   },
 ];
@@ -409,7 +409,7 @@ export const CASE_STUDIES: CaseStudyItem[] = [
   {
     id: "web-showcase",
     title: "Modern Business Websites Built for Kenyan Companies",
-    client: "Linens & Decor, Stratbridge Group, Chomazoze Mtwapa",
+    client: "Linens & Decor, Stratbridge Group, Chomazone Mtwapa",
     category: "Commercial Web Development",
     heroMetric: "Sub-2s Mobile Load Speeds on Kenyan 4G Data",
     summary: "A collection of clean, modern websites engineered to load fast on phones and generate real phone calls and WhatsApp orders.",
@@ -422,7 +422,7 @@ export const CASE_STUDIES: CaseStudyItem[] = [
     results: [
       "Linens & Decor (linensndecor.co.ke): Easy online catalog driving daily WhatsApp sales inquiries.",
       "Stratbridge Group (stratbridgegroup.co.ke): Professional corporate profile building trust with institutional clients.",
-      "Chomazoze Mtwapa (chomazozemtwapa.co.ke): High-energy restaurant & menu portal with quick table bookings.",
+      "Chomazone Mtwapa (chomazonemtwapa.co.ke): High-energy restaurant & menu portal with quick table bookings.",
     ],
     technologies: ["React / Next.js", "Tailwind CSS", "WhatsApp Orders", "Fast Cloud Hosting", "Google SEO"],
     isWebDev: true,
@@ -556,9 +556,9 @@ export const WEB_PORTFOLIO_LINKS = [
     badge: "Corporate Website",
   },
   {
-    title: "Chomazoze Mtwapa",
-    domain: "chomazozemtwapa.co.ke",
-    url: "https://chomazozemtwapa.co.ke",
+    title: "Chomazone Mtwapa",
+    domain: "chomazonemtwapa.co.ke",
+    url: "https://chomazonemtwapa.co.ke",
     desc: "Restaurant & lounge website with digital menu browsing and fast table booking.",
     badge: "Restaurant & Menu",
   },

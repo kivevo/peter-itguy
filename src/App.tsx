@@ -14,6 +14,7 @@ import AboutPage from "./pages/AboutPage";
 import ProcessPage from "./pages/ProcessPage";
 import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/process" element={<ProcessPage />} />
               <Route path="/resources" element={<BlogPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               {/* Catch-all 404 Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
