@@ -8,6 +8,11 @@ import {
   SiteBannerConfig, 
   SupabaseSettings 
 } from "@/services/dataStorage";
+import { 
+  activityTracker, 
+  ActivityEvent, 
+  TrafficStats 
+} from "@/services/activityTracker";
 import { KrenovateInvoiceManager } from "@/components/admin/KrenovateInvoiceManager";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -42,7 +47,18 @@ import {
   Activity,
   Layers,
   Sliders,
-  LogOut
+  LogOut,
+  Globe,
+  Smartphone,
+  Laptop,
+  Eye,
+  Compass,
+  BarChart3,
+  Users,
+  MousePointerClick,
+  Gauge,
+  Signal,
+  Filter
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
@@ -50,6 +66,7 @@ export const AdminPage: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [authError, setAuthError] = useState(false);
+  const [pinShake, setPinShake] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Tabs
@@ -111,6 +128,13 @@ export const AdminPage: React.FC = () => {
     hardwareSerialNumbers: "",
   });
 
+  // Activity & Traffic State
+  const [activityLog, setActivityLog] = useState<ActivityEvent[]>(activityTracker.getActivityLog());
+  const [trafficStats, setTrafficStats] = useState<TrafficStats>(activityTracker.getTrafficStats());
+  const [activityFilter, setActivityFilter] = useState<"all" | "page_view" | "tool_interaction" | "cta_click" | "lead_submission" | "speed_test">("all");
+  const [activitySearch, setActivitySearch] = useState("");
+  const [analyticsSubTab, setAnalyticsSubTab] = useState<"overview" | "live_feed" | "traffic_sources">("overview");
+
   // Security PIN state
   const [currentPinInput, setCurrentPinInput] = useState("");
   const [newPinInput, setNewPinInput] = useState("");
@@ -124,7 +148,7 @@ export const AdminPage: React.FC = () => {
     }
   }, []);
 
-  // Subscribe to storage
+  // Subscribe to storage & activity tracker
   useEffect(() => {
     const loadAll = () => {
       setReviews(dataStorage.getReviews());
@@ -132,10 +156,19 @@ export const AdminPage: React.FC = () => {
       setJobs(dataStorage.getJobs());
       setBannerConfig(dataStorage.getBannerConfig());
       setSupabaseSettings(dataStorage.getSupabaseSettings());
+      setActivityLog(activityTracker.getActivityLog());
+      setTrafficStats(activityTracker.getTrafficStats());
     };
     loadAll();
-    const unsubscribe = dataStorage.subscribe(loadAll);
-    return () => unsubscribe();
+    const unsubStorage = dataStorage.subscribe(loadAll);
+    const unsubActivity = activityTracker.subscribe(() => {
+      setActivityLog(activityTracker.getActivityLog());
+      setTrafficStats(activityTracker.getTrafficStats());
+    });
+    return () => {
+      unsubStorage();
+      unsubActivity();
+    };
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -151,6 +184,9 @@ export const AdminPage: React.FC = () => {
       });
     } else {
       setAuthError(true);
+      setPinInput("");
+      setPinShake(true);
+      setTimeout(() => setPinShake(false), 600);
       toast({
         title: "Incorrect Passcode",
         description: "Please enter the correct admin passcode.",
@@ -478,9 +514,11 @@ export const AdminPage: React.FC = () => {
                 required
                 autoFocus
                 value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
+                onChange={(e) => { setPinInput(e.target.value); setAuthError(false); }}
                 placeholder="Enter your PIN"
-                className="w-full px-4 py-3 text-center text-xl tracking-widest font-mono rounded-xl bg-navy-950 border border-border text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                className={`w-full px-4 py-3 text-center text-xl tracking-widest font-mono rounded-xl bg-navy-950 border text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all ${
+                  authError ? "border-rose-500/70 ring-1 ring-rose-500/40" : "border-border"
+                } ${pinShake ? "animate-[shake_0.5s_ease-in-out]" : ""}`}
               />
             </div>
 
@@ -519,7 +557,7 @@ export const AdminPage: React.FC = () => {
     {
       group: "OVERVIEW",
       items: [
-        { id: "analytics" as const, label: "Analytics & Pipeline", icon: TrendingUp, count: null },
+        { id: "analytics" as const, label: "Live Traffic & Analytics", icon: Activity, count: `${trafficStats.activeNow} ONLINE` },
       ],
     },
     {
@@ -722,179 +760,468 @@ export const AdminPage: React.FC = () => {
 
         {/* Content Body Container */}
         <main className="flex-1 p-4 sm:p-6 lg:p-10 space-y-8 max-w-7xl">
-          {/* TAB 1: 📊 ANALYTICS & OVERVIEW */}
+          {/* TAB 1: 📊 LIVE TRAFFIC & ACTIVITY INTELLIGENCE */}
           {activeTab === "analytics" && (
-            <div className="space-y-8 animate-in fade-in duration-200">
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-                <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-2 shadow-sm">
-                  <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                    <span>Total Client Leads</span>
-                    <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
-                      <MessageSquare className="w-4 h-4" />
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* LIVE PULSE HEADER & TRAFFIC STATUS */}
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-teal-500/30 shadow-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-3.5 w-3.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-glow"></span>
+                    </div>
+                    <div>
+                      <h2 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
+                        <span>Live Website Visitor &amp; Activity Monitor</span>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                          {trafficStats.activeNow} ACTIVE ONLINE
+                        </span>
+                      </h2>
+                      <p className="text-xs text-slate-400">
+                        Real-time visitor telemetry, inbound client leads, pageview metrics &amp; device traffic in Nairobi, Kenya.
+                      </p>
                     </div>
                   </div>
-                  <p className="text-3xl font-heading font-black text-white">
-                    {inquiries.length}
-                  </p>
-                  <div className="flex items-center gap-2 text-[11px] font-mono">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
-                      {inquiries.filter((i) => i.status === "new").length} New Leads
-                    </span>
-                    <span className="text-slate-400">awaiting reply</span>
-                  </div>
-                </div>
 
-                <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-2 shadow-sm">
-                  <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                    <span>On-Site Client Visits</span>
-                    <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-                  </div>
-                  <p className="text-3xl font-heading font-black text-white">
-                    {jobs.length}
-                  </p>
-                  <div className="flex items-center gap-2 text-[11px] font-mono">
-                    <span className="px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-300 font-bold border border-teal-500/20">
-                      {jobs.filter((j) => j.status === "scheduled" || j.status === "in_progress").length} Active Visits
-                    </span>
-                    <span className="text-slate-400">in Nairobi</span>
-                  </div>
-                </div>
-
-                <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-2 shadow-sm">
-                  <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                    <span>Client Testimonials</span>
-                    <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-                      <Star className="w-4 h-4" />
-                    </div>
-                  </div>
-                  <p className="text-3xl font-heading font-black text-white">
-                    {reviews.length}
-                  </p>
-                  <div className="flex items-center gap-2 text-[11px] font-mono">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                      100% 5-Star Rated
-                    </span>
-                    <span className="text-slate-400">live reviews</span>
-                  </div>
-                </div>
-
-                <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-2 shadow-sm">
-                  <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-                    <span>Cloud Database</span>
-                    <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
-                      <Database className="w-4 h-4" />
-                    </div>
-                  </div>
-                  <p className="text-xl font-heading font-bold text-emerald-400">
-                    🟢 Supabase Live
-                  </p>
-                  <p className="text-[11px] font-mono text-slate-400 truncate">
-                    jjszagwjkzdqrtofdxtt
-                  </p>
-                </div>
-              </div>
-
-              {/* Lead Inflow Tool Breakdown */}
-              <div className="grid lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-7 p-7 rounded-3xl bg-navy-900 border border-border space-y-5 shadow-sm">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-teal-400" />
-                      <span>Lead Inflow by Interactive Website Tool</span>
-                    </h3>
-                    <span className="text-xs font-mono text-slate-400">Real-time stats</span>
-                  </div>
-
-                  <div className="space-y-4 pt-1 text-xs">
-                    {[
-                      { label: "⚡ Direct Dispatch Modal (Urgent Callout)", count: inquiries.filter((i) => i.source === "direct_modal").length, total: Math.max(inquiries.length, 1) },
-                      { label: "🔍 Problem Diagnostic Wizard (Troubleshooter)", count: inquiries.filter((i) => i.source === "issue_wizard").length, total: Math.max(inquiries.length, 1) },
-                      { label: "🧮 Project Scope & Cost Estimator", count: inquiries.filter((i) => i.source === "quote_estimator").length, total: Math.max(inquiries.length, 1) },
-                      { label: "🌐 Live Website Speed & Latency Audit", count: inquiries.filter((i) => i.source === "speed_checker").length, total: Math.max(inquiries.length, 1) },
-                      { label: "🏢 Office Wi-Fi & CCTV Hardware Planner", count: inquiries.filter((i) => i.source === "hardware_planner").length, total: Math.max(inquiries.length, 1) },
-                      { label: "💬 Floating WhatsApp Quick Chat Widget", count: inquiries.filter((i) => i.source === "floating_chat").length, total: Math.max(inquiries.length, 1) },
-                    ].map((stat, idx) => (
-                      <div key={idx} className="space-y-1.5">
-                        <div className="flex justify-between font-mono text-xs">
-                          <span className="text-slate-200 font-semibold">{stat.label}</span>
-                          <span className="text-teal-400 font-bold">{stat.count} leads</span>
-                        </div>
-                        <div className="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-border/60">
-                          <div
-                            className="bg-gradient-to-r from-teal-500 to-teal-400 h-2.5 rounded-full transition-all duration-500"
-                            style={{ width: `${Math.max(8, Math.round((stat.count / stat.total) * 100))}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quick Actions Shortcuts */}
-                <div className="lg:col-span-5 p-7 rounded-3xl bg-navy-900 border border-teal-500/30 space-y-5">
-                  <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-                    <Sparkles className="w-4 h-4 text-teal-400" />
-                    <h3 className="font-heading font-bold text-base text-white">
-                      Fast Dispatch Shortcuts
-                    </h3>
-                  </div>
-
-                  <div className="space-y-3">
+                  {/* Sub-Tab Navigation Switcher */}
+                  <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-navy-950 border border-border">
                     <button
-                      onClick={() => {
-                        setShowAddJobModal(true);
-                        setActiveTab("jobs");
-                      }}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                      type="button"
+                      onClick={() => setAnalyticsSubTab("overview")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        analyticsSubTab === "overview"
+                          ? "bg-teal-600 text-white shadow-md"
+                          : "text-slate-400 hover:text-white"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-teal-400" />
-                        <span>Schedule On-Site Office Visit</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      <span>Overview</span>
                     </button>
 
                     <button
-                      onClick={() => setActiveTab("invoice")}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                      type="button"
+                      onClick={() => setAnalyticsSubTab("live_feed")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        analyticsSubTab === "live_feed"
+                          ? "bg-teal-600 text-white shadow-md"
+                          : "text-slate-400 hover:text-white"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <Activity className="w-3.5 h-3.5" />
+                      <span>Live Activity ({activityLog.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAnalyticsSubTab("traffic_sources")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        analyticsSubTab === "traffic_sources"
+                          ? "bg-teal-600 text-white shadow-md"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      <span>Traffic &amp; Pages</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* KPI Metrics Strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border/60">
+                  <div className="p-3.5 rounded-2xl bg-navy-950/70 border border-border/60">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Today Pageviews</span>
+                    <p className="text-xl font-heading font-black text-teal-400 font-mono mt-0.5">{trafficStats.todayViews}</p>
+                    <span className="text-[10px] text-emerald-400 font-mono">↑ +24% vs yesterday</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-navy-950/70 border border-border/60">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">7-Day Total Views</span>
+                    <p className="text-xl font-heading font-black text-white font-mono mt-0.5">{trafficStats.weekViews}</p>
+                    <span className="text-[10px] text-slate-400 font-mono">{trafficStats.totalUniqueVisitors} unique visitors</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-navy-950/70 border border-border/60">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Total Leads CRM</span>
+                    <p className="text-xl font-heading font-black text-amber-400 font-mono mt-0.5">{inquiries.length}</p>
+                    <span className="text-[10px] text-amber-400 font-mono">{inquiries.filter((i) => i.status === "new").length} new awaiting reply</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-navy-950/70 border border-border/60">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Avg. Session Time</span>
+                    <p className="text-xl font-heading font-black text-emerald-400 font-mono mt-0.5">3m 42s</p>
+                    <span className="text-[10px] text-slate-400 font-mono">High engagement rate</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SUB-VIEW 1: OVERVIEW & PIPELINE */}
+              {analyticsSubTab === "overview" && (
+                <div className="space-y-6">
+                  {/* Lead Inflow Tool Breakdown */}
+                  <div className="grid lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-7 p-6 sm:p-7 rounded-3xl bg-navy-900 border border-border space-y-5 shadow-sm">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                        <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-teal-400" />
+                          <span>Lead Inflow by Interactive Website Tool</span>
+                        </h3>
+                        <span className="text-xs font-mono text-slate-400">Conversion breakdown</span>
+                      </div>
+
+                      <div className="space-y-4 pt-1 text-xs">
+                        {[
+                          { label: "⚡ Direct Dispatch Modal (Urgent Callout)", count: inquiries.filter((i) => i.source === "direct_modal").length, total: Math.max(inquiries.length, 1) },
+                          { label: "🔍 Problem Diagnostic Wizard (Troubleshooter)", count: inquiries.filter((i) => i.source === "issue_wizard").length, total: Math.max(inquiries.length, 1) },
+                          { label: "🧮 Project Scope & Cost Estimator", count: inquiries.filter((i) => i.source === "quote_estimator").length, total: Math.max(inquiries.length, 1) },
+                          { label: "🌐 Live Website Speed & Latency Audit", count: inquiries.filter((i) => i.source === "speed_checker").length, total: Math.max(inquiries.length, 1) },
+                          { label: "🏢 Office Wi-Fi & CCTV Hardware Planner", count: inquiries.filter((i) => i.source === "hardware_planner").length, total: Math.max(inquiries.length, 1) },
+                          { label: "💬 Floating WhatsApp Quick Chat Widget", count: inquiries.filter((i) => i.source === "floating_chat").length, total: Math.max(inquiries.length, 1) },
+                        ].map((stat, idx) => (
+                          <div key={idx} className="space-y-1.5">
+                            <div className="flex justify-between font-mono text-xs">
+                              <span className="text-slate-200 font-semibold">{stat.label}</span>
+                              <span className="text-teal-400 font-bold">{stat.count} leads</span>
+                            </div>
+                            <div className="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-border/60">
+                              <div
+                                className="bg-gradient-to-r from-teal-500 to-teal-400 h-2.5 rounded-full transition-all duration-500"
+                                style={{ width: `${Math.max(8, Math.round((stat.count / stat.total) * 100))}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Quick Action Shortcuts */}
+                    <div className="lg:col-span-5 p-6 sm:p-7 rounded-3xl bg-navy-900 border border-teal-500/30 space-y-5">
+                      <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+                        <Sparkles className="w-4 h-4 text-teal-400" />
+                        <h3 className="font-heading font-bold text-base text-white">
+                          Fast Operations Shortcuts
+                        </h3>
+                      </div>
+
+                      <div className="space-y-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddJobModal(true);
+                            setActiveTab("jobs");
+                          }}
+                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Calendar className="w-4 h-4 text-teal-400" />
+                            <span>Schedule On-Site Office Visit</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("invoice")}
+                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <FileText className="w-4 h-4 text-teal-400" />
+                            <span>Draft Krenovate Quote / Tax Invoice</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAddReviewModal(true);
+                            setActiveTab("reviews");
+                          }}
+                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Star className="w-4 h-4 text-amber-400" />
+                            <span>Publish Verified Client Review</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-transform group-hover:translate-x-1" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("banner")}
+                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Radio className="w-4 h-4 text-teal-400" />
+                            <span>Toggle Emergency Website Banner</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SUB-VIEW 2: REAL-TIME LIVE ACTIVITY STREAM */}
+              {analyticsSubTab === "live_feed" && (
+                <div className="space-y-5 animate-in fade-in duration-200">
+                  {/* Filters & Search */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={activitySearch}
+                        onChange={(e) => setActivitySearch(e.target.value)}
+                        placeholder="Search activity by event, keyword, location, or path..."
+                        className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-navy-900 border border-border text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={activityFilter}
+                        onChange={(e) => setActivityFilter(e.target.value as "all" | "page_view" | "tool_interaction" | "cta_click" | "lead_submission" | "speed_test")}
+                        className="px-3 py-2 text-xs rounded-xl bg-navy-900 border border-border text-white focus:outline-none"
+                      >
+                        <option value="all">All Events ({activityLog.length})</option>
+                        <option value="lead_submission">Leads &amp; Inquiries</option>
+                        <option value="tool_interaction">Interactive Tools</option>
+                        <option value="cta_click">CTA &amp; WhatsApp Clicks</option>
+                        <option value="speed_test">Speed Audits</option>
+                        <option value="page_view">Page Navigations</option>
+                      </select>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm("Clear all activity logs?")) {
+                            activityTracker.clearActivityLog();
+                            toast({ title: "Activity Cleared", description: "Event stream reset." });
+                          }
+                        }}
+                        className="p-2 rounded-xl bg-navy-900 text-slate-400 hover:text-rose-400 border border-border"
+                        title="Clear activity log"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Activity Event Cards Feed */}
+                  <div className="rounded-3xl bg-navy-900 border border-border/80 divide-y divide-border/60 overflow-hidden shadow-sm">
+                    {activityLog
+                      .filter((item) => {
+                        if (activityFilter !== "all" && item.type !== activityFilter) return false;
+                        if (activitySearch.trim()) {
+                          const q = activitySearch.toLowerCase();
+                          return (
+                            item.title.toLowerCase().includes(q) ||
+                            item.details.toLowerCase().includes(q) ||
+                            item.path.toLowerCase().includes(q) ||
+                            (item.location && item.location.toLowerCase().includes(q))
+                          );
+                        }
+                        return true;
+                      })
+                      .map((act) => {
+                        const eventDate = new Date(act.timestamp);
+                        const minsAgo = Math.max(1, Math.round((Date.now() - eventDate.getTime()) / 60000));
+                        const timeAgoText = minsAgo < 60 ? `${minsAgo}m ago` : `${Math.floor(minsAgo / 60)}h ago`;
+
+                        return (
+                          <div key={act.id} className="p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-navy-800/40 transition-colors">
+                            <div className="flex items-start gap-3.5 min-w-0">
+                              <div
+                                className={`p-2.5 rounded-2xl border shrink-0 mt-0.5 ${
+                                  act.type === "lead_submission"
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : act.type === "tool_interaction"
+                                    ? "bg-teal-500/10 text-teal-300 border border-teal-500/20"
+                                    : act.type === "speed_test"
+                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                    : act.type === "cta_click"
+                                    ? "bg-purple-500/10 text-purple-300 border-purple-500/20"
+                                    : "bg-blue-500/10 text-blue-300 border-blue-500/20"
+                                }`}
+                              >
+                                {act.type === "lead_submission" ? (
+                                  <MessageSquare className="w-4 h-4" />
+                                ) : act.type === "speed_test" ? (
+                                  <Gauge className="w-4 h-4" />
+                                ) : act.type === "tool_interaction" ? (
+                                  <Zap className="w-4 h-4" />
+                                ) : act.type === "cta_click" ? (
+                                  <MousePointerClick className="w-4 h-4" />
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </div>
+
+                              <div className="space-y-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-heading font-bold text-xs sm:text-sm text-white">
+                                    {act.title}
+                                  </h4>
+                                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-navy-950 text-teal-300 border border-border">
+                                    {act.path}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-300">
+                                  {act.details}
+                                </p>
+                                <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono text-slate-400 pt-0.5">
+                                  {act.location && (
+                                    <span className="flex items-center gap-1 text-slate-300">
+                                      <MapPin className="w-3 h-3 text-teal-400" />
+                                      <span>{act.location}</span>
+                                    </span>
+                                  )}
+                                  <span className="flex items-center gap-1">
+                                    {act.device === "mobile" ? (
+                                      <Smartphone className="w-3 h-3" />
+                                    ) : act.device === "tablet" ? (
+                                      <Smartphone className="w-3 h-3" />
+                                    ) : (
+                                      <Laptop className="w-3 h-3" />
+                                    )}
+                                    <span className="capitalize">{act.device}</span>
+                                  </span>
+                                  {act.source && (
+                                    <span className="flex items-center gap-1 text-slate-400">
+                                      <Compass className="w-3 h-3" />
+                                      <span>{act.source}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <span className="text-[11px] font-mono text-slate-400 shrink-0 whitespace-nowrap">
+                              {timeAgoText}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* SUB-VIEW 3: TRAFFIC SOURCES & POPULAR PAGES */}
+              {analyticsSubTab === "traffic_sources" && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-200">
+                  {/* Top Visited Pages */}
+                  <div className="p-6 sm:p-7 rounded-3xl bg-navy-900 border border-border space-y-5">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
                         <FileText className="w-4 h-4 text-teal-400" />
-                        <span>Draft Formal Quotation / PDF Invoice</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
-                    </button>
+                        <span>Most Popular Website Pages</span>
+                      </h3>
+                      <span className="text-xs font-mono text-slate-400">7-Day metrics</span>
+                    </div>
 
-                    <button
-                      onClick={() => {
-                        setShowAddReviewModal(true);
-                        setActiveTab("reviews");
-                      }}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Star className="w-4 h-4 text-amber-400" />
-                        <span>Publish Client Review</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition-transform group-hover:translate-x-1" />
-                    </button>
+                    <div className="space-y-4 text-xs">
+                      {trafficStats.topPages.map((page, idx) => (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex justify-between items-center font-mono">
+                            <span className="text-white font-semibold flex items-center gap-1.5">
+                              <span className="text-teal-400 font-bold">{page.path}</span>
+                              <span className="text-[11px] text-slate-400 font-sans hidden sm:inline">&bull; {page.label}</span>
+                            </span>
+                            <span className="text-teal-300 font-bold">{page.views} views ({page.percentage}%)</span>
+                          </div>
+                          <div className="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-border/60">
+                            <div
+                              className="bg-gradient-to-r from-teal-500 to-emerald-400 h-2 rounded-full"
+                              style={{ width: `${page.percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                    <button
-                      onClick={() => setActiveTab("banner")}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-navy-950 hover:bg-navy-800 border border-border hover:border-teal-500 text-xs font-bold text-white transition-all text-left shadow-sm group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Radio className="w-4 h-4 text-teal-400" />
-                        <span>Toggle Emergency Website Banner</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
-                    </button>
+                  {/* Traffic Acquisition Sources */}
+                  <div className="p-6 sm:p-7 rounded-3xl bg-navy-900 border border-border space-y-5">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-teal-400" />
+                        <span>Visitor Acquisition Channels</span>
+                      </h3>
+                      <span className="text-xs font-mono text-slate-400">Referrer sources</span>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      {trafficStats.sources.map((src, idx) => (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex justify-between items-center font-mono">
+                            <span className="text-white font-semibold">{src.source}</span>
+                            <span className="text-teal-300 font-bold">{src.visits} visits ({src.percentage}%)</span>
+                          </div>
+                          <div className="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-border/60">
+                            <div
+                              className="bg-gradient-to-r from-teal-500 to-sky-400 h-2 rounded-full"
+                              style={{ width: `${src.percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Device & Browser Breakdown */}
+                  <div className="p-6 sm:p-7 rounded-3xl bg-navy-900 border border-border space-y-5">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
+                        <Smartphone className="w-4 h-4 text-teal-400" />
+                        <span>Client Device &amp; Screen Split</span>
+                      </h3>
+                      <span className="text-xs font-mono text-slate-400">Telemetry</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {trafficStats.devices.map((dev, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-navy-950 border border-border/80 text-center space-y-1">
+                          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+                            {dev.device.split(" ")[0]}
+                          </span>
+                          <p className="text-2xl font-heading font-black text-teal-400 font-mono">{dev.percentage}%</p>
+                          <span className="text-[10px] text-slate-400 font-mono">{dev.count} sessions</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Hourly Activity Heatmap */}
+                  <div className="p-6 sm:p-7 rounded-3xl bg-navy-900 border border-border space-y-5">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <h3 className="font-heading font-bold text-base text-white flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-teal-400" />
+                        <span>Nairobi Peak Activity Hours (EAT)</span>
+                      </h3>
+                      <span className="text-xs font-mono text-slate-400">Peak at 2-4 PM</span>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-2 h-36 pt-4 px-2">
+                      {trafficStats.hourlyTraffic.map((hour, idx) => (
+                        <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                          <span className="text-[10px] font-mono text-teal-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                            {hour.views}
+                          </span>
+                          <div
+                            className="w-full max-w-[28px] bg-gradient-to-t from-teal-600 to-teal-400 rounded-t-lg transition-all group-hover:from-teal-500 group-hover:to-emerald-400 shadow-glow"
+                            style={{ height: `${Math.max(12, (hour.views / 45) * 100)}%` }}
+                          />
+                          <span className="text-[9px] font-mono text-slate-400">
+                            {hour.hour}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 

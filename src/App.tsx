@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { WhatsAppProvider } from "@/context/WhatsAppContext";
 import ScrollToTop from "@/components/ScrollToTop";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 import Index from "./pages/Index";
 import ServicesPage from "./pages/ServicesPage";
@@ -28,6 +29,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <AnalyticsTracker />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/services" element={<ServicesPage />} />
