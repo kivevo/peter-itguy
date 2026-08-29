@@ -14,6 +14,7 @@ import {
   CatalogItem, 
   generateItemsFromPrompt 
 } from "@/data/invoicePresets";
+import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
@@ -49,7 +50,10 @@ import {
   Check,
   ArrowRight,
   Layers,
-  Wand2
+  Wand2,
+  Mail,
+  X,
+  Loader2
 } from "lucide-react";
 
 interface KrenovateInvoiceManagerProps {
@@ -81,6 +85,11 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
   // Active document being created / edited / previewed
   const [currentDoc, setCurrentDoc] = useState<InvoiceDocument | null>(null);
+
+  // Email modal state
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -594,6 +603,39 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       return `Dear ${doc.client.name},\n\n*${profile.name}* has prepared your formal quotation:\n\n📄 *Quote No:* ${doc.docNumber}\n🏢 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Valid Until:* ${doc.dueDate}\n\n*Key Deliverables:*\n${doc.items.map((i) => `• ${i.desc} (${i.qty}x)`).join("\n")}\n\n${paymentLine}.\n\nPlease let us know if you would like us to schedule on-site deployment.`;
     } else {
       return `Dear ${doc.client.name},\n\n*${profile.name}* Official Tax Invoice:\n\n📄 *Invoice No:* ${doc.docNumber}\n🏢 *Bill To:* ${doc.client.company}\n💰 *Amount Due:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n📌 *Status:* ${doc.status.toUpperCase()}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})${hasBank ? `\n• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}` : ""}\n\nThank you for choosing ${profile.name}!`;
+    }
+  };
+
+  // Email document handler
+  const handleOpenEmailModal = (doc: InvoiceDocument) => {
+    setEmailRecipient(doc.client.email || "");
+    setShowEmailModal(true);
+  };
+
+  const handleSendDocumentEmail = async () => {
+    if (!currentDoc) return;
+    if (!emailRecipient.trim() || !emailRecipient.includes("@")) {
+      toast({ title: "Invalid Email", description: "Please enter a valid email address.", variant: "destructive" });
+      return;
+    }
+    setIsSendingEmail(true);
+    const result = await resendService.sendDocumentEmail(currentDoc, emailRecipient.trim());
+    setIsSendingEmail(false);
+    if (result.success) {
+      setShowEmailModal(false);
+      toast({
+        title: `📧 ${currentDoc.docType === "quotation" ? "Quotation" : "Invoice"} Sent!`,
+        description: `${currentDoc.docNumber} successfully delivered to ${emailRecipient}`,
+      });
+      // Mark as "sent" if it was a draft
+      if (currentDoc.status === "draft") {
+        const updated = { ...currentDoc, status: "sent" as const, updatedAt: new Date().toISOString() };
+        setCurrentDoc(updated);
+        dataStorage.saveInvoice(updated);
+        setInvoices((prev) => prev.map((inv) => (inv.id === updated.id ? updated : inv)));
+      }
+    } else {
+      toast({ title: "Send Failed ❌", description: result.error || "Unknown error", variant: "destructive" });
     }
   };
 
@@ -1730,6 +1772,14 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </a>
 
               <button
+                onClick={() => handleOpenEmailModal(currentDoc)}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Send Email</span>
+              </button>
+
+              <button
                 onClick={() => window.print()}
                 className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 shadow-glow"
               >
@@ -1738,6 +1788,87 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </button>
             </div>
           </div>
+
+          {/* Email Send Modal */}
+          {showEmailModal && currentDoc && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}>
+              <div
+                className="w-full max-w-md rounded-3xl bg-navy-900 border border-border shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                      <Mail className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-base text-white">
+                        {currentDoc.docType === "quotation" ? "📄 Email Quotation" : "🧾 Email Invoice"}
+                      </h3>
+                      <p className="text-[11px] text-slate-400 font-mono">{currentDoc.docNumber}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowEmailModal(false)} className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Summary card */}
+                <div className="p-3 rounded-2xl bg-navy-950 border border-border space-y-1 text-xs">
+                  <p className="text-slate-400">Sending to: <strong className="text-white">{currentDoc.client.name}</strong> — {currentDoc.client.company}</p>
+                  <p className="text-slate-400">Document: <strong className="text-teal-400 font-mono">{currentDoc.docNumber}</strong></p>
+                </div>
+
+                {/* Email input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Recipient Email Address</label>
+                  <input
+                    type="email"
+                    value={emailRecipient}
+                    onChange={(e) => setEmailRecipient(e.target.value)}
+                    placeholder="client@company.co.ke"
+                    autoFocus
+                    onKeyDown={(e) => e.key === "Enter" && handleSendDocumentEmail()}
+                    className="w-full px-4 py-3 text-sm rounded-xl bg-navy-950 border border-border text-white placeholder-slate-500 font-mono focus:ring-2 focus:ring-blue-500/50 outline-none"
+                  />
+                  {!currentDoc.client.email && (
+                    <p className="text-[11px] text-amber-400 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      No email saved for this client — you can type it above and it will be used for this send only.
+                    </p>
+                  )}
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="flex-1 py-2.5 rounded-xl bg-navy-800 border border-border text-slate-300 hover:text-white text-sm font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={isSendingEmail || !emailRecipient.trim()}
+                    onClick={handleSendDocumentEmail}
+                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Send Now</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* PRINT-READY A4 CANVAS (Styled for both dark UI preview & crisp white paper print) */}
           <div className="flex justify-center">

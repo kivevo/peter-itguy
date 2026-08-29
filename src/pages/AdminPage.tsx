@@ -61,7 +61,12 @@ import {
   MousePointerClick,
   Gauge,
   Signal,
-  Filter
+  Filter,
+  Briefcase,
+  Receipt,
+  DollarSign,
+  PenSquare,
+  MessageCircle
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
@@ -557,36 +562,97 @@ export const AdminPage: React.FC = () => {
   }
 
 
-  // Navigation Items Definitions
+  // Navigation Items Definitions — ordered by daily-use frequency (senior UX principle)
   const navGroups = [
     {
       group: "OVERVIEW",
       items: [
-        { id: "analytics" as const, label: "Live Traffic & Analytics", icon: Activity, count: `${trafficStats.activeNow} ONLINE` },
+        {
+          id: "analytics" as const,
+          label: "Traffic & Analytics",
+          icon: BarChart3,
+          count: `${trafficStats.activeNow} live`,
+          colorClass: "text-emerald-400",
+        },
       ],
     },
     {
-      group: "CLIENTS & OPERATIONS",
+      // Most frequently used day-to-day: leads → jobs → billing → email marketing
+      group: "REVENUE & OPERATIONS",
       items: [
-        { id: "inquiries" as const, label: "Customer Leads CRM", icon: MessageSquare, count: inquiries.filter((i) => i.status === "new").length },
-        { id: "jobs" as const, label: "On-Site Job Dispatch", icon: Calendar, count: jobs.filter((j) => j.status === "scheduled").length },
-        { id: "invoice" as const, label: "Krenovate Invoices & Quotes", icon: FileText, count: null },
-        { id: "broadcast" as const, label: "Email Broadcasts & Resend", icon: Mail, count: `${subscribers.filter(s => s.status === 'subscribed').length} SUBS` },
+        {
+          id: "inquiries" as const,
+          label: "Client Leads CRM",
+          icon: MessageSquare,
+          count: inquiries.filter((i) => i.status === "new").length || null,
+          colorClass: "text-amber-400",
+        },
+        {
+          id: "jobs" as const,
+          label: "Job Dispatch & Scheduling",
+          icon: Briefcase,
+          count: jobs.filter((j) => j.status === "scheduled").length || null,
+          colorClass: "text-blue-400",
+        },
+        {
+          id: "invoice" as const,
+          label: "Quotes & Invoices",
+          icon: Receipt,
+          count: null,
+          colorClass: "text-teal-400",
+        },
+        {
+          id: "broadcast" as const,
+          label: "Email Broadcast Studio",
+          icon: Mail,
+          count: subscribers.filter((s) => s.status === "subscribed").length,
+          colorClass: "text-purple-400",
+        },
       ],
     },
     {
       group: "CONTENT & REPUTATION",
       items: [
-        { id: "cms" as const, label: "Website Content CMS", icon: Globe, count: "ALL PAGES" },
-        { id: "reviews" as const, label: "Testimonials", icon: Star, count: reviews.length },
-        { id: "banner" as const, label: "Live Site Banner", icon: Radio, count: bannerConfig.enabled ? "ON" : "OFF" },
+        {
+          id: "cms" as const,
+          label: "Website Content (CMS)",
+          icon: PenSquare,
+          count: null,
+          colorClass: "text-cyan-400",
+        },
+        {
+          id: "reviews" as const,
+          label: "Client Testimonials",
+          icon: Star,
+          count: reviews.length || null,
+          colorClass: "text-yellow-400",
+        },
+        {
+          id: "banner" as const,
+          label: "Live Announcement Banner",
+          icon: Radio,
+          count: bannerConfig.enabled ? "ON" : "OFF",
+          colorClass: bannerConfig.enabled ? "text-emerald-400" : "text-slate-500",
+        },
       ],
     },
     {
-      group: "CONFIGURATION",
+      group: "SYSTEM & SECURITY",
       items: [
-        { id: "database" as const, label: "Supabase Database", icon: Database, count: "LIVE" },
-        { id: "security" as const, label: "Security & Passcode", icon: KeyRound, count: null },
+        {
+          id: "database" as const,
+          label: "Supabase Database",
+          icon: Database,
+          count: "LIVE",
+          colorClass: "text-teal-400",
+        },
+        {
+          id: "security" as const,
+          label: "Security & Passcode",
+          icon: KeyRound,
+          count: null,
+          colorClass: "text-rose-400",
+        },
       ],
     },
   ];
@@ -646,14 +712,15 @@ export const AdminPage: React.FC = () => {
           {/* Nav Groups */}
           <nav className="space-y-5">
             {navGroups.map((grp, gIdx) => (
-              <div key={gIdx} className="space-y-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-3">
+              <div key={gIdx} className="space-y-1">
+                <span className="text-[9px] font-mono font-extrabold uppercase tracking-widest text-slate-500 px-3 block pt-1">
                   {grp.group}
                 </span>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {grp.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
+                    const colorClass = "colorClass" in item ? item.colorClass : "text-teal-400";
                     return (
                       <button
                         key={item.id}
@@ -662,25 +729,25 @@ export const AdminPage: React.FC = () => {
                           setActiveTab(item.id);
                           setMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
                           isActive
-                            ? "bg-teal-600 text-white shadow-md font-bold"
-                            : "text-slate-300 hover:text-white hover:bg-navy-800"
+                            ? "bg-teal-600/90 text-white shadow-lg font-bold ring-1 ring-teal-500/50"
+                            : "text-slate-300 hover:text-white hover:bg-white/5"
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-teal-400"}`} />
-                          <span>{item.label}</span>
+                          <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : colorClass}`} />
+                          <span className="truncate">{item.label}</span>
                         </div>
 
-                        {item.count !== null && (
+                        {item.count !== null && item.count !== undefined && (
                           <span
-                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold flex-shrink-0 ml-1 ${
                               isActive
                                 ? "bg-white/20 text-white"
                                 : typeof item.count === "number" && item.count > 0
-                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                : "bg-navy-800 text-slate-400"
+                                ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                                : "bg-white/5 text-slate-500"
                             }`}
                           >
                             {item.count}
