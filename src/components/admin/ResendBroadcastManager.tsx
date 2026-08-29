@@ -427,6 +427,28 @@ export const ResendBroadcastManager: React.FC = () => {
                 </div>
               </div>
 
+              {/* Missing API Key Alert Banner */}
+              {!resendSettings.apiKey?.trim() && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Resend API Key is Not Configured</p>
+                      <p className="text-muted-foreground mt-0.5">
+                        Broadcasts and automated email alerts require a free API key from <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal-600 dark:text-teal-400 underline">resend.com</a>.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab("settings")}
+                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs whitespace-nowrap shadow-sm"
+                  >
+                    ⚙️ Add Key in Settings
+                  </button>
+                </div>
+              )}
+
               {/* Subject */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email Subject Line *</label>
