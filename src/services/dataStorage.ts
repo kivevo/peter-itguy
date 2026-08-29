@@ -27,7 +27,7 @@ export interface ReviewItem {
 
 export interface InquiryLead {
   id: string;
-  source: "direct_modal" | "issue_wizard" | "quote_estimator" | "speed_checker" | "floating_chat" | "hardware_planner";
+  source: "direct_modal" | "contact_form" | "issue_wizard" | "quote_estimator" | "speed_checker" | "floating_chat" | "hardware_planner";
   name: string;
   phone: string;
   service: string;
