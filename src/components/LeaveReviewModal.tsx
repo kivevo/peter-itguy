@@ -60,7 +60,7 @@ export const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
       .substring(0, 2)
       .toUpperCase() || "CL";
 
-    const newRev: ReviewItem = {
+    const newRev = dataStorage.addReview({
       id: `rev_${Date.now()}`,
       name: name.trim(),
       role: role.trim() || "Client / Partner",
@@ -72,9 +72,7 @@ export const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
       content: content.trim(),
       status: "approved",
       createdAt: new Date().toISOString(),
-    };
-
-    dataStorage.addReview(newRev);
+    });
 
     // Send immediate email alert to Peter via Resend
     await resendService.notifyNewReview(newRev);

@@ -51,7 +51,7 @@ export const ReviewSubmitModal: React.FC<ReviewSubmitModalProps> = ({
 
     setIsSubmitting(true);
 
-    const newReview: ReviewItem = {
+    const newReview = dataStorage.addReview({
       id: `rev_${Date.now()}`,
       name: name.trim(),
       role: role.trim() || "Business Owner",
@@ -63,10 +63,7 @@ export const ReviewSubmitModal: React.FC<ReviewSubmitModalProps> = ({
       highlight: highlight.trim() || `Verified ${rating}-Star IT Service Experience`,
       status: "pending", // Pending admin review & approval
       createdAt: new Date().toISOString(),
-    };
-
-    // Save to local storage
-    dataStorage.addReview(newReview);
+    });
 
     // Send immediate email alert to Peter via Resend
     await resendService.notifyNewReview(newReview);
