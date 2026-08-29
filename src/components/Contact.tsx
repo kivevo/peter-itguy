@@ -17,10 +17,13 @@ import {
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
+import SubmissionSuccessModal, { SubmissionDetails } from "@/components/SubmissionSuccessModal";
+
 export const Contact: React.FC = () => {
   const { toast } = useToast();
   const [siteContent, setSiteContent] = useState(dataStorage.getSiteContent());
   const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
+  const [successModalDetails, setSuccessModalDetails] = useState<SubmissionDetails | null>(null);
 
   const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
     setLocation(loc.formattedLocation);
@@ -126,9 +129,10 @@ export const Contact: React.FC = () => {
 
     setIsSubmitting(true);
 
+    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
     const newInquiry: InquiryLead = {
       id: `inq_${Date.now()}`,
-      source: "direct_modal",
+      source: "contact_form",
       name: formData.name.trim(),
       phone: formData.phone.trim(),
       service: formData.service,
@@ -139,7 +143,7 @@ export const Contact: React.FC = () => {
     };
     dataStorage.addInquiry(newInquiry);
 
-    // If email provided, subscribe and send welcome email
+    // If email provided, subscribe and send welcome email + inquiry confirmation
     if (formData.email.trim() && formData.email.includes("@")) {
       dataStorage.addSubscriber({
         email: formData.email.trim(),
@@ -147,18 +151,24 @@ export const Contact: React.FC = () => {
         phone: formData.phone.trim(),
         source: "Website Contact Form",
       });
-      resendService.sendWelcomeEmail({ email: formData.email.trim(), name: formData.name.trim() });
+      // Send client confirmation receipt email
+      resendService.sendClientInquiryConfirmation(newInquiry, formData.email.trim());
     }
 
     // Send instant email alert to Peter via Resend
-    const resendResult = await resendService.notifyNewInquiry(newInquiry);
+    await resendService.notifyNewInquiry(newInquiry);
 
     setIsSubmitting(false);
-    toast({
-      title: "Inquiry Sent to Peter! 📬",
-      description: resendResult.success
-        ? "Thank you! Peter has received your request and will call or WhatsApp you shortly."
-        : "Thank you! Peter has received your request and will contact you shortly.",
+
+    // Show rich success modal to the client
+    setSuccessModalDetails({
+      ticketId,
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      email: formData.email.trim() || undefined,
+      service: formData.service,
+      location,
+      urgency: formData.urgency,
     });
 
     setFormData({
@@ -171,7 +181,9 @@ export const Contact: React.FC = () => {
     });
   };
 
+
   return (
+    <>
     <section id="contact" className="py-20 lg:py-28 bg-background dark:bg-navy-950 relative border-t border-border/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -424,6 +436,15 @@ export const Contact: React.FC = () => {
         </div>
       </div>
     </section>
+
+    {/* Client Submission Confirmation Modal */}
+    <SubmissionSuccessModal
+      isOpen={!!successModalDetails}
+      onClose={() => setSuccessModalDetails(null)}
+      details={successModalDetails}
+    />
+    </>
   );
 };
 export default Contact;
+

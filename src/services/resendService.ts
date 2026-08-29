@@ -194,6 +194,105 @@ class ResendEmailService {
   }
 
   /**
+   * Send an immediate confirmation email receipt to the client who submitted the inquiry
+   */
+  public async sendClientInquiryConfirmation(inquiry: InquiryLead, clientEmail: string): Promise<SendResult> {
+    if (!clientEmail || !clientEmail.includes("@")) {
+      return { success: false, error: "Invalid client email" };
+    }
+
+    const siteContent = dataStorage.getSiteContent();
+    const siteInfo = siteContent.siteInfo;
+    const clientName = inquiry.name?.trim() || "Valued Client";
+    const ticketId = `TKT-${inquiry.id.replace(/[^0-9]/g, "").slice(-6) || Math.floor(100000 + Math.random() * 900000)}`;
+    const subject = `✅ [Ticket #${ticketId} Received] Peter Kivevo IT Support & Engineering`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 20px; }
+          .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #0f172a; color: #ffffff; padding: 30px 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 22px; font-weight: 800; }
+          .header p { margin: 6px 0 0 0; color: #2dd4bf; font-size: 13px; font-family: monospace; }
+          .badge { display: inline-block; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.4); color: #2dd4bf; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; margin-top: 10px; }
+          .content { padding: 28px 24px; }
+          .status-box { background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 12px; padding: 18px; margin: 18px 0; color: #115e59; }
+          .status-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+          .field { margin-bottom: 14px; }
+          .label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.05em; margin-bottom: 2px; }
+          .value { font-size: 14px; font-weight: 600; color: #0f172a; }
+          .btn-wa { display: inline-block; background: #25D366; color: #ffffff; text-decoration: none; padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; margin-top: 12px; }
+          .footer { padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 12px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="header">
+            <h1>Peter Kivevo — IT Consultant</h1>
+            <p>Direct Engineer Dispatch &amp; Support</p>
+            <div class="badge">Ticket Assigned: #${ticketId}</div>
+          </div>
+          <div class="content">
+            <p style="font-size: 16px; font-weight: 700; margin-top: 0; color: #0f172a;">
+              Hi ${clientName},
+            </p>
+            <p style="color: #475569; font-size: 14px; margin-top: 4px;">
+              Thank you for reaching out! Your IT service request has been received directly by Peter Kivevo and entered into our priority dispatch queue.
+            </p>
+
+            <div class="status-box">
+              <div class="status-title">⚡ Engineer Status: On-Call &amp; Reviewing</div>
+              <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.95;">
+                Peter will review your requirements and call or WhatsApp you at <strong>${inquiry.phone || "your contact number"}</strong> shortly. Average direct response time is under 15 minutes.
+              </p>
+            </div>
+
+            <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; margin-top: 18px;">
+              <div class="field">
+                <div class="label">Requested Service</div>
+                <div class="value">${inquiry.service}</div>
+              </div>
+              ${inquiry.urgency ? `
+              <div class="field">
+                <div class="label">Urgency SLA</div>
+                <div class="value" style="color: #e11d48;">⚡ ${inquiry.urgency}</div>
+              </div>` : ""}
+              <div class="field" style="margin-bottom: 0;">
+                <div class="label">Submitted Details</div>
+                <div class="value" style="font-weight: normal; color: #334155; font-size: 13px;">${inquiry.details || "IT Assistance Request"}</div>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px;">
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 8px;">
+                Need to speak with Peter right now? Connect directly on WhatsApp:
+              </p>
+              <a class="btn-wa" href="https://wa.me/${siteInfo.whatsappNumber}?text=${encodeURIComponent(`Hi Peter, I just submitted Ticket #${ticketId} for ${inquiry.service}. Can we discuss?`)}" target="_blank">
+                💬 Open WhatsApp Chat with Peter
+              </a>
+            </div>
+          </div>
+          <div class="footer">
+            Peter Kivevo • Safaricom Dealer Tech Specialist • Nairobi, Kenya<br>
+            Direct: ${siteInfo.phoneDisplay} | ${siteInfo.email}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail({
+      to: clientEmail.trim(),
+      subject,
+      html,
+    });
+  }
+
+  /**
    * Send notification alert to Peter when a new testimonial/review is posted
    */
   public async notifyNewReview(review: ReviewItem): Promise<SendResult> {

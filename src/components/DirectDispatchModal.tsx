@@ -4,6 +4,7 @@ import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
 import { useToast } from "@/hooks/use-toast";
 import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
+import SubmissionSuccessModal, { SubmissionDetails } from "@/components/SubmissionSuccessModal";
 import { 
   Send, 
   X, 
@@ -40,8 +41,9 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
   const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
   const [urgency, setUrgency] = useState("Urgent (Today / Within Hours)");
   const [message, setMessage] = useState(initialMessage || "Hi Peter, I need IT help for my business.");
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successModalDetails, setSuccessModalDetails] = useState<SubmissionDetails | null>(null);
 
   const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
     setLocation(loc.formattedLocation);
@@ -82,6 +84,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
 
     setIsSubmitting(true);
 
+    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
     const newLead: InquiryLead = {
       id: `inq_${Date.now()}`,
       source: "direct_modal",
@@ -89,7 +92,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
       phone: phone.trim(),
       service,
       urgency,
-      details: `Location: ${location} | Urgency: ${urgency} | Details: ${message.trim()}`,
+      details: `Location: ${location} | Urgency: ${urgency} | Details: ${message.trim()}${email.trim() ? ` (Email: ${email.trim()})` : ""}`,
       status: "new",
       createdAt: new Date().toISOString(),
     };
@@ -100,20 +103,33 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
     // Send immediate email alert to Peter via Resend
     await resendService.notifyNewInquiry(newLead);
 
+    // Send client confirmation receipt if email was provided
+    if (email.trim() && email.includes("@")) {
+      resendService.sendClientInquiryConfirmation(newLead, email.trim());
+    }
+
     setIsSubmitting(false);
-    setIsSuccess(true);
-    toast({
-      title: "Direct Request Sent! 📬",
-      description: "Peter has been notified and will call or WhatsApp you shortly.",
+
+    // Show rich success modal
+    setSuccessModalDetails({
+      ticketId,
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim() || undefined,
+      service,
+      location,
+      urgency,
     });
+    onClose();
   };
 
   const handleResetAndClose = () => {
-    setIsSuccess(false);
+    setSuccessModalDetails(null);
     onClose();
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-2xl p-6 sm:p-8 space-y-5 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
         {/* Close Button */}
@@ -139,37 +155,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
           </p>
         </div>
 
-        {/* Success Screen */}
-        {isSuccess ? (
-          <div className="py-8 text-center space-y-4 bg-teal-500/10 rounded-2xl border border-teal-500/30 p-6 animate-in fade-in">
-            <div className="w-14 h-14 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8 text-teal-500" />
-            </div>
-
-            <div className="space-y-1.5 max-w-sm mx-auto">
-              <h4 className="font-heading font-extrabold text-xl text-foreground">
-                Message Sent Successfully!
-              </h4>
-              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-                Thank you, <strong>{name}</strong>! Your inquiry for <strong>{service}</strong> has been received by Peter Kivevo.
-              </p>
-              <p className="text-xs text-teal-600 dark:text-teal-400 font-mono pt-1">
-                ⚡ Peter will call or message {phone} shortly.
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row justify-center gap-2.5">
-              <button
-                type="button"
-                onClick={handleResetAndClose}
-                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* Form */
+        {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-3.5">
               <div className="space-y-1">
@@ -201,6 +187,21 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50 font-mono"
                 />
               </div>
+            </div>
+
+            {/* Optional email for receipt */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-500" />
+                <span>Email (optional — get a confirmation receipt)</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.co.ke"
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+              />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3.5">
@@ -291,9 +292,15 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
               </div>
             </div>
           </form>
-        )}
-      </div>
+        </div>
     </div>
+
+    <SubmissionSuccessModal
+      isOpen={!!successModalDetails}
+      onClose={() => setSuccessModalDetails(null)}
+      details={successModalDetails}
+    />
+    </>
   );
 };
 
