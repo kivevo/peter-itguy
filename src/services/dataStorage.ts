@@ -505,7 +505,7 @@ class DataStorageService {
     return this.getReviews().filter((r) => r.status === "approved");
   }
 
-  public addReview(review: Omit<ReviewItem, "id" | "createdAt" | "status"> & { status?: "approved" | "pending" | "rejected"; id?: string; createdAt?: string }): ReviewItem {
+  public addReview(review: ReviewItem | (Omit<ReviewItem, "id" | "createdAt" | "status"> & { status?: "approved" | "pending" | "rejected"; id?: string; createdAt?: string })): ReviewItem {
     const all = this.getReviews();
     const initials = review.name
       .split(" ")
