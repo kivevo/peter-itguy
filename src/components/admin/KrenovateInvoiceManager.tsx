@@ -4,8 +4,16 @@ import {
   InvoiceDocument, 
   InvoiceItem, 
   CompanyProfile, 
-  SavedClient 
+  SavedClient,
+  InquiryLead
 } from "@/services/dataStorage";
+import { 
+  TURNKEY_PACKAGES, 
+  CATALOG_ITEMS, 
+  TurnkeyPackage, 
+  CatalogItem, 
+  generateItemsFromPrompt 
+} from "@/data/invoicePresets";
 import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
@@ -33,7 +41,15 @@ import {
   CreditCard, 
   Receipt,
   FileSpreadsheet,
-  AlertCircle
+  AlertCircle,
+  Wifi,
+  Laptop,
+  Globe,
+  Zap,
+  Check,
+  ArrowRight,
+  Layers,
+  Wand2
 } from "lucide-react";
 
 interface KrenovateInvoiceManagerProps {
@@ -56,6 +72,12 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const [invoices, setInvoices] = useState<InvoiceDocument[]>([]);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>(dataStorage.getCompanyProfile());
   const [clients, setClients] = useState<SavedClient[]>([]);
+  const [inquiries, setInquiries] = useState<InquiryLead[]>([]);
+
+  // Zero-typing & AI generators
+  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<string>("All");
+  const [smartPrompt, setSmartPrompt] = useState("");
+  const [isGeneratingSmart, setIsGeneratingSmart] = useState(false);
 
   // Active document being created / edited / previewed
   const [currentDoc, setCurrentDoc] = useState<InvoiceDocument | null>(null);
@@ -91,6 +113,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       setInvoices(dataStorage.getInvoices());
       setCompanyProfile(dataStorage.getCompanyProfile());
       setClients(dataStorage.getClients());
+      setInquiries(dataStorage.getInquiries());
     };
     loadAll();
     const unsubscribe = dataStorage.subscribe(loadAll);
@@ -115,6 +138,155 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       ]);
     }
   }, [initialLead]);
+
+  // Apply a Turnkey Solution Package (Zero Typing)
+  const handleApplyTurnkeyPackage = (pkg: TurnkeyPackage, clientOverride?: Partial<InvoiceDocument["client"]>) => {
+    const nextNumber = dataStorage.getNextDocNumber(pkg.defaultDocType);
+    const profile = dataStorage.getCompanyProfile();
+
+    const items: InvoiceItem[] = pkg.items.map((it, idx) => ({
+      id: `item-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+      desc: it.desc,
+      qty: it.qty,
+      unitPrice: it.unitPrice,
+    }));
+
+    const newDoc: InvoiceDocument = {
+      id: currentDoc?.id || "",
+      docType: pkg.defaultDocType,
+      docNumber: currentDoc?.docNumber || nextNumber,
+      issueDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + (profile.defaultPaymentTermsDays || 14) * 86400000).toISOString().slice(0, 10),
+      status: "draft",
+      client: {
+        id: clientOverride?.id || currentDoc?.client?.id,
+        name: clientOverride?.name || currentDoc?.client?.name || "",
+        company: clientOverride?.company || currentDoc?.client?.company || "",
+        email: clientOverride?.email || currentDoc?.client?.email || "",
+        phone: clientOverride?.phone || currentDoc?.client?.phone || "",
+        address: clientOverride?.address || currentDoc?.client?.address || "Nairobi, Kenya",
+        kraPin: clientOverride?.kraPin || currentDoc?.client?.kraPin || "",
+      },
+      items,
+      discountType: "flat",
+      discountValue: 0,
+      vatEnabled: profile.defaultVatPercent > 0,
+      vatPercent: profile.defaultVatPercent || 16,
+      currency: profile.currency || "KES",
+      notes: (pkg.suggestedNotes ? `${pkg.suggestedNotes}\n\n` : "") + profile.notesTemplate,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setCurrentDoc(newDoc);
+    setSubView("editor");
+
+    toast({
+      title: `⚡ ${pkg.name} Auto-Generated!`,
+      description: `${items.length} itemized lines with official specs & KES market pricing populated instantly.`,
+    });
+  };
+
+  // Convert Incoming Website Lead to Formal Proposal / Invoice
+  const handleAutoGenerateFromLead = (leadId: string) => {
+    const lead = inquiries.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    // Smart detect matching Turnkey Package from lead.service & lead.details
+    const combined = `${lead.service || ""} ${lead.details || ""}`.toLowerCase();
+    let bestPkg = TURNKEY_PACKAGES[0]; // default Wi-Fi
+    if (combined.includes("cctv") || combined.includes("camera") || combined.includes("surveillance")) {
+      bestPkg = combined.includes("8") ? TURNKEY_PACKAGES[2] : TURNKEY_PACKAGES[1];
+    } else if (combined.includes("web") || combined.includes("site") || combined.includes("seo") || combined.includes("online")) {
+      bestPkg = TURNKEY_PACKAGES[3];
+    } else if (combined.includes("sla") || combined.includes("maintenance") || combined.includes("retainer")) {
+      bestPkg = TURNKEY_PACKAGES[4];
+    } else if (combined.includes("slow") || combined.includes("ssd") || combined.includes("upgrade") || combined.includes("laptop") || combined.includes("ram")) {
+      bestPkg = TURNKEY_PACKAGES[5];
+    } else if (combined.includes("pos") || combined.includes("retail") || combined.includes("checkout")) {
+      bestPkg = TURNKEY_PACKAGES[6];
+    } else if (combined.includes("backup") || combined.includes("nas") || combined.includes("data") || combined.includes("recovery")) {
+      bestPkg = TURNKEY_PACKAGES[7];
+    }
+
+    // Extract location if present
+    let loc = "Nairobi, Kenya";
+    if (lead.details && lead.details.includes("Location:")) {
+      const parts = lead.details.split("Location:");
+      if (parts[1]) {
+        loc = parts[1].split("|")[0].trim();
+      }
+    }
+
+    // Extract email if present
+    let clientEmail = "";
+    if (lead.details && lead.details.includes("Email:")) {
+      const parts = lead.details.split("Email:");
+      if (parts[1]) {
+        clientEmail = parts[1].replace(")", "").trim();
+      }
+    }
+
+    handleApplyTurnkeyPackage(bestPkg, {
+      name: lead.name || "Client",
+      company: lead.name ? `${lead.name} Enterprise` : "Business Client",
+      phone: lead.phone || "",
+      email: clientEmail,
+      address: loc,
+    });
+
+    toast({
+      title: "🎯 Lead Converted to Formal Proposal!",
+      description: `Auto-filled details for ${lead.name} (${lead.service}). Ready for 1-click WhatsApp/PDF sending.`,
+    });
+  };
+
+  // 1-Tap Insert from Equipment & Service Catalog
+  const handleInsertCatalogItem = (cat: CatalogItem) => {
+    if (!currentDoc) return;
+    const newItem: InvoiceItem = {
+      id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      desc: cat.desc,
+      qty: cat.defaultQty || 1,
+      unitPrice: cat.unitPrice,
+    };
+    setCurrentDoc({
+      ...currentDoc,
+      items: [...currentDoc.items, newItem],
+    });
+    toast({
+      title: `+ ${cat.name} Added`,
+      description: `Added ${cat.defaultQty}x @ KES ${cat.unitPrice.toLocaleString()}`,
+    });
+  };
+
+  // AI / Smart Prompt Generator
+  const handleSmartPromptGenerate = (promptText?: string) => {
+    const textToUse = promptText || smartPrompt;
+    if (!textToUse.trim() || !currentDoc) return;
+
+    setIsGeneratingSmart(true);
+    setTimeout(() => {
+      const generated = generateItemsFromPrompt(textToUse);
+      const items: InvoiceItem[] = generated.map((it, idx) => ({
+        id: `item-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+        desc: it.desc,
+        qty: it.qty,
+        unitPrice: it.unitPrice,
+      }));
+
+      setCurrentDoc({
+        ...currentDoc,
+        items,
+      });
+      setIsGeneratingSmart(false);
+      setSmartPrompt("");
+      toast({
+        title: "✨ Quotation Auto-Generated!",
+        description: `Generated ${items.length} tailored line items based on: "${textToUse.slice(0, 30)}..."`,
+      });
+    }, 300);
+  };
 
   // Create new blank document
   const handleCreateNewDoc = (
@@ -581,6 +753,91 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
             </div>
           </div>
 
+          {/* ========================================================================= */}
+          {/* ZERO-TYPING SYSTEM GENERATOR: TURNKEY PACKAGES & LEAD CONVERTER           */}
+          {/* ========================================================================= */}
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-slate-950 border border-teal-500/30 shadow-glow space-y-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/60">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 text-teal-300 text-xs font-mono font-bold border border-teal-500/30">
+                  <Zap className="w-3.5 h-3.5 text-teal-400 fill-teal-400" />
+                  <span>Zero-Typing System Generator (Kenyan Market Rates)</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-heading font-extrabold text-white">
+                  1-Click Turnkey Proposals &amp; Instant Lead Conversion
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Pick any turnkey package below to auto-generate itemized equipment, pricing, terms, and WhatsApp message instantly.
+                </p>
+              </div>
+
+              {/* 1-Click Convert Incoming Website Lead */}
+              {inquiries.length > 0 && (
+                <div className="w-full md:w-auto flex-shrink-0">
+                  <label className="text-[11px] font-bold text-teal-300 uppercase tracking-wider block mb-1">
+                    🎯 Convert Website Inquiry:
+                  </label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (e.target.value) handleAutoGenerateFromLead(e.target.value);
+                    }}
+                    className="w-full md:w-72 px-3 py-2 text-xs rounded-xl bg-navy-900 border border-teal-500/50 text-teal-300 font-bold focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                  >
+                    <option value="" disabled>⚡ Pick inquiry to auto-quote...</option>
+                    {inquiries.map((inq) => (
+                      <option key={inq.id} value={inq.id}>
+                        {inq.name} — {inq.service} ({inq.phone})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Turnkey Package Visual Cards */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {TURNKEY_PACKAGES.map((pkg) => {
+                const pkgTotal = pkg.items.reduce((acc, it) => acc + it.qty * it.unitPrice, 0);
+                return (
+                  <div
+                    key={pkg.id}
+                    className="p-4 rounded-2xl bg-navy-900/90 border border-border/80 hover:border-teal-500/60 transition-all duration-200 flex flex-col justify-between space-y-3 group"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20">
+                          {pkg.badge}
+                        </span>
+                        <span className="text-xs font-mono font-extrabold text-white">
+                          KES {pkgTotal.toLocaleString()}
+                        </span>
+                      </div>
+                      <h4 className="font-heading font-bold text-sm text-white group-hover:text-teal-300 transition-colors">
+                        {pkg.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                        {pkg.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-border/50 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-500 font-mono">{pkg.items.length} auto-items</span>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyTurnkeyPackage(pkg)}
+                        className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1 shadow-glow"
+                      >
+                        <span>Generate</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Search, Filters, & Document Type Buttons */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
             {/* Search */}
@@ -837,6 +1094,102 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Left Col: Document Meta & Client Info */}
             <div className="lg:col-span-8 space-y-6">
+
+              {/* ========================================================================= */}
+              {/* ZERO-TYPING GENERATOR: AI PROMPT & TURNKEY PACKAGE AUTO-LOADER             */}
+              {/* ========================================================================= */}
+              <div className="p-5 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-slate-950 border border-teal-500/40 shadow-glow space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-heading font-extrabold text-sm text-white flex items-center gap-2">
+                        <span>Zero-Typing System Generator</span>
+                        <span className="text-[10px] font-mono font-bold bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/30">
+                          AI &amp; Templates
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Auto-populate complete turnkey hardware specs, pricing, and scopes in 1 click.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 1-Click Load Turnkey Package */}
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const pkg = TURNKEY_PACKAGES.find((p) => p.id === e.target.value);
+                      if (pkg) handleApplyTurnkeyPackage(pkg);
+                    }}
+                    className="px-3 py-2 text-xs rounded-xl bg-navy-900 border border-teal-500/50 text-teal-300 font-bold focus:outline-none"
+                  >
+                    <option value="" disabled>⚡ Load Turnkey Package...</option>
+                    {TURNKEY_PACKAGES.map((pkg) => (
+                      <option key={pkg.id} value={pkg.id}>
+                        {pkg.name} ({pkg.items.length} items)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* AI / Smart Custom Prompt Generator */}
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={smartPrompt}
+                      onChange={(e) => setSmartPrompt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSmartPromptGenerate();
+                        }
+                      }}
+                      placeholder="e.g. 8 CCTV cameras for warehouse with 4TB storage and night vision..."
+                      className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-navy-950 border border-border text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    />
+                    <button
+                      type="button"
+                      disabled={isGeneratingSmart || !smartPrompt.trim()}
+                      onClick={() => handleSmartPromptGenerate()}
+                      className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 whitespace-nowrap shadow-glow"
+                    >
+                      <Wand2 className="w-3.5 h-3.5" />
+                      <span>{isGeneratingSmart ? "Generating..." : "✨ Auto-Generate"}</span>
+                    </button>
+                  </div>
+
+                  {/* Quick AI Tag Suggestions */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Quick Prompts:</span>
+                    {[
+                      { label: "📶 Office Wi-Fi 6", prompt: "Complete office Wi-Fi 6 network with 16-port PoE switch and MikroTik router" },
+                      { label: "📹 4-Cam CCTV", prompt: "4-camera 5MP night-vision CCTV system with 2TB storage and mobile app" },
+                      { label: "📹 8-Cam CCTV", prompt: "8-camera enterprise CCTV system with 4TB storage and 9U server rack" },
+                      { label: "🌐 Business Website", prompt: "High-speed business website with domain, hosting, and corporate email" },
+                      { label: "💻 5-PC SSD Upgrade", prompt: "5-computer hardware speedup with 500GB SSDs, RAM, and OS optimization" },
+                      { label: "💳 Retail POS", prompt: "All-in-one touchscreen POS system with receipt printer and cash drawer" },
+                      { label: "🔒 Cloud & NAS Backup", prompt: "Automated daily NAS backup system with 4TB RAID 1 storage and cloud sync" },
+                    ].map((tag) => (
+                      <button
+                        key={tag.label}
+                        type="button"
+                        onClick={() => {
+                          setSmartPrompt(tag.prompt);
+                          handleSmartPromptGenerate(tag.prompt);
+                        }}
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-navy-950 hover:bg-teal-500/20 text-slate-300 hover:text-teal-300 border border-border/80 transition-colors"
+                      >
+                        {tag.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Document Type & Number Details */}
               <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1044,7 +1397,58 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </div>
 
               {/* Line Items Table */}
-              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-4">
+              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-5">
+                
+                {/* 1-Tap Equipment & Service Catalog Drawer */}
+                <div className="p-4 rounded-2xl bg-navy-950/90 border border-teal-500/30 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-teal-400" />
+                      <span className="text-xs font-heading font-extrabold text-white">
+                        1-Tap Equipment &amp; Service Catalog (Zero Typing):
+                      </span>
+                    </div>
+
+                    {/* Category Filter Tabs */}
+                    <div className="flex flex-wrap items-center gap-1">
+                      {["All", "Networking", "CCTV", "Hardware", "Labor", "Web"].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setCatalogCategoryFilter(cat)}
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors ${
+                            catalogCategoryFilter === cat
+                              ? "bg-teal-600 text-white"
+                              : "bg-navy-900 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Clickable Catalog Item Chips */}
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+                    {CATALOG_ITEMS
+                      .filter((item) => catalogCategoryFilter === "All" || item.category === catalogCategoryFilter)
+                      .map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleInsertCatalogItem(item)}
+                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-teal-600/30 border border-border hover:border-teal-500/50 text-slate-200 text-xs transition-all hover:scale-[1.02] shadow-sm"
+                        >
+                          <Plus className="w-3 h-3 text-teal-400 group-hover:rotate-90 transition-transform" />
+                          <span className="font-semibold">{item.name}</span>
+                          <span className="font-mono text-[11px] text-teal-300 font-bold bg-navy-950 px-1.5 py-0.5 rounded-md">
+                            KES {item.unitPrice.toLocaleString()}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between pb-2 border-b border-border/60">
                   <span className="font-heading font-bold text-sm text-white">
                     Itemized Services &amp; Hardware:
@@ -1055,7 +1459,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                     className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Item</span>
+                    <span>Add Custom Item</span>
                   </button>
                 </div>
 
