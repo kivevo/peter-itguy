@@ -333,17 +333,15 @@ class DataStorageService {
   }
 
   // --- ADMIN PIN / SECURITY ---
-  // Master PIN is set via VITE_ADMIN_PIN environment variable in Vercel.
-  // localStorage can store an override PIN only after the admin changes it from inside the panel.
-  public getAdminPin(): string | null {
+  public getAdminPin(): string {
     // 1. Check localStorage for an admin-changed override
     const localOverride = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN);
     if (localOverride) return localOverride;
-    // 2. Fall back to the environment variable (set in Vercel dashboard)
+    // 2. Check environment variable (if set in Vercel)
     const envPin = import.meta.env.VITE_ADMIN_PIN as string | undefined;
     if (envPin && envPin.trim().length > 0) return envPin.trim();
-    // 3. No PIN configured — portal cannot be accessed
-    return null;
+    // 3. Fallback PIN (2540)
+    return "2540";
   }
 
   public setAdminPin(newPin: string) {

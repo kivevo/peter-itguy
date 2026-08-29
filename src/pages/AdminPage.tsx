@@ -51,12 +51,6 @@ export const AdminPage: React.FC = () => {
   const [authError, setAuthError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // First-time PIN setup (shown when no PIN has ever been set)
-  const [isPinNotSet, setIsPinNotSet] = useState(() => dataStorage.getAdminPin() === null);
-  const [setupPin, setSetupPin] = useState("");
-  const [setupPinConfirm, setSetupPinConfirm] = useState("");
-  const [setupPinError, setSetupPinError] = useState("");
-
   // Tabs
   const [activeTab, setActiveTab] = useState<
     "analytics" | "inquiries" | "jobs" | "invoice" | "reviews" | "banner" | "database" | "security"
@@ -163,31 +157,10 @@ export const AdminPage: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleFirstTimeSetup = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (setupPin.length < 4) {
-      setSetupPinError("PIN must be at least 4 characters.");
-      return;
-    }
-    if (setupPin !== setupPinConfirm) {
-      setSetupPinError("PINs do not match. Please try again.");
-      return;
-    }
-    dataStorage.setAdminPin(setupPin);
-    setIsPinNotSet(false);
-    setSetupPin("");
-    setSetupPinConfirm("");
-    setSetupPinError("");
-    toast({
-      title: "Admin PIN Created! 🔒",
-      description: "Your portal is now secured. Use your new PIN to log in.",
-    });
-  };
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const masterPin = dataStorage.getAdminPin();
-    if (masterPin && pinInput === masterPin) {
+    if (pinInput === masterPin) {
       setIsAuthenticated(true);
       sessionStorage.setItem("itguy_admin_session", "true");
       setAuthError(false);
@@ -528,33 +501,7 @@ export const AdminPage: React.FC = () => {
     return true;
   });
 
-  // 1a. PIN not configured via environment — show a generic locked screen, reveal nothing
-  if (isPinNotSet) {
-    return (
-      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-sm rounded-3xl bg-navy-900 border border-slate-700/50 shadow-2xl p-8 space-y-5 text-center animate-in zoom-in-95 duration-200">
-          <div className="w-14 h-14 rounded-2xl bg-slate-800 text-slate-500 border border-slate-700 flex items-center justify-center mx-auto">
-            <Lock className="w-7 h-7" />
-          </div>
-          <h1 className="text-xl font-extrabold font-heading text-slate-300">
-            Access Restricted
-          </h1>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            This portal is not available.
-          </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Website</span>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // 1b. Authenticated login screen
+  // 1. Password Lock Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4">
