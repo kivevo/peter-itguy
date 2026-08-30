@@ -108,7 +108,7 @@ export const Navigation: React.FC = () => {
             </Link>
 
             {/* Center: Desktop Navigation Capsule (Large Screens >= 1024px) */}
-            <nav className="hidden lg:flex items-center gap-1 bg-muted/40 dark:bg-navy-900/60 p-1.5 rounded-full border border-border/80 dark:border-white/10 shadow-inner">
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-muted/40 dark:bg-navy-900/60 p-1.5 rounded-full border border-border/80 dark:border-white/10 shadow-inner flex-shrink-0">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.href;
                 return (
@@ -121,7 +121,7 @@ export const Navigation: React.FC = () => {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }
                     }}
-                    className={`px-4 py-2 text-xs font-bold rounded-full transition-all duration-200 ${
+                    className={`px-3 xl:px-4 py-2 text-xs font-bold rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                       isActive
                         ? "bg-teal-600 text-white shadow-md shadow-teal-600/30 border border-teal-400/40 font-extrabold"
                         : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
