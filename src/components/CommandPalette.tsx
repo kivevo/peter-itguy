@@ -160,7 +160,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
     },
 
-    // Services
+    // Core Services
     {
       id: "srv-support",
       title: "Computer & Server Support",
@@ -202,6 +202,294 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       icon: Layers,
       action: () => {
         navigate("/services#web-development");
+        onClose();
+      },
+    },
+
+    // ─── LAPTOP & PC REPAIRS ───────────────────────────────────────────────
+    {
+      id: "it-laptop-screen",
+      title: "Laptop Screen Replacement",
+      subtitle: "Broken or cracked screen — all brands HP, Dell, Lenovo, MacBook",
+      category: "Services",
+      icon: Zap,
+      badge: "24–48h",
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a laptop screen replaced. Can you help?"), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-laptop-slow",
+      title: "Slow Laptop / PC Fix & SSD Upgrade",
+      subtitle: "Speed up slow computer — SSD upgrade, RAM boost, virus clean",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my laptop is very slow. I need it fixed or upgraded."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-laptop-keyboard",
+      title: "Laptop Keyboard Replacement",
+      subtitle: "Broken, stuck or non-responsive keys on any laptop brand",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need my laptop keyboard replaced."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-laptop-charging",
+      title: "Laptop Not Charging — Charging Port Repair",
+      subtitle: "Laptop won't charge or battery drains fast",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my laptop is not charging. The charging port may be broken."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-laptop-overheating",
+      title: "Laptop Overheating Fix & Fan Cleaning",
+      subtitle: "Laptop gets very hot, fan noisy, or shuts down randomly",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my laptop is overheating and slowing down. Can you fix it?"), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-virus-removal",
+      title: "Virus & Malware Removal",
+      subtitle: "Computer infected, slow, showing pop-ups or hacked",
+      category: "Services",
+      icon: ShieldCheck,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I think my computer has a virus. It's very slow and behaving strangely."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-data-recovery",
+      title: "Hard Drive Data Recovery",
+      subtitle: "Recover files from failed, corrupted, or accidentally deleted drive",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my hard drive failed and I need to recover important files. Can you help?"), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-windows-reinstall",
+      title: "Windows Reinstallation & OS Repair",
+      subtitle: "Format and reinstall Windows — removes all viruses & corruption",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need Windows reinstalled on my laptop or desktop PC."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-bsod",
+      title: "Blue Screen of Death (BSOD) Fix",
+      subtitle: "Laptop crashing, showing blue screen error codes",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my laptop keeps showing a blue screen and crashing. Please help."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-pc-assembly",
+      title: "Desktop PC Assembly & Repair",
+      subtitle: "Build custom PC or repair desktop that won't start",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need help with desktop PC repair or assembly in Nairobi."), "_blank");
+        onClose();
+      },
+    },
+
+    // ─── PRINTERS & POS ───────────────────────────────────────────────────
+    {
+      id: "it-printer-setup",
+      title: "Printer Setup & Configuration",
+      subtitle: "Install and configure HP, Canon, Epson, Kyocera printers",
+      category: "Services",
+      icon: Wrench,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a printer set up at my office."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-printer-repair",
+      title: "Printer Not Printing — Diagnosis & Fix",
+      subtitle: "Printer offline, paper jam, faded prints, ink issues",
+      category: "Services",
+      icon: Wrench,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, my printer is not printing / keeps jamming. Can you fix it?"), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-pos-printer",
+      title: "POS Receipt Printer Setup",
+      subtitle: "Thermal receipt printers for M-Pesa tills and retail counters",
+      category: "Services",
+      icon: Wrench,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a receipt printer set up for my POS till."), "_blank");
+        onClose();
+      },
+    },
+
+    // ─── CLOUD & EMAIL ────────────────────────────────────────────────────
+    {
+      id: "it-email-setup",
+      title: "Business Email Setup (info@company.co.ke)",
+      subtitle: "Professional email on your domain via Google Workspace or M365",
+      category: "Services",
+      icon: Globe,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a professional business email on my domain set up."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-google-workspace",
+      title: "Google Workspace / Microsoft 365 Setup",
+      subtitle: "Team email, Drive, Teams, and shared calendars",
+      category: "Services",
+      icon: Globe,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need Google Workspace or Microsoft 365 set up for my team."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-cloud-backup",
+      title: "Cloud Backup & Data Protection",
+      subtitle: "Automatic daily backup of company files to cloud",
+      category: "Services",
+      icon: ShieldCheck,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need automatic cloud backup set up for my company files."), "_blank");
+        onClose();
+      },
+    },
+
+    // ─── SECURITY & CYBERSECURITY ─────────────────────────────────────────
+    {
+      id: "it-firewall",
+      title: "Office Firewall & Network Security",
+      subtitle: "Protect business network from unauthorized access",
+      category: "Services",
+      icon: ShieldCheck,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a firewall set up to protect my office network."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-cyber-training",
+      title: "Staff Cybersecurity & Phishing Awareness Training",
+      subtitle: "Train your team to avoid scams, fake emails & hacking attempts",
+      category: "Services",
+      icon: ShieldCheck,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need cybersecurity training for my staff to prevent scams."), "_blank");
+        onClose();
+      },
+    },
+
+    // ─── NETWORKING ───────────────────────────────────────────────────────
+    {
+      id: "it-wifi-install",
+      title: "Office Wi-Fi Installation",
+      subtitle: "Enterprise-grade Wi-Fi coverage for offices, hotels & shops",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a proper Wi-Fi system installed in my office. Can we do a site visit?"), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-slow-internet",
+      title: "Slow Internet Fix & Diagnosis",
+      subtitle: "Internet slow despite paying for fast fiber? I can fix it",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, our internet is very slow. I need help diagnosing and fixing it."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-lan-cabling",
+      title: "LAN / Ethernet Network Cabling",
+      subtitle: "Structured network cabling for offices, server rooms & floors",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need LAN/ethernet cabling done for my office."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-backup-internet",
+      title: "Backup Internet Failover Setup",
+      subtitle: "Auto-switch to backup line when main fiber goes down",
+      category: "Services",
+      icon: Zap,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I want a backup internet line that switches on automatically if my main line fails."), "_blank");
+        onClose();
+      },
+    },
+
+    // ─── WEBSITES ─────────────────────────────────────────────────────────
+    {
+      id: "it-website-design",
+      title: "Business Website Design & Development",
+      subtitle: "Fast loading, mobile-friendly website with WhatsApp CTAs",
+      category: "Services",
+      icon: Globe,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need a professional website designed and built for my business."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-google-maps",
+      title: "Google Maps & Local SEO Setup",
+      subtitle: "Get your business found on Google Search and Google Maps",
+      category: "Services",
+      icon: Globe,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need my business set up on Google Maps and local search."), "_blank");
+        onClose();
+      },
+    },
+    {
+      id: "it-domain",
+      title: "Domain Registration & Web Hosting",
+      subtitle: ".co.ke / .com domain, SSL certificate, fast hosting",
+      category: "Services",
+      icon: Globe,
+      action: () => {
+        window.open(getWhatsAppUrl("Hi Peter, I need help registering a domain and setting up web hosting."), "_blank");
         onClose();
       },
     },
@@ -289,12 +577,44 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
   ];
 
+  // Smart search: matches title, subtitle, category, AND hidden keywords
+  const serviceKeywords: Record<string, string[]> = {
+    "it-laptop-screen": ["broken screen", "cracked screen", "display", "laptop screen nairobi"],
+    "it-laptop-slow": ["slow pc", "slow computer", "lagging", "ssd", "ram upgrade", "speed up laptop"],
+    "it-laptop-keyboard": ["keyboard broken", "keys not working", "keyboard replacement"],
+    "it-laptop-charging": ["not charging", "charging port", "battery", "power issue"],
+    "it-laptop-overheating": ["overheating", "fan noise", "laptop hot", "thermal"],
+    "it-virus-removal": ["virus", "malware", "hacked", "pop-ups", "ransomware", "spyware"],
+    "it-data-recovery": ["recover files", "deleted files", "hard drive failure", "data lost"],
+    "it-windows-reinstall": ["format", "reinstall windows", "windows corrupt", "fresh install"],
+    "it-bsod": ["blue screen", "bsod", "crash", "stop error"],
+    "it-pc-assembly": ["desktop repair", "pc build", "custom pc"],
+    "it-printer-setup": ["printer install", "setup printer", "printer driver"],
+    "it-printer-repair": ["printer jam", "printer offline", "not printing", "ink problem"],
+    "it-pos-printer": ["receipt printer", "pos", "till", "thermal printer", "mpesa receipt"],
+    "it-email-setup": ["business email", "company email", "professional email", "info@"],
+    "it-google-workspace": ["google workspace", "gmail business", "office 365", "microsoft 365"],
+    "it-cloud-backup": ["backup", "cloud storage", "data protection", "google drive backup"],
+    "it-firewall": ["firewall", "network security", "office security", "cybersecurity"],
+    "it-cyber-training": ["phishing", "scam training", "cyber awareness", "staff training"],
+    "it-wifi-install": ["wifi installation", "access point", "ubiquiti", "mikrotik", "wireless"],
+    "it-slow-internet": ["slow wifi", "internet not working", "fiber slow", "bandwidth"],
+    "it-lan-cabling": ["network cable", "ethernet", "cat6", "structured cabling"],
+    "it-backup-internet": ["internet failover", "backup line", "dual isp", "internet down"],
+    "it-website-design": ["web design", "website nairobi", "web development", "landing page"],
+    "it-google-maps": ["google maps", "local seo", "google business", "search ranking"],
+    "it-domain": ["domain", "hosting", "ssl", ".co.ke", "web hosting nairobi"],
+  };
+
   const filteredItems = items.filter((item) => {
+    if (!query.trim()) return true;
     const q = query.toLowerCase();
+    const extraKeywords = serviceKeywords[item.id] || [];
     return (
       item.title.toLowerCase().includes(q) ||
       (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
-      item.category.toLowerCase().includes(q)
+      item.category.toLowerCase().includes(q) ||
+      extraKeywords.some((k) => k.includes(q))
     );
   });
 
@@ -355,7 +675,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <div className="py-12 text-center text-muted-foreground space-y-2">
               <Search className="w-8 h-8 mx-auto opacity-40 text-teal-500" />
               <p className="text-sm font-semibold text-foreground">No matching command found</p>
-              <p className="text-xs">Try searching "wifi", "website", "whatsapp", "cctv", or "speed"</p>
+              <p className="text-xs">Try: "laptop", "screen", "virus", "printer", "CCTV", "slow internet", "email", "website"</p>
             </div>
           ) : (
             filteredItems.map((item, idx) => {
