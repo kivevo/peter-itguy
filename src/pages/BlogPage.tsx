@@ -14,7 +14,7 @@ const BlogPage: React.FC = () => {
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
       <Navigation />
 
-      <main className="flex-1 pt-24 lg:pt-32">
+      <main className="flex-1 pt-32 sm:pt-36 lg:pt-40">
         {/* Page Hero Banner */}
         <section className="py-12 lg:py-16 bg-muted/30 dark:bg-navy-950 border-b border-border/80 relative overflow-hidden">
           <div className="absolute top-0 left-1/3 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
