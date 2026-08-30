@@ -661,21 +661,26 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-navy-950 text-slate-100 flex flex-col lg:flex-row antialiased">
       {/* MOBILE TOP BAR */}
-      <div className="lg:hidden sticky top-0 z-50 bg-navy-900/95 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center font-heading font-black text-white text-sm">
-            P
-          </div>
+      <div className="lg:hidden sticky top-0 z-50 bg-navy-900/95 backdrop-blur-md border-b border-border/80 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <BrandLogo size="sm" showText={false} />
           <div>
-            <span className="font-heading font-bold text-sm text-white block">Peter's Admin</span>
-            <span className="text-[10px] text-teal-400 font-mono">Enterprise Console</span>
+            <span className="font-heading font-bold text-sm text-white block leading-tight">Peter's Admin</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-[10px] text-teal-400 font-mono font-semibold">Enterprise Console</span>
+            </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl bg-navy-800 text-slate-200 border border-border"
+            className="p-2 rounded-xl bg-navy-800 text-slate-200 border border-border/80 hover:bg-navy-700 transition-colors"
+            aria-label="Toggle admin menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -691,8 +696,11 @@ export const AdminPage: React.FC = () => {
         <div className="p-5 space-y-6 overflow-y-auto">
           {/* Brand Identity Header */}
           <div className="flex items-center gap-3 pb-4 border-b border-border/60">
-            <BrandLogo size="md" />
+            <BrandLogo size="md" showText={false} />
             <div className="min-w-0">
+              <h2 className="font-heading font-bold text-sm text-white truncate">
+                Peter Kivevo John
+              </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -836,28 +844,31 @@ export const AdminPage: React.FC = () => {
           {activeTab === "analytics" && (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* LIVE PULSE HEADER & TRAFFIC STATUS */}
-              <div className="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-teal-500/30 shadow-lg space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex h-3.5 w-3.5 shrink-0">
+              <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-teal-500/30 shadow-lg space-y-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="relative flex h-3 w-3 shrink-0 mt-1 sm:mt-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-glow"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-glow"></span>
                     </div>
-                    <div>
-                      <h2 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
-                        <span>Live Website Visitor &amp; Activity Monitor</span>
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                          {trafficStats.activeNow} ACTIVE ONLINE
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h2 className="font-heading font-extrabold text-base sm:text-lg text-white">
+                          Live Website Visitor &amp; Activity Monitor
+                        </h2>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-mono font-bold whitespace-nowrap shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          {trafficStats.activeNow} Active Online
                         </span>
-                      </h2>
-                      <p className="text-xs text-slate-400">
+                      </div>
+                      <p className="text-xs text-slate-400 max-w-xl">
                         Real-time visitor telemetry, inbound client leads, pageview metrics &amp; device traffic in Nairobi, Kenya.
                       </p>
                     </div>
                   </div>
 
                   {/* Sub-Tab Navigation Switcher */}
-                  <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-navy-950 border border-border">
+                  <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-navy-950/80 border border-border shrink-0 self-start md:self-auto">
                     <button
                       type="button"
                       onClick={() => setAnalyticsSubTab("overview")}
