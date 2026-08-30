@@ -465,25 +465,18 @@ export const Contact: React.FC = () => {
                   />
                 </div>
 
-                {/* Dual Submit Buttons */}
-                <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSendViaWhatsApp}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm shadow-md transition-all hover:shadow-glow"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Send Message on WhatsApp</span>
-                  </button>
-
+                {/* Unified WhatsApp Inquiry Button */}
+                <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl border border-border hover:bg-muted text-foreground font-semibold text-sm transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-glow transition-all duration-200 active:scale-98"
                   >
-                    <Send className="w-4 h-4 text-teal-500" />
-                    <span>{isSubmitting ? "Sending..." : "Submit Form"}</span>
+                    <MessageCircle className="w-5 h-5 text-white" />
+                    <span>Send Inquiry on WhatsApp (Instant Response)</span>
                   </button>
+                  <p className="text-[11px] text-muted-foreground text-center mt-2">
+                    ⚡ Opens WhatsApp directly with your details pre-typed — no typing required on your phone.
+                  </p>
                 </div>
               </form>
             </div>
