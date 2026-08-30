@@ -18,6 +18,21 @@ export const TechnicalFAQ: React.FC = () => {
       category: "Computer & Remote Help",
     },
     {
+      q: "Can you repair a broken laptop screen or keyboard in Nairobi?",
+      a: "Yes! I do laptop screen replacements, keyboard replacements, charging port repairs, and hinge repairs across all major laptop brands — HP, Dell, Lenovo, Asus, Acer, and MacBook. Most repairs are completed within 24–48 hours. WhatsApp me with your laptop model for a quick price quote.",
+      category: "Laptop Repair",
+    },
+    {
+      q: "My laptop is very slow — can you fix it without buying a new one?",
+      a: "In most cases, yes! Slow laptops are usually caused by full hard drives, malware, or outdated hardware. I can clean the system, remove viruses, replace the hard drive with a fast SSD, and upgrade RAM — making your laptop feel brand new at a fraction of replacement cost.",
+      category: "Laptop Repair",
+    },
+    {
+      q: "Can you recover files from a hard drive that stopped working?",
+      a: "Yes, I offer data recovery services for laptops and desktops with failed or corrupted hard drives. Success rates depend on the type of failure, but I can often recover important documents, photos, and financial records even when Windows cannot start. WhatsApp me with details of your situation.",
+      category: "Data Recovery",
+    },
+    {
       q: "Can you fix our slow office Wi-Fi without forcing us to cancel our current internet provider?",
       a: "Yes! In fact, most slow internet issues are not caused by your provider (Zuku, Liquid, Airtel, Faiba), but by basic home routers being overloaded with too many office devices and guest phones. I configure smart office access points and separate your payment tills so you get the full speed you already pay for.",
       category: "Wi-Fi & Speed",
@@ -28,14 +43,49 @@ export const TechnicalFAQ: React.FC = () => {
       category: "Emergency Visits",
     },
     {
+      q: "Can you install CCTV cameras at my home, office, or shop?",
+      a: "Yes. I install HD and 4K CCTV camera systems for homes, offices, restaurants, and shops across Nairobi. This includes indoor and outdoor cameras, a DVR/NVR recorder, and setup for live viewing on your smartphone. I also install biometric door access systems and fingerprint attendance clocks.",
+      category: "CCTV & Security",
+    },
+    {
+      q: "Can you set up a professional email using my company's domain name?",
+      a: "Absolutely. I set up professional business emails like info@yourcompany.co.ke using Google Workspace or Microsoft 365. This includes email on your phone, automatic backups, and shared calendars for your team — giving your business a more professional image.",
+      category: "Email & Cloud",
+    },
+    {
+      q: "My printer is not printing or keeps jamming — can you fix it?",
+      a: "Yes! I diagnose and fix all common printer problems including paper jams, 'printer offline' errors, faded prints, and ink cartridge issues. I service HP, Canon, Epson, Brother, Kyocera, and most other brands. I also set up receipt printers for POS tills and network printers shared by multiple computers.",
+      category: "Printers & POS",
+    },
+    {
       q: "How do you protect our company files, financial records, and passwords?",
       a: "I keep guest Wi-Fi strictly separated from your accounting computers and payment tills so customer phones cannot see your company files. All remote sessions are secure and encrypted, and we set up automatic daily backups so you never lose important documents.",
       category: "Security & Safety",
     },
     {
+      q: "How long does it take to build a business website, and what is the cost?",
+      a: "Most business websites are live within 5–10 working days from when we start. Pricing depends on the features you need — a simple brochure site with WhatsApp buttons starts from a fixed package price, while more complex sites with booking systems, product catalogs, and M-Pesa integration are custom quoted. WhatsApp for a fast free quote.",
+      category: "Website Development",
+    },
+    {
+      q: "Can you help set up my business on Google Maps and improve local search ranking?",
+      a: "Yes! I set up and verify your Google Business Profile so your business appears when customers in Nairobi search for your services on Google and Google Maps. This is one of the most cost-effective ways to get local clients finding you online without paid ads.",
+      category: "Website Development",
+    },
+    {
+      q: "Do you support businesses outside Nairobi?",
+      a: "Remote IT support is available anywhere in Kenya — I can connect to your computers and fix most issues without being physically present. For on-site work outside Nairobi, I cover towns like Mombasa, Kisumu, Nakuru, and Eldoret with advance scheduling. WhatsApp me with your location and issue.",
+      category: "Remote & Nationwide",
+    },
+    {
       q: "What is your pricing structure (One-Time Fix vs Monthly Support)?",
       a: "I offer both: 1) One-Time Pay-As-You-Go for emergency fixes, new websites, or CCTV installation, and 2) Affordable Monthly Support Retainers for businesses and multi-branch shops who want an on-call IT partner for peace of mind.",
       category: "Pricing & Retainers",
+    },
+    {
+      q: "Can you upgrade or set up a whole new office from scratch?",
+      a: "Yes! I handle complete office tech setups: selecting and procuring the right computers, printers, and network equipment for your budget; installing structured cabling and Wi-Fi; setting up all PCs with Windows and required software; and configuring email, backups, and security. WhatsApp me with your office size and location.",
+      category: "Office Setup",
     },
   ];
 

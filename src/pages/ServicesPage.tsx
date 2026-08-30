@@ -10,6 +10,7 @@ import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
 import EngagementPricing from "@/components/EngagementPricing";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
+import ITServicesDirectory from "@/components/ITServicesDirectory";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -159,6 +160,9 @@ const ServicesPage: React.FC = () => {
 
         {/* Engagement Models */}
         <EngagementPricing />
+
+        {/* Comprehensive IT Services Directory (SEO) */}
+        <ITServicesDirectory />
 
         {/* FAQ */}
         <TechnicalFAQ />

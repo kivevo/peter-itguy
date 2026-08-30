@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/BrandLogo";
 import { 
   dataStorage, 
   ReviewItem, 
@@ -690,13 +691,8 @@ export const AdminPage: React.FC = () => {
         <div className="p-5 space-y-6 overflow-y-auto">
           {/* Brand Identity Header */}
           <div className="flex items-center gap-3 pb-4 border-b border-border/60">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center font-heading font-black text-white text-lg shadow-glow">
-              P
-            </div>
+            <BrandLogo size="md" />
             <div className="min-w-0">
-              <h2 className="font-heading font-bold text-sm text-white truncate">
-                Peter Kivevo John
-              </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
