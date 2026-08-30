@@ -45,6 +45,8 @@ export const Contact: React.FC = () => {
     email: "",
     service: services[0]?.title || "Computer & IT Support",
     urgency: "Standard (This Week)",
+    preferredDate: "",
+    preferredTimeSlot: "Morning (09:00 - 12:00 EAT)",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +55,13 @@ export const Contact: React.FC = () => {
     { label: "🚨 Emergency (Need Help Right Away)", value: "Emergency / Today" },
     { label: "⚡ Standard (This Week)", value: "Standard (This Week)" },
     { label: "📅 Planning / Free Written Quote", value: "Planning / Quote" },
+  ];
+
+  const timeSlotOptions = [
+    "Morning (09:00 - 12:00 EAT)",
+    "Afternoon (14:00 - 17:00 EAT)",
+    "Emergency / Immediate Slot",
+    "Flexible / Remote Diagnostic",
   ];
 
   const handleInputChange = (
@@ -65,7 +74,10 @@ export const Contact: React.FC = () => {
   };
 
   const generateWhatsAppMessage = () => {
-    return `Hi Peter,\n\nMy name is ${formData.name || "[Client]"}.\nService Needed: ${formData.service}\nLocation: ${location}\nUrgency: ${formData.urgency}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
+    const slotInfo = formData.preferredDate 
+      ? `\nPreferred Slot: ${formData.preferredDate} (${formData.preferredTimeSlot})`
+      : `\nPreferred Window: ${formData.preferredTimeSlot}`;
+    return `Hi Peter,\n\nMy name is ${formData.name || "[Client]"}.\nService Needed: ${formData.service}\nLocation: ${location}\nUrgency: ${formData.urgency}${slotInfo}\nPhone: ${formData.phone || "N/A"}\n\nDetails: ${formData.message || "I would like to get help or a quote for my business."}`;
   };
 
   const handleSendViaWhatsApp = (e: React.FormEvent) => {
@@ -385,6 +397,43 @@ export const Contact: React.FC = () => {
                     initialWard="Parklands / Highridge"
                     onChange={handleLocationChange}
                   />
+                </div>
+
+                {/* Preferred On-Site Visit / Diagnostic Window */}
+                <div className="grid sm:grid-cols-2 gap-4 pt-1">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-teal-500" />
+                      <span>Preferred Visit Date (Optional)</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="preferredDate"
+                      min={new Date().toISOString().split("T")[0]}
+                      value={formData.preferredDate}
+                      onChange={handleInputChange}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-teal-500" />
+                      <span>Time Window</span>
+                    </label>
+                    <select
+                      name="preferredTimeSlot"
+                      value={formData.preferredTimeSlot}
+                      onChange={handleInputChange}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                    >
+                      {timeSlotOptions.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">

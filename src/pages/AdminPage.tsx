@@ -17,6 +17,7 @@ import {
 import { KrenovateInvoiceManager } from "@/components/admin/KrenovateInvoiceManager";
 import { SiteContentManager } from "@/components/admin/SiteContentManager";
 import { ResendBroadcastManager } from "@/components/admin/ResendBroadcastManager";
+import { WhatsAppReplyStudio } from "@/components/admin/WhatsAppReplyStudio";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -80,7 +81,7 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
@@ -609,6 +610,13 @@ export const AdminPage: React.FC = () => {
           count: subscribers.filter((s) => s.status === "subscribed").length,
           colorClass: "text-purple-400",
         },
+        {
+          id: "whatsapp" as const,
+          label: "WhatsApp Quick-Replies",
+          icon: MessageCircle,
+          count: "TEMPLATES",
+          colorClass: "text-emerald-400",
+        },
       ],
     },
     {
@@ -804,6 +812,7 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "invoice" && "Official Quotation & Invoice Generator"}
                 {activeTab === "cms" && "Website Content & CMS Studio (Live Edit)"}
                 {activeTab === "broadcast" && "Resend Email Notifications & Subscriber Broadcast Studio"}
+                {activeTab === "whatsapp" && "WhatsApp Quick-Reply Template Generator"}
                 {activeTab === "reviews" && "Verified Client Reviews & Testimonials"}
                 {activeTab === "banner" && "Live Website Emergency Notice Bar"}
                 {activeTab === "database" && "Supabase Cloud Database Synchronization"}
@@ -1614,6 +1623,11 @@ export const AdminPage: React.FC = () => {
             <ResendBroadcastManager />
           )}
 
+          {/* TAB 5B: 💬 WHATSAPP QUICK-REPLY STUDIO */}
+          {activeTab === "whatsapp" && (
+            <WhatsAppReplyStudio />
+          )}
+
           {/* TAB 7: ⭐ REVIEWS MODERATION */}
           {activeTab === "reviews" && (
             <div className="space-y-6 animate-in fade-in duration-200">
@@ -1919,6 +1933,98 @@ export const AdminPage: React.FC = () => {
                     </div>
                   )}
                 </form>
+              </div>
+
+              {/* 1-Click Total Data Backup & Disaster Recovery */}
+              <div className="p-8 rounded-3xl bg-navy-900 border border-border shadow-sm space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-bold text-lg text-white">
+                      1-Click System Backup &amp; Disaster Recovery (JSON)
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Download a single encrypted file containing all CRM leads, invoices, dispatches, CMS content, and reviews.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                  <div className="p-5 rounded-2xl bg-navy-950 border border-border space-y-3 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono font-bold text-teal-400 uppercase tracking-wider block">
+                        Export Archive
+                      </span>
+                      <h4 className="font-heading font-bold text-sm text-white">Download Complete Backup</h4>
+                      <p className="text-xs text-slate-400">
+                        Exports all active local data into a timestamped .json archive file.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const backup = dataStorage.exportFullBackup();
+                        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `peter_kivevo_it_backup_${new Date().toISOString().split("T")[0]}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        toast({ title: "Backup Exported 💾", description: "Downloaded complete site data file." });
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download .JSON Backup</span>
+                    </button>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-navy-950 border border-border space-y-3 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider block">
+                        Import &amp; Restore
+                      </span>
+                      <h4 className="font-heading font-bold text-sm text-white">Restore from Backup File</h4>
+                      <p className="text-xs text-slate-400">
+                        Upload a previously downloaded .json backup to restore all records on this device.
+                      </p>
+                    </div>
+
+                    <label className="w-full py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-slate-200 border border-border font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+                      <FileText className="w-4 h-4 text-amber-400" />
+                      <span>Select .JSON Backup File</span>
+                      <input
+                        type="file"
+                        accept=".json"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            try {
+                              const parsed = JSON.parse(event.target?.result as string);
+                              const res = dataStorage.importFullBackup(parsed);
+                              if (res.success) {
+                                toast({ title: "Backup Restored! 🎉", description: res.message });
+                                window.location.reload();
+                              } else {
+                                toast({ title: "Restore Failed", description: res.message, variant: "destructive" });
+                              }
+                            } catch (err: any) {
+                              toast({ title: "Invalid JSON File", description: err.message, variant: "destructive" });
+                            }
+                          };
+                          reader.readAsText(file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           )}

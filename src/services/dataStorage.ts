@@ -1265,6 +1265,54 @@ class DataStorageService {
   }
 
 
+  public exportFullBackup() {
+    return {
+      version: "1.0",
+      timestamp: new Date().toISOString(),
+      siteName: "Peter Kivevo | The IT Guy",
+      data: {
+        reviews: this.getReviews(),
+        inquiries: this.getInquiries(),
+        jobs: this.getJobs(),
+        banner: this.getBannerConfig(),
+        supabaseSettings: this.getSupabaseSettings(),
+        companyProfile: this.getCompanyProfile(),
+        clients: this.getClients(),
+        invoices: this.getInvoices(true),
+        siteContent: this.getSiteContent(),
+        subscribers: this.getSubscribers(),
+        resendSettings: this.getResendSettings(),
+        broadcastHistory: this.getBroadcastHistory(),
+      },
+    };
+  }
+
+  public importFullBackup(backup: any): { success: boolean; message: string } {
+    try {
+      if (!backup || !backup.data) {
+        return { success: false, message: "Invalid backup format: missing data payload." };
+      }
+      const d = backup.data;
+      if (d.reviews) localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(d.reviews));
+      if (d.inquiries) localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(d.inquiries));
+      if (d.jobs) localStorage.setItem(STORAGE_KEYS.JOBS, JSON.stringify(d.jobs));
+      if (d.banner) localStorage.setItem(STORAGE_KEYS.BANNER, JSON.stringify(d.banner));
+      if (d.supabaseSettings) localStorage.setItem(STORAGE_KEYS.SUPABASE_SETTINGS, JSON.stringify(d.supabaseSettings));
+      if (d.companyProfile) localStorage.setItem(STORAGE_KEYS.COMPANY_PROFILE, JSON.stringify(d.companyProfile));
+      if (d.clients) localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(d.clients));
+      if (d.invoices) localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(d.invoices));
+      if (d.siteContent) localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(d.siteContent));
+      if (d.subscribers) localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(d.subscribers));
+      if (d.resendSettings) localStorage.setItem(STORAGE_KEYS.RESEND_SETTINGS, JSON.stringify(d.resendSettings));
+      if (d.broadcastHistory) localStorage.setItem(STORAGE_KEYS.BROADCAST_HISTORY, JSON.stringify(d.broadcastHistory));
+
+      this.notify();
+      return { success: true, message: "Complete backup restored successfully!" };
+    } catch (err: any) {
+      return { success: false, message: err.message || "Failed to restore backup." };
+    }
+  }
+
   private async syncReviewToSupabase(review: ReviewItem) {
     const config = this.getSupabaseSettings();
     if (!config.enabled || !config.url || !config.anonKey) return;

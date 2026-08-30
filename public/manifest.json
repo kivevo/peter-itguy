@@ -1,0 +1,19 @@
+{
+  "name": "Peter Kivevo | The IT Guy",
+  "short_name": "Peter IT Guy",
+  "description": "Fast IT Support, Strong Wi-Fi & Modern Business Websites in Kenya",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1926",
+  "theme_color": "#0d9488",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/og-image.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "utilities", "productivity"]
+}
