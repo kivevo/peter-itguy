@@ -140,23 +140,34 @@ export const Navigation: React.FC = () => {
                 <NetworkStatusPill />
               </div>
 
-              {/* Command Palette Trigger (Ctrl+K / Cmd+K) */}
+              {/* Command Palette Search Trigger */}
+              {/* Desktop Full Search Pill (>= 1024px) */}
               <button
                 onClick={() => setCommandOpen(true)}
                 aria-label="Open command palette (Ctrl+K)"
                 title="Search commands, tools & services (Ctrl+K)"
-                className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-card dark:bg-navy-900 border border-border/80 hover:border-teal-500/40 text-muted-foreground hover:text-foreground text-xs font-mono transition-all shadow-sm"
+                className="hidden lg:inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-card dark:bg-navy-900 border border-border/80 hover:border-teal-500/40 text-muted-foreground hover:text-foreground text-xs font-mono transition-all shadow-sm group"
               >
-                <Search className="w-3.5 h-3.5 text-teal-500" />
-                <span className="hidden lg:inline">Search...</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border text-[10px] font-mono">⌘K</kbd>
+                <Search className="w-4 h-4 text-teal-500 group-hover:scale-110 transition-transform" />
+                <span>Search...</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-muted/80 border border-border text-[10px] font-mono">⌘K</kbd>
+              </button>
+
+              {/* Tablet & Mobile Search Icon Button (< 1024px) */}
+              <button
+                onClick={() => setCommandOpen(true)}
+                aria-label="Open search"
+                title="Search services & tools"
+                className="lg:hidden p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 hover:bg-muted dark:hover:bg-navy-800 text-muted-foreground hover:text-foreground hover:border-teal-500/40 transition-all shadow-sm flex items-center justify-center focus:outline-none"
+              >
+                <Search className="w-4 h-4 text-teal-500" />
               </button>
 
               {/* Dark / Light Mode Toggle */}
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle theme"
-                className="p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 hover:bg-muted dark:hover:bg-navy-800 text-muted-foreground hover:text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 shadow-sm"
+                className="p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 hover:bg-muted dark:hover:bg-navy-800 text-muted-foreground hover:text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 shadow-sm flex items-center justify-center"
               >
                 {theme === "dark" ? (
                   <Sun className="w-4 h-4 text-amber-400" />
