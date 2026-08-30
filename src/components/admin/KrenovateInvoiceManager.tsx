@@ -725,18 +725,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* TOP NAVIGATION TABS FOR INVOICE SUITE */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/80">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/80">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0 mt-0.5 sm:mt-0">
             <Receipt className="w-5 h-5" />
           </div>
-          <div className="min-w-0">
-            <h2 className="font-heading font-extrabold text-lg text-white flex flex-wrap items-center gap-2">
-              <span>Krenovate Systems</span>
-              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold whitespace-nowrap">
+          <div className="space-y-0.5 min-w-0">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="font-heading font-extrabold text-base sm:text-lg text-white">
+                Krenovate Systems
+              </h2>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30 text-[11px] font-mono font-bold whitespace-nowrap shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
                 Invoice &amp; Quote Engine
               </span>
-            </h2>
+            </div>
             <p className="text-xs text-slate-400 hidden sm:block">
               Create, customize, print, and export branded client proposals and tax invoices.
             </p>

@@ -264,39 +264,43 @@ export const SiteContentManager: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-border shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0">
+      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-teal-500/30 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0 mt-0.5 sm:mt-0">
             <Layers className="w-5 h-5" />
           </div>
-          <div>
-            <h2 className="font-heading font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">
-              <span>Website Content &amp; CMS Studio</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-600 text-white font-bold">
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="font-heading font-extrabold text-base sm:text-lg text-white">
+                Website Content &amp; CMS Studio
+              </h2>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30 text-[11px] font-mono font-bold whitespace-nowrap shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
                 Live Reactivity
               </span>
-            </h2>
-            <p className="text-xs text-slate-400">
+            </div>
+            <p className="text-xs text-slate-400 max-w-xl">
               Edit headlines, services catalog, client case studies, contact info &amp; credibility stats without touching code.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
           <button
             type="button"
             onClick={handleRestoreDefaults}
-            className="px-3.5 py-2 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-400 hover:text-white text-xs font-bold border border-border flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 hover:text-white text-xs font-bold border border-border flex items-center gap-1.5 transition-all shadow-sm"
             title="Reset site copy back to default configuration"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Restore Defaults</span>
+            <span className="sm:hidden">Reset</span>
           </button>
 
           <button
             type="button"
             onClick={handleSaveAll}
-            className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 shadow-glow"
+            className="px-4 sm:px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 shadow-glow"
           >
             <Save className="w-4 h-4" />
             <span>Save All Content</span>
