@@ -1278,7 +1278,7 @@ class DataStorageService {
         supabaseSettings: this.getSupabaseSettings(),
         companyProfile: this.getCompanyProfile(),
         clients: this.getClients(),
-        invoices: this.getInvoices(true),
+        invoices: this.getInvoices(),
         siteContent: this.getSiteContent(),
         subscribers: this.getSubscribers(),
         resendSettings: this.getResendSettings(),
@@ -1287,7 +1287,7 @@ class DataStorageService {
     };
   }
 
-  public importFullBackup(backup: any): { success: boolean; message: string } {
+  public importFullBackup(backup: { data?: Record<string, unknown> } | null | undefined): { success: boolean; message: string } {
     try {
       if (!backup || !backup.data) {
         return { success: false, message: "Invalid backup format: missing data payload." };
@@ -1308,8 +1308,9 @@ class DataStorageService {
 
       this.notify();
       return { success: true, message: "Complete backup restored successfully!" };
-    } catch (err: any) {
-      return { success: false, message: err.message || "Failed to restore backup." };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to restore backup.";
+      return { success: false, message };
     }
   }
 

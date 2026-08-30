@@ -193,6 +193,8 @@ export const Contact: React.FC = () => {
       email: "",
       service: services[0]?.title || "Computer & IT Support",
       urgency: "Standard (This Week)",
+      preferredDate: "",
+      preferredTimeSlot: "Morning (09:00 - 12:00 EAT)",
       message: "",
     });
   };

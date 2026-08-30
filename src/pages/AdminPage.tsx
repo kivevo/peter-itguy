@@ -2015,8 +2015,9 @@ export const AdminPage: React.FC = () => {
                               } else {
                                 toast({ title: "Restore Failed", description: res.message, variant: "destructive" });
                               }
-                            } catch (err: any) {
-                              toast({ title: "Invalid JSON File", description: err.message, variant: "destructive" });
+                            } catch (err: unknown) {
+                              const message = err instanceof Error ? err.message : "Failed to parse JSON file.";
+                              toast({ title: "Invalid JSON File", description: message, variant: "destructive" });
                             }
                           };
                           reader.readAsText(file);
