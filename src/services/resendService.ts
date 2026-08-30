@@ -286,7 +286,7 @@ class ResendEmailService {
             </div>
           </div>
           <div class="footer">
-            Peter Kivevo • Safaricom Dealer Tech Specialist • Nairobi, Kenya<br>
+            Peter Kivevo • Enterprise IT & Systems Engineer • Nairobi, Kenya<br>
             Direct: ${siteInfo.phoneDisplay} | ${siteInfo.email}
           </div>
         </div>

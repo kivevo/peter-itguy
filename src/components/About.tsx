@@ -12,8 +12,8 @@ export const About: React.FC = () => {
     {
       period: "Current Role",
       title: "Independent IT Consultant & Multi-Branch Support Lead",
-      organization: "The IT Guy / Samchi Telecom (Safaricom Dealer)",
-      desc: "Providing daily remote and on-site support across 30+ regional dealer branches, managing office Wi-Fi networks, and building modern business websites.",
+      organization: "The IT Guy / Samchi Telecommunications Network",
+      desc: "Providing daily remote and on-site support across 30+ regional branches, managing office Wi-Fi networks, and building modern business websites.",
     },
     {
       period: "Hotel Infrastructure",
@@ -83,7 +83,7 @@ export const About: React.FC = () => {
                   I started my career working in the field with an Internet Service Provider (Fiberlink), running fiber cables, aligning wireless radios, and fixing customer routers. That taught me an important lesson: <strong className="text-foreground">technology must keep your business running smoothly without excuses</strong>.
                 </p>
                 <p>
-                  Since then, I have been the trusted IT partner for busy businesses across Kenya — from renowned hotels like <strong className="text-foreground">After40 Hotel in Nairobi CBD</strong> to a nationwide <strong className="text-foreground">30+ branch network for Samchi Telecom (Safaricom Dealer)</strong>.
+                  Since then, I have been the trusted IT partner for busy businesses across Kenya — from renowned hotels like <strong className="text-foreground">After40 Hotel in Nairobi CBD</strong> to a nationwide <strong className="text-foreground">30+ branch retail & telecom network for Samchi Telecommunications</strong>.
                 </p>
                 <p>
                   Whether I am setting up protected Wi-Fi for your payment tills, fixing a slow laptop, or designing a fast website that brings in WhatsApp orders, I take personal responsibility for making sure everything works reliably.

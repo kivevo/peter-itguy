@@ -31,7 +31,7 @@ export const InteractiveTerminal: React.FC = () => {
   const quickCommands = [
     { label: "ping hotels.com", cmd: "ping hotels.com" },
     { label: "ping after40hotel.com", cmd: "ping after40hotel.com" },
-    { label: "ping safaricom.co.ke", cmd: "ping safaricom.co.ke" },
+    { label: "ping cloudflare.com", cmd: "ping cloudflare.com" },
     { label: "audit --office-wifi", cmd: "audit --office-wifi" },
     { label: "whoami", cmd: "whoami" },
     { label: "chat whatsapp", cmd: "chat whatsapp" },
@@ -125,7 +125,7 @@ export const InteractiveTerminal: React.FC = () => {
         <div className="space-y-1 text-xs text-slate-300 font-mono">
           <p className="text-teal-300 font-bold">Peter Kivevo John — The IT Guy</p>
           <p>• BSc Computer Science Graduate (Catholic University of Eastern Africa)</p>
-          <p>• 30+ Samchi Telecom (Safaricom Dealer) branches supported</p>
+          <p>• 30+ enterprise retail & telecom branches supported countrywide</p>
           <p>• Specialties: Office Wi-Fi, Computer Repairs, Security Cameras, Fast Websites</p>
         </div>
       );
@@ -147,7 +147,7 @@ export const InteractiveTerminal: React.FC = () => {
       output = (
         <div className="space-y-1 text-xs text-slate-300 font-mono">
           <p className="text-teal-400 font-semibold">Available Commands (Case-Insensitive):</p>
-          <p>• <span className="text-white">ping &lt;any_domain&gt;</span> - e.g. <span className="text-teal-300">Ping Hotels.com</span>, <span className="text-teal-300">PING GOOGLE.COM</span>, <span className="text-teal-300">Ping safaricom.co.ke</span></p>
+          <p>• <span className="text-white">ping &lt;any_domain&gt;</span> - e.g. <span className="text-teal-300">Ping Hotels.com</span>, <span className="text-teal-300">PING GOOGLE.COM</span>, <span className="text-teal-300">Ping after40hotel.com</span></p>
           <p>• <span className="text-white">audit --office-wifi</span> - Run simulated office network health scan</p>
           <p>• <span className="text-white">whoami</span> - Show Peter's credentials and experience</p>
           <p>• <span className="text-white">chat whatsapp</span> - Open direct chat with Peter</p>

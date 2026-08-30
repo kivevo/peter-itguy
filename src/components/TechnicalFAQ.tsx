@@ -19,7 +19,7 @@ export const TechnicalFAQ: React.FC = () => {
     },
     {
       q: "Can you fix our slow office Wi-Fi without forcing us to cancel our current internet provider?",
-      a: "Yes! In fact, most slow internet issues are not caused by your provider (Safaricom, Zuku, Liquid, Airtel), but by basic home routers being overloaded with too many office devices and guest phones. I configure smart office access points and separate your payment tills so you get the full speed you already pay for.",
+      a: "Yes! In fact, most slow internet issues are not caused by your provider (Zuku, Liquid, Airtel, Faiba), but by basic home routers being overloaded with too many office devices and guest phones. I configure smart office access points and separate your payment tills so you get the full speed you already pay for.",
       category: "Wi-Fi & Speed",
     },
     {

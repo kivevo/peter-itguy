@@ -37,9 +37,6 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
-      {/* Dynamic Live On-Call Emergency Banner */}
-      <EmergencyBanner />
-
       <Navigation />
 
       <main className="flex-1">

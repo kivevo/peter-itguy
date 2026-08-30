@@ -210,7 +210,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       id: "cs-samchi",
       title: "Samchi Telecom (30+ Retail Branches)",
-      subtitle: "Zero downtime across countrywide Safaricom dealer shops",
+      subtitle: "Zero downtime across countrywide retail & telecom branch network",
       category: "Case Studies",
       icon: FolderGit2,
       badge: "30+ Branches",

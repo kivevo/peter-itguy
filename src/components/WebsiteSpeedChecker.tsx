@@ -63,7 +63,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
     { name: "hotels.com (Global Booking)", url: "hotels.com" },
     { name: "after40hotel.com (Peter's Turnaround)", url: "after40hotel.com" },
     { name: "linensndecor.co.ke (WhatsApp Store)", url: "linensndecor.co.ke" },
-    { name: "safaricom.co.ke (Telecom)", url: "safaricom.co.ke" },
+    { name: "cloudflare.com (Global Edge CDN)", url: "cloudflare.com" },
   ];
 
   // Helper to clean domain input
@@ -153,8 +153,7 @@ export const WebsiteSpeedChecker: React.FC = () => {
       domain.includes("apple") ||
       domain.includes("microsoft") ||
       domain.includes("after40hotel.com") ||
-      domain.includes("linensndecor") ||
-      domain.includes("safaricom");
+      domain.includes("linensndecor");
 
     const edgeType = isGlobalCdn 
       ? (avgLatency < 35 ? "Global Edge CDN (Nairobi Node Active)" : "Anycast Cloud CDN")

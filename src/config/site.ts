@@ -86,8 +86,8 @@ export const SITE_CONFIG = {
     {
       value: "30+",
       label: "Branches Supported",
-      description: "Fast remote & on-site IT support for Samchi Telecom (Safaricom Dealer)",
-      methodology: "Active dealer shop branches supported countrywide.",
+      description: "Fast remote & on-site IT support for Samchi Telecommunications & Retail Network",
+      methodology: "Active enterprise branch network supported countrywide.",
     },
     {
       value: "40%",
@@ -128,7 +128,7 @@ export const CLIENT_PARTNERS: ClientPartnerItem[] = [
   {
     name: "Samchi Telecom",
     industry: "Telecom & Retail",
-    projectType: "30+ Safaricom Dealer Branches IT Support",
+    projectType: "30+ Retail & Telecom Branches IT Support",
     badgeText: "30+ Branches",
   },
   {
@@ -290,7 +290,7 @@ export const SERVICES: ServiceItem[] = [
     whoItsFor: "Shops, retail branches, busy offices, and business owners who cannot afford to lose hours when a computer acts up.",
     typicalTurnaround: "15-minute remote reply • Same-day visit in Nairobi",
     miniCaseStudy: {
-      client: "Samchi Telecom (Safaricom Dealer)",
+      client: "Samchi Telecommunications Network",
       challenge: "Frequent POS till and computer freezes across 30+ branches without full-time IT staff at each location.",
       result: "Set up fast remote support tools, solved issues 65% faster, and established same-day physical backup for Nairobi shops.",
     },
@@ -396,12 +396,12 @@ export const CASE_STUDIES: CaseStudyItem[] = [
   },
   {
     id: "samchi-telecom",
-    title: "Samchi Telecom (Safaricom Dealer): 30+ Branches Kept Running Smoothly",
-    client: "Samchi Telecom (30+ Safaricom Dealer Branches)",
+    title: "Samchi Telecom: 30+ Retail & Telecom Branches Kept Running Smoothly",
+    client: "Samchi Telecom (30+ Branch Retail Network)",
     category: "Business Remote IT Support",
     heroMetric: "30+ Branches Supported with 65% Faster Fixes",
-    summary: "Managing daily IT support across 30+ dealership branches countrywide with fast ticket resolution and minimal downtime for Safaricom SIM swaps and M-Pesa till systems.",
-    problem: "Shop managers faced long delays whenever receipt printers jammed, payment computers froze, or dealer portals went offline during busy trading hours.",
+    summary: "Managing daily IT support across 30+ dealership branches countrywide with fast ticket resolution and minimal downtime for retail and payment systems.",
+    problem: "Shop managers faced long delays whenever receipt printers jammed, payment computers froze, or retail portals went offline during busy trading hours.",
     solution: [
       "Installed instant remote help tools: Peter connects and fixes computer errors within 15 minutes of a WhatsApp message.",
       "Trained shop managers on quick 2-minute checks for simple power and cable issues.",
@@ -412,7 +412,7 @@ export const CASE_STUDIES: CaseStudyItem[] = [
       "Average problem resolution time dropped from over 4 hours to under 35 minutes.",
       "Saved significant travel costs by solving most issues remotely in minutes.",
     ],
-    technologies: ["Remote Desktop Helpdesk", "Windows Systems", "Safaricom Portals", "Printer Diagnostics", "Hardware Servicing"],
+    technologies: ["Remote Desktop Helpdesk", "Windows Systems", "Enterprise Portals", "Printer Diagnostics", "Hardware Servicing"],
   },
   {
     id: "snl-lounge",
@@ -489,12 +489,12 @@ export const TESTIMONIALS: TestimonialItem[] = [
     id: "1",
     name: "Operations Lead",
     role: "Regional Operations Manager",
-    company: "Samchi Telecom (Safaricom Dealer)",
+    company: "Samchi Telecommunications",
     location: "Nairobi & Central Kenya",
     avatarText: "ST",
-    content: "Peter has been amazing in keeping our 30+ Samchi Telecom branch network running without issues. When a branch payment till or computer freezes, he fixes it within minutes remotely. Extremely reliable.",
+    content: "Peter has been amazing in keeping our 30+ branch network running without issues. When a branch payment till or computer freezes, he fixes it within minutes remotely. Extremely reliable.",
     rating: 5,
-    highlight: "30+ Samchi Branches Supported Smoothly",
+    highlight: "30+ Branches Supported Smoothly",
   },
   {
     id: "2",
