@@ -73,9 +73,7 @@ export const Hero: React.FC = () => {
 
   return (
     <>
-    <section
-      id="home"
-      className="relative min-h-screen pt-24 sm:pt-32 lg:pt-44 pb-12 lg:pb-24 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
+    <section id="home" className="relative pt-24 sm:pt-28 lg:pt-36 pb-12 sm:pb-16 lg:pb-20 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
     >
       {/* Background Tech Grids & Soft Ambient Glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />

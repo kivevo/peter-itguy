@@ -142,7 +142,7 @@ export const ProcessPage: React.FC = () => {
 
       <main className="flex-1">
         {/* Full-Screen High-Impact 2-Column Hero */}
-        <section className="min-h-screen pt-24 pb-8 sm:pt-28 sm:pb-10 lg:pt-36 lg:pb-12 flex flex-col justify-center bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        <section className="relative pt-24 sm:pt-28 lg:pt-36 pb-10 sm:pb-14 lg:pb-16 bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 overflow-hidden">
           {/* Ambient Glows */}
           <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
