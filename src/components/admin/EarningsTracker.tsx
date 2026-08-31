@@ -659,7 +659,7 @@ export const EarningsTracker: React.FC = () => {
 
               <select
                 value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value as any)}
+                onChange={(e) => setTimeFilter(e.target.value as "all" | "today" | "this_week" | "this_month")}
                 className="px-3 py-2 rounded-xl bg-navy-950 border border-border text-white text-xs focus:outline-none"
               >
                 <option value="all">All Time</option>
@@ -916,7 +916,7 @@ export const EarningsTracker: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Payment Method</label>
                   <select
                     value={newPayment.paymentMethod}
-                    onChange={(e) => setNewPayment({ ...newPayment, paymentMethod: e.target.value as any })}
+                    onChange={(e) => setNewPayment({ ...newPayment, paymentMethod: e.target.value as PaymentRecord["paymentMethod"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="mpesa">M-Pesa (Paybill/Till)</option>
@@ -930,7 +930,7 @@ export const EarningsTracker: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Service Category</label>
                   <select
                     value={newPayment.category}
-                    onChange={(e) => setNewPayment({ ...newPayment, category: e.target.value as any })}
+                    onChange={(e) => setNewPayment({ ...newPayment, category: e.target.value as PaymentRecord["category"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="wifi_network">Wi-Fi &amp; Networks</option>
@@ -1059,7 +1059,7 @@ export const EarningsTracker: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Expense Category</label>
                   <select
                     value={newExpense.category}
-                    onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value as any })}
+                    onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value as ExpenseRecord["category"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="hardware_parts">Hardware &amp; Equipment Procurement</option>

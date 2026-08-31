@@ -3043,7 +3043,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   <label className="text-slate-300 font-semibold">Payment Method</label>
                   <select
                     value={invoicePaymentForm.method}
-                    onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, method: e.target.value as any })}
+                    onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, method: e.target.value as "mpesa" | "bank" | "cash" | "cheque" })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="mpesa">M-Pesa</option>

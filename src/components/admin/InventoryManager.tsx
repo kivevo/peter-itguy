@@ -214,7 +214,7 @@ export const InventoryManager: React.FC = () => {
     return true;
   });
 
-  const categoryIcons: Record<string, any> = {
+  const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     router: Server,
     switch: Server,
     access_point: Wifi,
@@ -539,7 +539,7 @@ export const InventoryManager: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Category</label>
                   <select
                     value={itemForm.category}
-                    onChange={(e) => setItemForm({ ...itemForm, category: e.target.value as any })}
+                    onChange={(e) => setItemForm({ ...itemForm, category: e.target.value as InventoryItem["category"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="access_point">Wi-Fi Access Point</option>
@@ -558,7 +558,7 @@ export const InventoryManager: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Condition</label>
                   <select
                     value={itemForm.condition}
-                    onChange={(e) => setItemForm({ ...itemForm, condition: e.target.value as any })}
+                    onChange={(e) => setItemForm({ ...itemForm, condition: e.target.value as InventoryItem["condition"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="new">Brand New (Boxed)</option>
