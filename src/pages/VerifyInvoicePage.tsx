@@ -62,6 +62,29 @@ const VerifyInvoicePage: React.FC = () => {
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 2 }).format(n);
 
+  const computeGrossTotal = (inv: InvoiceDocument): number => {
+    const subtotal = (inv.items || []).reduce((acc, it) => acc + (it.qty || 1) * (it.unitPrice || 0), 0);
+    const discount = inv.discountType === "percentage" ? (subtotal * (inv.discountValue || 0)) / 100 : (inv.discountValue || 0);
+    const discounted = Math.max(0, subtotal - discount);
+    const vat = inv.vatEnabled ? (discounted * (inv.vatPercent || 16)) / 100 : 0;
+    return discounted + vat;
+  };
+
+  const getTaxSchemeLabel = (scheme?: InvoiceDocument["taxScheme"]) => {
+    switch (scheme) {
+      case "vat_16":
+        return "VAT 16% (KRA Standard Rate)";
+      case "tot_3":
+        return "Turnover Tax 3% (KRA TOT)";
+      case "zero_rated":
+        return "Zero-Rated (0% VAT)";
+      case "exempt":
+        return "Tax Exempt";
+      default:
+        return "Standard Business Rate";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-['Inter',sans-serif]">
       {/* Nav */}
@@ -158,10 +181,20 @@ const VerifyInvoicePage: React.FC = () => {
                 <div className="space-y-5">
                   <DetailRow icon={<Hash className="w-4 h-4 text-emerald-400" />} label="Invoice Number" value={verifiedInvoice.docNumber ?? verifiedInvoice.id.toUpperCase()} mono />
                   <DetailRow icon={<Calendar className="w-4 h-4 text-blue-400" />} label="Issue Date" value={new Date(verifiedInvoice.issueDate ?? verifiedInvoice.createdAt).toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} />
-                  <DetailRow icon={<FileText className="w-4 h-4 text-purple-400" />} label="Document Type" value={verifiedInvoice.docType === "quote" ? "Tax Quotation" : "Tax Invoice"} />
-                  <DetailRow icon={<DollarSign className="w-4 h-4 text-amber-400" />} label="Gross Invoice Amount" value={fmt(verifiedInvoice.totalAmount ?? 0)} mono />
+                  <DetailRow
+                    icon={<FileText className="w-4 h-4 text-purple-400" />}
+                    label="Document Type"
+                    value={
+                      verifiedInvoice.docType === "quotation"
+                        ? "Tax Quotation"
+                        : verifiedInvoice.docType === "receipt"
+                        ? "Payment Receipt"
+                        : "Tax Invoice"
+                    }
+                  />
+                  <DetailRow icon={<DollarSign className="w-4 h-4 text-amber-400" />} label="Gross Invoice Amount" value={fmt(computeGrossTotal(verifiedInvoice))} mono />
                   {verifiedInvoice.taxScheme && (
-                    <DetailRow icon={<ShieldCheck className="w-4 h-4 text-teal-400" />} label="Tax Regime" value={verifiedInvoice.taxScheme === "vat" ? "VAT 16% (KRA)" : "Turnover Tax 3% (KRA)"} />
+                    <DetailRow icon={<ShieldCheck className="w-4 h-4 text-teal-400" />} label="Tax Regime" value={getTaxSchemeLabel(verifiedInvoice.taxScheme)} />
                   )}
                 </div>
 
@@ -169,8 +202,20 @@ const VerifyInvoicePage: React.FC = () => {
                 <div className="space-y-5">
                   <DetailRow icon={<Building2 className="w-4 h-4 text-cyan-400" />} label="Issuer (Supplier)" value="Peter Kivevo John / Krenovate Systems" />
                   <DetailRow icon={<ShieldCheck className="w-4 h-4 text-red-400" />} label="Supplier KRA PIN" value="P051892401K" mono />
-                  {verifiedInvoice.clientName && (
-                    <DetailRow icon={<Building2 className="w-4 h-4 text-indigo-400" />} label="Client / Buyer" value={verifiedInvoice.clientName} />
+                  {(verifiedInvoice.client?.company || verifiedInvoice.client?.name) && (
+                    <DetailRow
+                      icon={<Building2 className="w-4 h-4 text-indigo-400" />}
+                      label="Client / Buyer"
+                      value={verifiedInvoice.client.company || verifiedInvoice.client.name}
+                    />
+                  )}
+                  {verifiedInvoice.client?.kraPin && (
+                    <DetailRow
+                      icon={<ShieldCheck className="w-4 h-4 text-slate-400" />}
+                      label="Client KRA PIN"
+                      value={verifiedInvoice.client.kraPin}
+                      mono
+                    />
                   )}
                   {verifiedInvoice.etimsControlCode && (
                     <DetailRow icon={<QrCode className="w-4 h-4 text-emerald-400" />} label="eTIMS Control Code" value={verifiedInvoice.etimsControlCode} mono />
