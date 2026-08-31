@@ -1290,7 +1290,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       <div><div class="label">Billed To</div><div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div><div style="font-size:11px;color:#475569;margin-top:3px">${doc.client.company ? doc.client.name : ""}</div><div style="font-size:10px;color:#64748b">${doc.client.phone}</div>${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}</div>
       <div style="text-align:right">
         <div><div class="label">Status</div><div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div></div>
-        ${(doc as Record<string, unknown>).poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${(doc as Record<string, unknown>).poNumber}</div></div>` : ""}
+        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
       </div>
     </div>
     <table><thead><tr><th>#</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:center">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml.join("")}</tbody></table>
