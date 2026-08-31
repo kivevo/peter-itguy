@@ -7,7 +7,8 @@ import {
   MessageCircle, 
   FileText,
   Clock,
-  Sparkles
+  Sparkles,
+  MapPin
 } from "lucide-react";
 
 interface ScopeOption {
