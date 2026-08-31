@@ -1,6 +1,5 @@
 import React, { useState, Suspense, lazy } from "react";
 import InstantIssueWizard from "@/components/InstantIssueWizard";
-import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import OfficeHardwarePlanner from "@/components/OfficeHardwarePlanner";
 import { 
   Wrench, 
@@ -14,6 +13,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 
+const WebsiteSpeedChecker = lazy(() => import("@/components/WebsiteSpeedChecker"));
 const DowntimeCalculator = lazy(() => import("@/components/DowntimeCalculator"));
 const InteractiveTerminal = lazy(() => import("@/components/InteractiveTerminal"));
 const OfficeNetworkVisualizer = lazy(() => import("@/components/OfficeNetworkVisualizer"));
@@ -162,7 +162,9 @@ export const InteractiveToolkitHub: React.FC = () => {
 
           {activeTab === "speed_audit" && (
             <div className="animate-in fade-in duration-200">
-              <WebsiteSpeedChecker />
+              <Suspense fallback={<LoadingCard />}>
+                <WebsiteSpeedChecker />
+              </Suspense>
             </div>
           )}
 

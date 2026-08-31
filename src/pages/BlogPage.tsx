@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
 import BlogResources from "@/components/BlogResources";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
-import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
 import LeadMagnetModal from "@/components/LeadMagnetModal";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
+const WebsiteSpeedChecker = lazy(() => import("@/components/WebsiteSpeedChecker"));
+
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+  </div>
+);
 import { 
   BookOpen, 
   Sparkles, 
@@ -277,7 +284,9 @@ export const BlogPage: React.FC = () => {
               </p>
             </div>
 
-            <WebsiteSpeedChecker />
+            <Suspense fallback={<SectionLoader />}>
+              <WebsiteSpeedChecker />
+            </Suspense>
           </div>
         </section>
 
