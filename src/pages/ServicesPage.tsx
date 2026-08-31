@@ -2,12 +2,8 @@ import React from "react";
 import Navigation from "@/components/Navigation";
 import Services from "@/components/Services";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
-import DowntimeCalculator from "@/components/DowntimeCalculator";
+import { InteractiveToolkitHub } from "@/components/InteractiveToolkitHub";
 import QuickQuoteEstimator from "@/components/QuickQuoteEstimator";
-import NetworkSpeedTester from "@/components/NetworkSpeedTester";
-import InstantIssueWizard from "@/components/InstantIssueWizard";
-import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
-import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
 import EngagementPricing from "@/components/EngagementPricing";
 import TechnicalFAQ from "@/components/TechnicalFAQ";
 import ITServicesDirectory from "@/components/ITServicesDirectory";
@@ -47,39 +43,11 @@ const ServicesPage: React.FC = () => {
         {/* Client Partners Bar */}
         <ClientLogoStrip />
 
-        {/* Instant Troubleshooter Wizard */}
-        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <InstantIssueWizard />
-          </div>
-        </section>
-
         {/* Interactive Services Deep Dive */}
         <Services />
 
-        {/* Website Speed & Lead Audit Checker */}
-        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-y border-border/70">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <WebsiteSpeedChecker />
-          </div>
-        </section>
-
-        {/* Live Internet Health Test */}
-        <section className="py-12 lg:py-16 bg-background dark:bg-navy-950 border-b border-border/70">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-            <NetworkSpeedTester />
-          </div>
-        </section>
-
-        {/* Office Network Visualizer */}
-        <section className="py-12 lg:py-16 bg-muted/20 dark:bg-navy-950/60 border-b border-border/70">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <OfficeNetworkVisualizer />
-          </div>
-        </section>
-
-        {/* Downtime Cost Estimator */}
-        <DowntimeCalculator />
+        {/* Unified Interactive IT Toolkit Hub (All 6 tools organized in clean tabs) */}
+        <InteractiveToolkitHub />
 
         {/* All Services Breakdown Details */}
         <section className="py-16 lg:py-20 bg-muted/20 dark:bg-navy-900/40 border-t border-border/70">
