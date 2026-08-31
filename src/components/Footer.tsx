@@ -42,6 +42,8 @@ export const Footer: React.FC = () => {
     { label: "About Peter", href: "/about" },
     { label: "Tech Insights & Blog", href: "/resources" },
     { label: "Contact & Quotations", href: "/contact" },
+    { label: "Track Repair / Job", href: "/track" },
+    { label: "Verify eTIMS Invoice", href: "/verify" },
   ];
 
   return (

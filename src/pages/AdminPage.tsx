@@ -21,6 +21,7 @@ import { WhatsAppReplyStudio } from "@/components/admin/WhatsAppReplyStudio";
 import { EarningsTracker } from "@/components/admin/EarningsTracker";
 import { InventoryManager } from "@/components/admin/InventoryManager";
 import { KRATaxAssistant } from "@/components/admin/KRATaxAssistant";
+import { SLAGenerator } from "@/components/admin/SLAGenerator";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -86,7 +87,7 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "earnings" | "kra_tax" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "earnings" | "kra_tax" | "sla_contracts" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
@@ -602,6 +603,13 @@ export const AdminPage: React.FC = () => {
           colorClass: "text-red-400",
         },
         {
+          id: "sla_contracts" as const,
+          label: "Retainer SLA Contracts",
+          icon: Briefcase,
+          count: "SLA",
+          colorClass: "text-violet-400",
+        },
+        {
           id: "invoice" as const,
           label: "Quotes & Invoices (Builder)",
           icon: Receipt,
@@ -835,6 +843,7 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "analytics" && "Operational Analytics & Performance"}
                 {activeTab === "earnings" && "Earnings, M-Pesa Receipts & Financial Ledger"}
                 {activeTab === "kra_tax" && "KRA Tax Ledger, eTIMS Returns & WHT Credits"}
+                {activeTab === "sla_contracts" && "Monthly IT Retainer Contracts & SLA Generator"}
                 {activeTab === "inventory" && "Hardware Inventory & Equipment Deployments"}
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
                 {activeTab === "jobs" && "On-Site Dispatch & Appointment Calendar"}
@@ -1647,10 +1656,16 @@ export const AdminPage: React.FC = () => {
             <KRATaxAssistant />
           )}
 
+          {/* TAB: 📋 RETAINER SLA CONTRACT GENERATOR */}
+          {activeTab === "sla_contracts" && (
+            <SLAGenerator />
+          )}
+
           {/* TAB: 📦 HARDWARE INVENTORY */}
           {activeTab === "inventory" && (
             <InventoryManager />
           )}
+
 
           {/* TAB 4: 🧾 KRENOVATE SYSTEMS INVOICE & QUOTE ENGINE */}
           {activeTab === "invoice" && (

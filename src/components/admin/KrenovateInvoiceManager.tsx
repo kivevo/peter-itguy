@@ -108,6 +108,10 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const [typeFilter, setTypeFilter] = useState<"all" | "quotation" | "invoice" | "receipt">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "sent" | "paid" | "overdue" | "accepted">("all");
 
+  // Google Review Booster
+  const [reviewBoosterDoc, setReviewBoosterDoc] = useState<InvoiceDocument | null>(null);
+  const GOOGLE_REVIEW_URL = "https://g.page/r/YOUR_GOOGLE_REVIEW_LINK/review"; // update in settings
+
   // Record Invoice Payment state
   const [paymentTargetDoc, setPaymentTargetDoc] = useState<InvoiceDocument | null>(null);
   const [invoicePaymentForm, setInvoicePaymentForm] = useState<{
@@ -1180,7 +1184,14 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                           <td className="py-3.5 px-4">
                             <select
                               value={doc.status}
-                              onChange={(e) => dataStorage.updateInvoiceStatus(doc.id, e.target.value as "draft" | "sent" | "paid" | "overdue" | "accepted")}
+                              onChange={(e) => {
+                                const newStatus = e.target.value as "draft" | "sent" | "paid" | "overdue" | "accepted";
+                                dataStorage.updateInvoiceStatus(doc.id, newStatus);
+                                // Trigger Google Review Booster when marked as PAID
+                                if (newStatus === "paid" && doc.docType === "invoice") {
+                                  setReviewBoosterDoc(doc);
+                                }
+                              }}
                               className={`text-[10px] font-mono font-bold uppercase px-2 py-1 rounded-lg border focus:outline-none ${
                                 doc.status === "paid"
                                   ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
@@ -3213,8 +3224,80 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           </div>
         </div>
       )}
+
+      {/* ══════════════════════════════════════════════════
+          Google Review & Referral Booster Modal
+          Fires automatically when an invoice is marked PAID
+      ══════════════════════════════════════════════════ */}
+      {reviewBoosterDoc && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-card border border-emerald-500/40 rounded-3xl shadow-2xl shadow-emerald-500/10 max-w-md w-full p-8 animate-in zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-3">🎉</div>
+              <h3 className="text-xl font-extrabold text-emerald-400">Invoice Paid! Great Work!</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                <span className="font-semibold text-foreground">{reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()}</span> for{" "}
+                <span className="font-semibold text-foreground">{reviewBoosterDoc.client.name}</span> is now marked as settled.
+              </p>
+            </div>
+
+            {/* Action Prompt */}
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-2xl p-5 mb-5">
+              <div className="font-bold text-sm mb-2 text-emerald-300">⭐ Send a Google Review Request</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Happy clients are the best marketing. Send{" "}
+                <span className="font-semibold text-foreground">{reviewBoosterDoc.client.name}</span> a WhatsApp
+                message asking for a 5-star Google review or referral.
+              </p>
+            </div>
+
+            {/* WhatsApp Message Preview */}
+            <div className="bg-[#075e54]/10 border border-[#25d366]/20 rounded-xl p-4 mb-5">
+              <div className="text-[10px] font-mono text-emerald-400 mb-2 font-bold">📱 WHATSAPP MESSAGE PREVIEW</div>
+              <p className="text-xs text-muted-foreground leading-relaxed font-mono whitespace-pre-wrap">
+                {`Hello ${reviewBoosterDoc.client.name}! 👋
+
+Thank you for settling invoice ${reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏
+
+If you're happy with our work, we'd really appreciate a quick 5-star Google Review — it takes just 30 seconds and helps us serve more businesses in Nairobi:
+
+⭐ Leave a Review → ${GOOGLE_REVIEW_URL}
+
+Or refer a colleague who needs IT support in Nairobi — we'll prioritize their job! 🚀
+
+Thank you for choosing Krenovate Systems!
+— Peter Kivevo`}
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3">
+              <a
+                href={`https://wa.me/${reviewBoosterDoc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                  `Hello ${reviewBoosterDoc.client.name}! 👋\n\nThank you for settling invoice ${reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏\n\nIf you're happy with our work, we'd really appreciate a quick 5-star Google Review — it takes just 30 seconds and helps us serve more businesses in Nairobi:\n\n⭐ Leave a Review → ${GOOGLE_REVIEW_URL}\n\nOr refer a colleague who needs IT support in Nairobi — we'll prioritize their job! 🚀\n\nThank you for choosing Krenovate Systems!\n— Peter Kivevo`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setReviewBoosterDoc(null)}
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-[#25d366] text-white font-bold text-sm hover:opacity-90 transition-all"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Send WhatsApp Review Request
+              </a>
+              <button
+                onClick={() => setReviewBoosterDoc(null)}
+                className="w-full py-3 rounded-2xl border border-border text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Skip for Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+
 };
 
 export default KrenovateInvoiceManager;

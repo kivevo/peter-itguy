@@ -18,6 +18,8 @@ import ProcessPage from "./pages/ProcessPage";
 import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";
 import AdminPage from "./pages/AdminPage";
+import TrackJobPage from "./pages/TrackJobPage";
+import VerifyInvoicePage from "./pages/VerifyInvoicePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,10 @@ const App = () => (
                   <Route path="/process" element={<ProcessPage />} />
                   <Route path="/resources" element={<BlogPage />} />
                   <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/track" element={<TrackJobPage />} />
+                  <Route path="/status" element={<TrackJobPage />} />
+                  <Route path="/verify" element={<VerifyInvoicePage />} />
+                  <Route path="/verify-invoice" element={<VerifyInvoicePage />} />
                   <Route path="/admin" element={<AdminPage />} />
                   {/* Catch-all 404 Route */}
                   <Route path="*" element={<NotFound />} />

@@ -565,6 +565,28 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
     },
     {
+      id: "nav-track",
+      title: "Track Repair / Ticket Status",
+      subtitle: "Check live diagnostic & completion status of your IT job",
+      category: "Navigation",
+      icon: Sparkles,
+      action: () => {
+        navigate("/track");
+        onClose();
+      },
+    },
+    {
+      id: "nav-verify",
+      title: "Verify eTIMS Invoice Authenticity",
+      subtitle: "KRA-compliant fiscal invoice authenticity verification",
+      category: "Navigation",
+      icon: ShieldCheck,
+      action: () => {
+        navigate("/verify");
+        onClose();
+      },
+    },
+    {
       id: "nav-admin",
       title: "Peter's Admin Command Portal",
       subtitle: "Security passcode protected console",
