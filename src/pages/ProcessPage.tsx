@@ -15,10 +15,36 @@ import {
   ArrowRight, 
   MessageCircle,
   AlertTriangle,
-  FileText
+  FileText,
+  ChevronDown,
+  Activity,
+  Check
 } from "lucide-react";
 
 export const ProcessPage: React.FC = () => {
+  const processPillars = [
+    {
+      step: "01",
+      title: "15-Min Rapid Triage",
+      desc: "Emergency remote connection or immediate WhatsApp response to stabilize systems.",
+    },
+    {
+      step: "02",
+      title: "Root-Cause Diagnostics",
+      desc: "We diagnose the underlying network, cable, or hardware bottleneck, not just symptoms.",
+    },
+    {
+      step: "03",
+      title: "Permanent Fix & Hardening",
+      desc: "Hardware replacement, VLAN isolation, and 5G failover setup so issues never repeat.",
+    },
+    {
+      step: "04",
+      title: "Proactive Monitoring",
+      desc: "Continuous health checks and preventative maintenance to prevent future downtime.",
+    },
+  ];
+
   const slaTiers = [
     {
       tier: "🚨 Urgent Emergency Fix",
@@ -70,44 +96,96 @@ export const ProcessPage: React.FC = () => {
     },
   ];
 
+  const scrollToContent = () => {
+    document.getElementById("process-start")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-teal-500 selection:text-white">
       <Navigation />
 
-      <main className="flex-1 pt-32 sm:pt-36 lg:pt-40">
-        {/* Page Hero Banner */}
-        <section className="py-12 lg:py-16 bg-muted/30 dark:bg-navy-950 border-b border-border/80 relative overflow-hidden">
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <main className="flex-1">
+        {/* Full-Screen Immersive Landing Hero */}
+        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+          {/* Ambient Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
-              <Zap className="w-3.5 h-3.5" />
-              <span>15-Minute Response SLA • Zero Guesswork Protocol</span>
+          {/* Centered Landing Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm animate-in fade-in">
+              <Zap className="w-4 h-4 text-teal-500" />
+              <span>15-Minute Response SLA • Zero-Guesswork Protocol</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight">
-              Our Engineering Workflow: <br className="hidden sm:inline" />
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+              How We Work: <br className="hidden sm:inline" />
               <span className="text-gradient-teal">From Urgent Problem to Permanent Fix</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Discover the transparent 4-step workflow and response guarantees that keep retail chains, hotels, and corporate offices running smoothly across Kenya.
+            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              We eliminate technical frustration with transparent workflows, certified engineering practices, and measurable response SLAs. Learn how we handle emergency tickets, on-site surveys, and proactive maintenance across Kenya.
             </p>
 
-            <div className="pt-2">
+            {/* 4 Process Pillars */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
+              {processPillars.map((p, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 sm:p-5 rounded-2xl bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border border-border/80 hover:border-teal-500/40 shadow-sm space-y-1.5"
+                >
+                  <span className="text-xl font-black font-heading text-teal-500">
+                    {p.step}
+                  </span>
+                  <h3 className="font-heading font-bold text-xs sm:text-sm text-foreground">
+                    {p.title}
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {p.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Primary Actions */}
+            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
               <a
-                href={getWhatsAppUrl("Hi Peter, I need urgent IT assistance. Please connect.")}
+                href={getWhatsAppUrl("Hi Peter, I need urgent IT assistance under your 15-minute SLA.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4 fill-white" />
                 <span>Get 15-Minute Urgent Triage on WhatsApp</span>
               </a>
+
+              <button
+                type="button"
+                onClick={scrollToContent}
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
+              >
+                <span>View SLA Matrix &amp; Coverage Zones</span>
+                <ArrowRight className="w-4 h-4 text-teal-500" />
+              </button>
             </div>
           </div>
+
+          {/* Animated Scroll Down Indicator */}
+          <div className="text-center pt-4 relative z-10">
+            <button
+              onClick={scrollToContent}
+              className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+            >
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to view 4-step workflow, response SLAs &amp; Kenya coverage</span>
+              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+                <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
+              </div>
+            </button>
+          </div>
         </section>
+
+        {/* Content Anchor Marker */}
+        <div id="process-start" />
 
         {/* 4-Step Visual Engineering Process Component */}
         <Process />
