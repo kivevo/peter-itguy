@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   dataStorage, 
   KRAProfileSettings, 
@@ -36,7 +36,8 @@ import {
   Sliders,
   FileSpreadsheet,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Receipt
 } from "lucide-react";
 
 export const KRATaxAssistant: React.FC = () => {
@@ -88,20 +89,20 @@ export const KRATaxAssistant: React.FC = () => {
   const [whtSearchQuery, setWhtSearchQuery] = useState("");
 
   // Refresh data on mount and subscription
-  const refreshData = () => {
+  const refreshData = useCallback(() => {
     setKraProfile(dataStorage.getKRAProfile());
     setWhtCertificates(dataStorage.getWhtCertificates());
     setInvoices(dataStorage.getInvoices().filter((inv) => !inv.deletedAt));
     setExpenses(dataStorage.getExpenses());
     setMonthlySummary(dataStorage.calculateTaxReturn("monthly", selectedYear, selectedMonth));
     setAnnualSummary(dataStorage.calculateTaxReturn("annual", selectedYear));
-  };
+  }, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     refreshData();
     const unsubscribe = dataStorage.subscribe(refreshData);
     return () => unsubscribe();
-  }, [selectedYear, selectedMonth]);
+  }, [refreshData]);
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1089,7 +1090,7 @@ export const KRATaxAssistant: React.FC = () => {
                 <label className="text-xs font-mono text-muted-foreground font-semibold">Primary Tax Obligation</label>
                 <select
                   value={kraProfile.taxObligation}
-                  onChange={(e) => setKraProfile({ ...kraProfile, taxObligation: e.target.value as any })}
+                  onChange={(e) => setKraProfile({ ...kraProfile, taxObligation: e.target.value as KRAProfileSettings["taxObligation"] })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-red-500"
                 >
                   <option value="turnover_tax">Turnover Tax (TOT 3% - Under KES 25M Sales)</option>
@@ -1103,7 +1104,7 @@ export const KRATaxAssistant: React.FC = () => {
                 <label className="text-xs font-mono text-muted-foreground font-semibold">Business Entity Type</label>
                 <select
                   value={kraProfile.businessType}
-                  onChange={(e) => setKraProfile({ ...kraProfile, businessType: e.target.value as any })}
+                  onChange={(e) => setKraProfile({ ...kraProfile, businessType: e.target.value as KRAProfileSettings["businessType"] })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-red-500"
                 >
                   <option value="sole_proprietor">Sole Proprietorship / Freelance Engineer</option>
