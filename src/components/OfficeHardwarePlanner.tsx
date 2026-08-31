@@ -80,7 +80,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
     }
 
     const failoverDesc = need4GFailover 
-      ? "Automatic 4G SIM Backup Router (Switches seamlessly in 1 second when fiber cuts)"
+      ? "Automatic 5G/4G SIM Backup Router (Switches seamlessly in 1 second when fiber cuts)"
       : "Not included";
 
     return {
@@ -113,7 +113,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
       name: clientName.trim(),
       phone: clientPhone.trim(),
       service: `Turnkey Office Hardware Plan: ${officeSize.toUpperCase()}`,
-      details: `Office Plan: ${officeSize.toUpperCase()} (${floors} floor/s) | APs: ${plan.accessPoints}x ${plan.apType} | Switch: ${plan.switchType} | CCTV: ${cctvOption} | 4G Failover: ${need4GFailover ? "YES" : "NO"}`,
+      details: `Office Plan: ${officeSize.toUpperCase()} (${floors} floor/s) | APs: ${plan.accessPoints}x ${plan.apType} | Switch: ${plan.switchType} | CCTV: ${cctvOption} | 5G/4G Failover: ${need4GFailover ? "YES" : "NO"}`,
     });
 
     setIsSubmitted(true);
@@ -267,7 +267,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
                 <div className="pt-2 border-t border-border/60 flex items-center justify-between">
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-foreground block">
-                      Automatic 4G Backup Failover Gateway
+                      Automatic 5G/4G Backup Failover Gateway
                     </span>
                     <span className="text-[11px] text-muted-foreground block">
                       Switches in 1 sec if fiber cuts so payment tills stay online.
@@ -366,7 +366,7 @@ export const OfficeHardwarePlanner: React.FC = () => {
                     <ShieldCheck className="w-4 h-4 text-teal-300 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-teal-300 text-xs">
-                        Automatic 4G Backup Failover Gateway
+                        Automatic 5G/4G Backup Failover Gateway
                       </p>
                       <span className="text-[11px] text-slate-300 block">
                         Keeps card machines and staff online even when main fiber provider has an outage.

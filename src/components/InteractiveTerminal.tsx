@@ -101,11 +101,11 @@ export const InteractiveTerminal: React.FC = () => {
             3 packets transmitted, 3 received, 0% packet loss • rtt min/avg/max = {min}/{avg}/{max} ms
           </p>
           <p className="text-slate-400 text-[11px]">
-            {avg < 40 
-              ? "⚡ Lightning fast response: Global / Local Edge CDN detected."
-              : avg < 120 
-              ? "✓ Good response time: Regional server." 
-              : "⚠️ High latency: Overseas server without local CDN cache."}
+            {avg < 35
+              ? "⚡ Sub-35ms — Global/Local Edge CDN active. Ideal for Kenyan 5G users."
+              : avg < 100
+              ? "✓ Good response time — Regional server. Consider Cloudflare CDN for 5G optimization."
+              : "⚠️ High latency — Overseas server without Nairobi CDN node. Recommend Cloudflare Free plan."}
           </p>
         </div>
       );
@@ -116,7 +116,7 @@ export const InteractiveTerminal: React.FC = () => {
           <p>[✓] Main Internet: Fast Fiber Line — Connected</p>
           <p>[✓] Protected Tills: Payment machines isolated from guest Wi-Fi — SECURE</p>
           <p>[✓] Security Cameras: HD live streaming to manager phone — ONLINE</p>
-          <p>[✓] Backup Line: Automatic 4G backup router — READY</p>
+          <p>[✓] Backup Line: Automatic 5G/4G backup router — READY</p>
           <p className="text-emerald-400 font-bold">Network Score: 98/100 • Zero Payment Freezes</p>
         </div>
       );

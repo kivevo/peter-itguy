@@ -53,7 +53,7 @@ export const ArchitectureViewer: React.FC = () => {
         points: [
           "Payment tills placed on an exclusive private channel that guest phones cannot slow down",
           "Installed outdoor weatherproof Wi-Fi antennas covering all garden dining cabanas",
-          "Automatic 4G backup line so payment tills stay online even if main fiber cuts",
+          "Automatic 5G/4G backup line so payment tills stay online even if main fiber cuts",
         ],
         badgeColor: "text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20",
       },

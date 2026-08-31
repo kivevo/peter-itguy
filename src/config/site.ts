@@ -328,7 +328,7 @@ export const SERVICES: ServiceItem[] = [
     iconName: "Globe",
     badge: "Fast & Mobile Friendly",
     whatsIncluded: [
-      "Custom mobile-friendly design (opens in under 2s on 3G/4G)",
+      "Custom mobile-friendly design (opens in under 2s on 5G/4G)",
       "Direct Click-to-WhatsApp and Click-to-Call inquiry buttons",
       "Google Search & Google Maps local business setup (Local SEO)",
       "M-Pesa payment integration & easy product showcase catalogs",
@@ -439,7 +439,7 @@ export const CASE_STUDIES: CaseStudyItem[] = [
     title: "Modern Business Websites Built for Kenyan Companies",
     client: "Linens & Decor, Stratbridge Group, Chomazone Mtwapa",
     category: "Commercial Web Development",
-    heroMetric: "Sub-2s Mobile Load Speeds on Kenyan 4G Data",
+    heroMetric: "Sub-2s Mobile Load Speeds on Kenyan 5G/4G Data",
     summary: "A collection of clean, modern websites engineered to load fast on phones and generate real phone calls and WhatsApp orders.",
     problem: "Businesses losing clients because old, heavy website templates took 8+ seconds to load on mobile phones in Kenya.",
     solution: [

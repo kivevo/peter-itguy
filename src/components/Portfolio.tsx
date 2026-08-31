@@ -172,7 +172,7 @@ export const Portfolio: React.FC = () => {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>Opens in &lt; 2s on 4G</span>
+                  <span>Opens in &lt; 2s on 5G/4G</span>
                   <span className="font-semibold text-foreground group-hover:text-teal-500 flex items-center gap-1">
                     Visit Live Site <ExternalLink className="w-3 h-3" />
                   </span>

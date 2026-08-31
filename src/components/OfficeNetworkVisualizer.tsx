@@ -54,7 +54,7 @@ export const OfficeNetworkVisualizer: React.FC = () => {
       title: "Internet Failover (Backup Line)",
       icon: Wifi,
       badDesc: "⚠️ When the primary fiber internet is cut, the entire office loses connection and business stops completely.",
-      goodDesc: "✅ Automatic 4G backup router switches over in seconds if the main fiber cuts, keeping your business running.",
+      goodDesc: "✅ Automatic 5G/4G backup router switches over in seconds if the main fiber cuts, keeping your business running.",
     },
   ];
 
