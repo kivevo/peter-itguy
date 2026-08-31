@@ -11,53 +11,108 @@ import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { SERVICES, getWhatsAppUrl } from "@/config/site";
-import { Layers, Check, MessageCircle } from "lucide-react";
+import { 
+  Layers, 
+  Check, 
+  MessageCircle, 
+  Sparkles, 
+  ArrowRight,
+  Cpu,
+  Wifi,
+  Globe,
+  Wrench,
+  ShieldCheck,
+  Calculator
+} from "lucide-react";
 
-const ServicesPage: React.FC = () => {
+export const ServicesPage: React.FC = () => {
+  const quickJumps = [
+    { label: "Core 4 Services", href: "#core-services" },
+    { label: "Interactive IT Tools", href: "#interactive-tools" },
+    { label: "Scope & Deliverables", href: "#scope-breakdown" },
+    { label: "Project Scope Builder", href: "#quote-builder" },
+    { label: "Pricing & Retainers", href: "#pricing-plans" },
+    { label: "50+ IT Directory", href: "#it-directory" },
+    { label: "Technical FAQ", href: "#technical-faq" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
+    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-teal-500 selection:text-white">
       <Navigation />
-      
+
       <main className="flex-1 pt-32 sm:pt-36 lg:pt-40">
         {/* Page Hero Banner */}
         <section className="py-12 lg:py-16 bg-muted/30 dark:bg-navy-950 border-b border-border/80 relative overflow-hidden">
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold border border-teal-500/20">
               <Layers className="w-3.5 h-3.5" />
-              <span>Full Service Catalog &amp; Support Options</span>
+              <span>Full Service Catalog • Transparent Pricing • Nairobi &amp; Kenya</span>
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-heading text-foreground tracking-tight">
-              Fast IT Support, Strong Wi-Fi &amp; <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">High-Converting Business Websites</span>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight">
+              Engineering Solutions: <br className="hidden sm:inline" />
+              <span className="text-gradient-teal">Fast IT Support, Strong Wi-Fi &amp; Web</span>
             </h1>
-            
+
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Explore our four core services designed for Kenyan businesses, hotels, retail shops, and offices that need reliable systems and fast response.
+              Explore our core business services, interactive hardware planners, itemized scopes, and searchable 50+ IT directory built for Kenyan enterprises, hotels, retail shops, and offices.
             </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <a
+                href={getWhatsAppUrl("Hi Peter, I would like to book a service consultation.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Book Service Consultation on WhatsApp</span>
+              </a>
+            </div>
+
+            {/* Quick Navigation Anchor Bar */}
+            <div className="pt-6 flex flex-wrap items-center justify-center gap-2">
+              {quickJumps.map((jump, idx) => (
+                <a
+                  key={idx}
+                  href={jump.href}
+                  className="px-3 py-1.5 rounded-xl bg-muted/80 hover:bg-teal-500/10 hover:text-teal-600 dark:hover:text-teal-400 text-muted-foreground text-xs font-medium border border-border transition-colors"
+                >
+                  {jump.label}
+                </a>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Client Partners Bar */}
         <ClientLogoStrip />
 
-        {/* Interactive Services Deep Dive */}
-        <Services />
+        {/* 1. Core Services Interactive Showcase */}
+        <div id="core-services">
+          <Services />
+        </div>
 
-        {/* Unified Interactive IT Toolkit Hub (All 6 tools organized in clean tabs) */}
-        <InteractiveToolkitHub />
+        {/* 2. Unified Interactive IT Toolkit Hub (All 6 tools in clean tabs) */}
+        <div id="interactive-tools">
+          <InteractiveToolkitHub />
+        </div>
 
-        {/* All Services Breakdown Details */}
-        <section className="py-16 lg:py-20 bg-muted/20 dark:bg-navy-900/40 border-t border-border/70">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
+        {/* 3. Detailed Scope & Deliverables Breakdown */}
+        <section id="scope-breakdown" className="py-16 lg:py-24 bg-muted/20 dark:bg-navy-900/40 border-t border-border/70">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
+                Itemized Deliverables
+              </span>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading text-foreground">
                 Complete Service Breakdown
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Detailed scope, deliverables, and fast WhatsApp booking for each service.
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Everything that is included in each turnkey engagement with exact turnaround times:
               </p>
             </div>
 
@@ -123,17 +178,25 @@ const ServicesPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Interactive Scope Estimator */}
-        <QuickQuoteEstimator />
+        {/* 4. Interactive Project Scope Estimator */}
+        <div id="quote-builder">
+          <QuickQuoteEstimator />
+        </div>
 
-        {/* Engagement Models */}
-        <EngagementPricing />
+        {/* 5. Support Plans & Transparent Pricing */}
+        <div id="pricing-plans">
+          <EngagementPricing />
+        </div>
 
-        {/* Comprehensive IT Services Directory (SEO) */}
-        <ITServicesDirectory />
+        {/* 6. Comprehensive 50+ IT Services Directory */}
+        <div id="it-directory">
+          <ITServicesDirectory />
+        </div>
 
-        {/* FAQ */}
-        <TechnicalFAQ />
+        {/* 7. Frequently Asked Questions */}
+        <div id="technical-faq">
+          <TechnicalFAQ />
+        </div>
 
         {/* Pre-footer Call to Action */}
         <CallToActionBand />
