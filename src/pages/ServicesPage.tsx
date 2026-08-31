@@ -117,53 +117,53 @@ export const ServicesPage: React.FC = () => {
 
       <main className="flex-1">
         {/* Full-Screen High-Impact 2-Column Hero */}
-        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        <section className="min-h-screen pt-24 pb-8 sm:pt-28 sm:pb-10 lg:pt-36 lg:pb-12 flex flex-col justify-center bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
           <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* 2-Column Hero Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
-            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center">
               {/* Left Column: Value Proposition & CTAs */}
-              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+              <div className="lg:col-span-7 space-y-4 sm:space-y-5 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm">
                   <Layers className="w-3.5 h-3.5 text-teal-500" />
                   <span>Enterprise Catalog • Nairobi &amp; Countrywide</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-                  Enterprise IT Support, <br className="hidden sm:inline" />
+                <h1 className="text-2xl sm:text-4xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.15]">
+                  Enterprise IT Support, <br className="hidden md:inline" />
                   <span className="text-gradient-teal">Unbreakable Wi-Fi &amp; Fast Web</span>
                 </h1>
 
-                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-none sm:line-clamp-none">
                   Whether you need 15-minute emergency computer help, multi-floor Wi-Fi that never crashes your payment tills, or a high-converting business website, explore our certified turnkey services.
                 </p>
 
                 {/* 3 Value Pillars */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                <div className="grid grid-cols-3 gap-2 text-left pt-0">
+                  <div className="p-3 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
                     <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ &lt; 15 Mins</span>
                     <span className="text-[11px] text-muted-foreground">Urgent Remote SLA</span>
                   </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                  <div className="p-3 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
                     <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🏢 30+ Branches</span>
                     <span className="text-[11px] text-muted-foreground">Retail &amp; Hotel Proof</span>
                   </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                  <div className="p-3 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
                     <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🔒 100% Fixed</span>
                     <span className="text-[11px] text-muted-foreground">Transparent Quotes</span>
                   </div>
                 </div>
 
                 {/* Primary Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2">
                   <a
                     href={getWhatsAppUrl("Hi Peter, I want to book a service consultation for my business.")}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
+                    className="inline-flex items-center gap-2 w-full sm:w-auto px-5 py-4 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
                   >
                     <MessageCircle className="w-4 h-4 fill-white" />
                     <span>Book Service on WhatsApp</span>
@@ -172,7 +172,7 @@ export const ServicesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={scrollToContent}
-                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                    className="inline-flex items-center gap-2 w-full sm:w-auto px-4 py-4 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-sm transition-colors"
                   >
                     <span>Browse 50+ IT Directory</span>
                     <ArrowRight className="w-3.5 h-3.5 text-teal-500" />
@@ -180,7 +180,7 @@ export const ServicesPage: React.FC = () => {
                 </div>
 
                 {/* Quick Navigation Anchor Bar */}
-                <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2">
+                <div className="hidden sm:flex pt-2 flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2">
                   {quickJumps.map((jump, idx) => (
                     <a
                       key={idx}
@@ -194,7 +194,7 @@ export const ServicesPage: React.FC = () => {
               </div>
 
               {/* Right Column: Interactive Live Service Navigator Widget */}
-              <div className="lg:col-span-5">
+              <div className="hidden lg:block lg:col-span-5">
                 <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
                   <div className="flex items-center justify-between pb-3 border-b border-border/80">
                     <div className="flex items-center gap-2">
@@ -272,19 +272,6 @@ export const ServicesPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-6 pb-2 relative z-10">
-            <button
-              onClick={scrollToContent}
-              className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
-            >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to explore full catalog &amp; interactive tools</span>
-              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
-                <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
-              </div>
-            </button>
           </div>
         </section>
 

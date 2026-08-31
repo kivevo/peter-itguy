@@ -75,7 +75,7 @@ export const Hero: React.FC = () => {
     <>
     <section
       id="home"
-      className="relative min-h-[92vh] pt-36 sm:pt-40 lg:pt-44 pb-16 lg:pb-24 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
+      className="relative min-h-screen pt-24 sm:pt-32 lg:pt-44 pb-12 lg:pb-24 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
     >
       {/* Background Tech Grids & Soft Ambient Glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
@@ -83,9 +83,9 @@ export const Hero: React.FC = () => {
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-navy-800/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Clear Value Proposition */}
-          <div className="lg:col-span-7 space-y-6 lg:pr-4">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center">
+          {/* Left Column: Clear Value Proposition — full width on mobile/tablet */}
+          <div className="lg:col-span-7 space-y-5 lg:pr-4">
             {/* Status Badge */}
             <div className="flex items-center gap-3.5">
               <ProfilePhoto size="md" showStatusBadge={true} />
@@ -105,13 +105,13 @@ export const Hero: React.FC = () => {
 
             {/* Main Headline */}
             <div className="space-y-3">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.12]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.12]">
                 Your On-Call <br />
                 <span className="text-gradient-teal">IT Partner</span> in Kenya
               </h1>
               
               {/* Cycling Subheader in Simple Words */}
-              <div className="flex items-center gap-2 text-base sm:text-xl font-mono text-muted-foreground bg-muted/60 dark:bg-navy-900/80 px-3.5 py-2 rounded-xl border border-border/80 w-fit min-h-[44px]">
+              <div className="flex items-center gap-2 text-sm sm:text-xl font-mono text-muted-foreground bg-muted/60 dark:bg-navy-900/80 px-3 py-2 rounded-xl border border-border/80 w-fit min-h-[44px] max-w-full overflow-hidden">
                 <Terminal className="w-4 h-4 text-teal-500 flex-shrink-0" />
                 <span className="text-foreground font-semibold font-mono">
                   {displayedText}
@@ -122,7 +122,7 @@ export const Hero: React.FC = () => {
 
             {/* Direct Value Description (Plain English) */}
             <div className="space-y-2 max-w-xl">
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed">
                 When your office computers freeze, Wi-Fi drops, payment machines lag, or website goes down, I fix them fast — so you and your team never lose business.
               </p>
               <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-500/10 px-3 py-1.5 rounded-lg border border-teal-500/20 inline-block">
@@ -131,13 +131,13 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Conversion CTA Group */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
               {/* Primary WhatsApp CTA */}
               <a
                 href={getWhatsAppUrl("Hi Peter, I saw your IT profile and need help with a computer / network / website issue.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-base shadow-lg shadow-teal-600/25 transition-all duration-200 hover:shadow-glow hover:-translate-y-0.5 group"
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-teal-600/25 transition-all duration-200 hover:shadow-glow active:scale-98 group w-full sm:w-auto"
               >
                 <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 <span>Message Peter on WhatsApp</span>
@@ -147,7 +147,7 @@ export const Hero: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setContactCardOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm sm:text-base transition-all duration-200 hover:-translate-y-0.5 group"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-border bg-card/80 hover:bg-muted text-foreground font-semibold text-sm sm:text-base transition-all duration-200 active:scale-98 group w-full sm:w-auto"
                 title="Save Peter's contact to your phone"
               >
                 <QrCode className="w-4 h-4 text-teal-500 group-hover:scale-110 transition-transform" />
@@ -172,8 +172,8 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Live Hub Simulation */}
-          <div className="lg:col-span-5 relative">
+          {/* Right Column: Live Hub Simulation — HIDDEN on mobile/tablet, visible lg+ only */}
+          <div className="hidden lg:block lg:col-span-5 relative">
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-teal-500/20 to-sky-500/10 blur-xl pointer-events-none" />
 
             <div className="relative rounded-2xl bg-card dark:bg-navy-900 border border-border/90 shadow-card-dark dark:shadow-glow p-5 sm:p-6 overflow-hidden">
