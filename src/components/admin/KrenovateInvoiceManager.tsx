@@ -3237,7 +3237,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               <div className="text-5xl mb-3">🎉</div>
               <h3 className="text-xl font-extrabold text-emerald-400">Invoice Paid! Great Work!</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                <span className="font-semibold text-foreground">{reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()}</span> for{" "}
+                <span className="font-semibold text-foreground">{reviewBoosterDoc.docNumber ?? reviewBoosterDoc.id.toUpperCase()}</span> for{" "}
                 <span className="font-semibold text-foreground">{reviewBoosterDoc.client.name}</span> is now marked as settled.
               </p>
             </div>
@@ -3258,7 +3258,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               <p className="text-xs text-muted-foreground leading-relaxed font-mono whitespace-pre-wrap">
                 {`Hello ${reviewBoosterDoc.client.name}! 👋
 
-Thank you for settling invoice ${reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏
+Thank you for settling invoice ${reviewBoosterDoc.docNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏
 
 If you're happy with our work, we'd really appreciate a quick 5-star Google Review — it takes just 30 seconds and helps us serve more businesses in Nairobi:
 
@@ -3275,7 +3275,7 @@ Thank you for choosing Krenovate Systems!
             <div className="flex flex-col gap-3">
               <a
                 href={`https://wa.me/${reviewBoosterDoc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                  `Hello ${reviewBoosterDoc.client.name}! 👋\n\nThank you for settling invoice ${reviewBoosterDoc.invoiceNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏\n\nIf you're happy with our work, we'd really appreciate a quick 5-star Google Review — it takes just 30 seconds and helps us serve more businesses in Nairobi:\n\n⭐ Leave a Review → ${GOOGLE_REVIEW_URL}\n\nOr refer a colleague who needs IT support in Nairobi — we'll prioritize their job! 🚀\n\nThank you for choosing Krenovate Systems!\n— Peter Kivevo`
+                  `Hello ${reviewBoosterDoc.client.name}! 👋\n\nThank you for settling invoice ${reviewBoosterDoc.docNumber ?? reviewBoosterDoc.id.toUpperCase()} with Krenovate Systems. We hope our IT services delivered real value for your business! 🙏\n\nIf you're happy with our work, we'd really appreciate a quick 5-star Google Review — it takes just 30 seconds and helps us serve more businesses in Nairobi:\n\n⭐ Leave a Review → ${GOOGLE_REVIEW_URL}\n\nOr refer a colleague who needs IT support in Nairobi — we'll prioritize their job! 🚀\n\nThank you for choosing Krenovate Systems!\n— Peter Kivevo`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

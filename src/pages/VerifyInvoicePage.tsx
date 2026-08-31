@@ -39,7 +39,7 @@ const VerifyInvoicePage: React.FC = () => {
     const match = all.find(
       (inv) =>
         inv.id.toLowerCase() === q.toLowerCase() ||
-        inv.invoiceNumber?.toLowerCase() === q.toLowerCase() ||
+        inv.docNumber?.toLowerCase() === q.toLowerCase() ||
         inv.etimsControlCode?.toLowerCase().includes(q.toLowerCase())
     );
     setHasSearched(true);
@@ -156,7 +156,7 @@ const VerifyInvoicePage: React.FC = () => {
               <div className="p-8 grid md:grid-cols-2 gap-8">
                 {/* Left column */}
                 <div className="space-y-5">
-                  <DetailRow icon={<Hash className="w-4 h-4 text-emerald-400" />} label="Invoice Number" value={verifiedInvoice.invoiceNumber ?? verifiedInvoice.id.toUpperCase()} mono />
+                  <DetailRow icon={<Hash className="w-4 h-4 text-emerald-400" />} label="Invoice Number" value={verifiedInvoice.docNumber ?? verifiedInvoice.id.toUpperCase()} mono />
                   <DetailRow icon={<Calendar className="w-4 h-4 text-blue-400" />} label="Issue Date" value={new Date(verifiedInvoice.issueDate ?? verifiedInvoice.createdAt).toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} />
                   <DetailRow icon={<FileText className="w-4 h-4 text-purple-400" />} label="Document Type" value={verifiedInvoice.docType === "quote" ? "Tax Quotation" : "Tax Invoice"} />
                   <DetailRow icon={<DollarSign className="w-4 h-4 text-amber-400" />} label="Gross Invoice Amount" value={fmt(verifiedInvoice.totalAmount ?? 0)} mono />
