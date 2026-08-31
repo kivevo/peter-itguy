@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
 import About from "@/components/About";
 import TrustBadges from "@/components/TrustBadges";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
-import Testimonials from "@/components/Testimonials";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
+// Heavy below-fold component — lazy loaded
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+  </div>
+);
 import { getWhatsAppUrl } from "@/config/site";
 import { 
   UserCheck, 
@@ -65,9 +73,6 @@ export const AboutPage: React.FC = () => {
     },
   ];
 
-  const scrollToContent = () => {
-    document.getElementById("about-start")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-teal-500 selection:text-white">
@@ -309,7 +314,9 @@ export const AboutPage: React.FC = () => {
         <TrustBadges />
 
         {/* Client Testimonials */}
-        <Testimonials />
+        <Suspense fallback={<SectionLoader />}>
+          <Testimonials />
+        </Suspense>
 
         {/* Pre-footer Call to Action */}
         <CallToActionBand />

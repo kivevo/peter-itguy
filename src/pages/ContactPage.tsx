@@ -1,8 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
-import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
+// Below-fold heavy component — lazy loaded
+const Contact = lazy(() => import("@/components/Contact"));
+
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+  </div>
+);
 import { SITE_CONFIG, getWhatsAppUrl } from "@/config/site";
 import { 
   Phone, 
@@ -253,7 +261,9 @@ export const ContactPage: React.FC = () => {
 
         {/* Main Interactive Contact & Appointment Form Component */}
         <div id="contact-form">
-          <Contact />
+          <Suspense fallback={<SectionLoader />}>
+            <Contact />
+          </Suspense>
         </div>
 
         {/* What to Expect Timeline */}

@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import TrustBar from "@/components/TrustBar";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
 import TechMarquee from "@/components/TechMarquee";
 import Services from "@/components/Services";
-import Portfolio from "@/components/Portfolio";
-import WebsiteSpeedChecker from "@/components/WebsiteSpeedChecker";
-import Testimonials from "@/components/Testimonials";
-import Contact from "@/components/Contact";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import LeadMagnetModal from "@/components/LeadMagnetModal";
 import { Link } from "react-router-dom";
 import { Download, Sparkles, ArrowRight, Layers, FolderGit2, ShieldCheck } from "lucide-react";
+
+// Heavy below-fold components — lazy loaded after hero is visible
+const Portfolio = lazy(() => import("@/components/Portfolio"));
+const WebsiteSpeedChecker = lazy(() => import("@/components/WebsiteSpeedChecker"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const Contact = lazy(() => import("@/components/Contact"));
+
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+  </div>
+);
+
+
 
 const Index: React.FC = () => {
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
@@ -50,7 +60,9 @@ const Index: React.FC = () => {
                 See how fast your website loads for Safaricom &amp; Airtel users, check server latency, and get optimization advice.
               </p>
             </div>
-            <WebsiteSpeedChecker />
+            <Suspense fallback={<SectionLoader />}>
+              <WebsiteSpeedChecker />
+            </Suspense>
             
             <div className="text-center pt-2">
               <Link
@@ -65,13 +77,19 @@ const Index: React.FC = () => {
         </section>
 
         {/* 6. Featured Case Studies & Turnarounds */}
-        <Portfolio />
+        <Suspense fallback={<SectionLoader />}>
+          <Portfolio />
+        </Suspense>
 
         {/* 7. Client Reviews & Social Proof */}
-        <Testimonials />
+        <Suspense fallback={<SectionLoader />}>
+          <Testimonials />
+        </Suspense>
 
         {/* 8. Direct WhatsApp Booking & Inquiry */}
-        <Contact />
+        <Suspense fallback={<SectionLoader />}>
+          <Contact />
+        </Suspense>
 
         {/* 9. Pre-Footer Call to Action Banner */}
         <CallToActionBand />

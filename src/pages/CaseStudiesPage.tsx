@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
-import Portfolio from "@/components/Portfolio";
-import ArchitectureViewer from "@/components/ArchitectureViewer";
-import OfficeNetworkVisualizer from "@/components/OfficeNetworkVisualizer";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
-import Testimonials from "@/components/Testimonials";
 import CallToActionBand from "@/components/CallToActionBand";
 import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
+// Heavy below-fold components — lazy loaded to reduce initial bundle
+const Portfolio = lazy(() => import("@/components/Portfolio"));
+const ArchitectureViewer = lazy(() => import("@/components/ArchitectureViewer"));
+const OfficeNetworkVisualizer = lazy(() => import("@/components/OfficeNetworkVisualizer"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+  </div>
+);
 import { getWhatsAppUrl } from "@/config/site";
 import { 
   FolderGit2, 
@@ -271,7 +279,9 @@ export const CaseStudiesPage: React.FC = () => {
               </p>
             </div>
 
-            <ArchitectureViewer />
+            <Suspense fallback={<SectionLoader />}>
+              <ArchitectureViewer />
+            </Suspense>
           </div>
         </section>
 
@@ -290,15 +300,21 @@ export const CaseStudiesPage: React.FC = () => {
               </p>
             </div>
 
-            <OfficeNetworkVisualizer />
+            <Suspense fallback={<SectionLoader />}>
+              <OfficeNetworkVisualizer />
+            </Suspense>
           </div>
         </section>
 
         {/* Full Case Studies Portfolio Grid */}
-        <Portfolio />
+        <Suspense fallback={<SectionLoader />}>
+          <Portfolio />
+        </Suspense>
 
         {/* Client Testimonials */}
-        <Testimonials />
+        <Suspense fallback={<SectionLoader />}>
+          <Testimonials />
+        </Suspense>
 
         {/* Pre-footer Call to Action */}
         <CallToActionBand />
