@@ -2,71 +2,40 @@ import React, { useState } from "react";
 import { getWhatsAppUrl } from "@/config/site";
 import { dataStorage, InquiryLead } from "@/services/dataStorage";
 import { resendService } from "@/services/resendService";
-import { useToast } from "@/hooks/use-toast";
-import { MessageCircle, X, Send, CheckCircle2, Phone, Sparkles } from "lucide-react";
+import { MessageCircle, X, Sparkles, Send } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export const FloatingWhatsApp: React.FC = () => {
-  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [customMsg, setCustomMsg] = useState("");
-  const [senderName, setSenderName] = useState("");
-  const [senderPhone, setSenderPhone] = useState("");
-  const [isSentDirectly, setIsSentDirectly] = useState(false);
 
   const quickPrompts = [
-    "🚨 I need emergency help with a broken computer / Wi-Fi",
-    "🌐 I want a quote for a new fast business website",
-    "📹 I need security cameras (CCTV) for my office / home",
-    "🏢 I want monthly IT support for our office / shops",
+    { label: "🚨 Emergency Wi-Fi / Computer Fix", text: "Hi Peter, I need urgent emergency help with a broken computer / Wi-Fi issue." },
+    { label: "🌐 Fast Business Website Quote", text: "Hi Peter, I'd like a quote for a new fast mobile-friendly business website." },
+    { label: "📹 CCTV Cameras & Security Setup", text: "Hi Peter, I need a proposal for CCTV security cameras for my office/premises." },
+    { label: "🏢 Monthly Business IT Support", text: "Hi Peter, I'd like to discuss monthly retainer IT support for our office & computers." },
   ];
 
   const handleOpenWhatsApp = (textToSend?: string) => {
     const message = textToSend || customMsg || "Hi Peter, I need quick IT help for my business.";
-    window.open(getWhatsAppUrl(message), "_blank");
-    setIsOpen(false);
-    setCustomMsg("");
-  };
-
-  const handleSendDirectlyFromWeb = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!senderPhone.trim()) {
-      toast({
-        title: "Phone number required",
-        description: "Please enter your phone number so Peter can get back to you.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    
+    // Log inquiry lead for Peter's CRM records
     const lead: InquiryLead = {
       id: `inq_${Date.now()}`,
       source: "floating_chat",
-      name: senderName.trim() || "Chat Visitor",
-      phone: senderPhone.trim(),
-      service: "Quick Help Inquiry",
-      details: customMsg.trim() || "General IT / website inquiry via floating chat widget",
+      name: "WhatsApp Visitor",
+      phone: "Via WhatsApp",
+      service: "Direct WhatsApp Inquiry",
+      details: message,
       status: "new",
       createdAt: new Date().toISOString(),
     };
-
     dataStorage.addInquiry(lead);
-
-    // Send immediate email alert to Peter via Resend
     resendService.notifyNewInquiry(lead);
 
-    setIsSentDirectly(true);
-    toast({
-      title: "Message Dispatched to Peter! 🚀",
-      description: `Peter has been alerted via email and will call or WhatsApp ${senderPhone} shortly.`,
-    });
-
-    setTimeout(() => {
-      setIsSentDirectly(false);
-      setIsOpen(false);
-      setCustomMsg("");
-      setSenderName("");
-      setSenderPhone("");
-    }, 2500);
+    window.open(getWhatsAppUrl(message), "_blank");
+    setIsOpen(false);
+    setCustomMsg("");
   };
 
   return (
@@ -78,9 +47,7 @@ export const FloatingWhatsApp: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-border/80">
             <div className="flex items-center gap-2.5">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm">
-                  P
-                </div>
+                <BrandLogo className="w-10 h-10" />
                 <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-card" />
               </div>
               <div>
@@ -101,88 +68,51 @@ export const FloatingWhatsApp: React.FC = () => {
             </button>
           </div>
 
-          {isSentDirectly ? (
-            <div className="py-6 text-center space-y-2 bg-emerald-500/10 rounded-2xl border border-emerald-500/30 p-4 animate-in fade-in">
-              <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-              <p className="font-heading font-bold text-sm text-foreground">
-                Message Sent Directly!
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Peter will contact you right away.
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="text-xs text-muted-foreground">
-                Need urgent computer help, Wi-Fi setup, or a fast website in Kenya? Send a direct message or open in WhatsApp:
-              </p>
+          <p className="text-xs text-muted-foreground">
+            Need urgent computer repair, office Wi-Fi setup, or a fast website in Kenya? Tap a topic or type your message to chat directly on WhatsApp:
+          </p>
 
-              {/* Quick Click Prompts */}
-              <div className="space-y-1.5">
-                {quickPrompts.map((prompt, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCustomMsg(prompt)}
-                    className={`w-full text-left text-xs p-2 rounded-xl transition-colors border ${
-                      customMsg === prompt 
-                        ? "bg-teal-500/20 text-teal-700 dark:text-teal-300 border-teal-500/40"
-                        : "bg-muted/60 hover:bg-teal-500/10 text-foreground border-border/60"
-                    }`}
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
+          {/* Quick Click Prompts */}
+          <div className="space-y-1.5">
+            {quickPrompts.map((prompt, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCustomMsg(prompt.text)}
+                className={`w-full text-left text-xs p-2.5 rounded-xl transition-colors border ${
+                  customMsg === prompt.text
+                    ? "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40 font-semibold"
+                    : "bg-muted/60 hover:bg-emerald-500/10 text-foreground border-border/60"
+                }`}
+              >
+                {prompt.label}
+              </button>
+            ))}
+          </div>
 
-              {/* Direct Form */}
-              <form onSubmit={handleSendDirectlyFromWeb} className="space-y-2 pt-1">
-                <input
-                  type="text"
-                  value={customMsg}
-                  onChange={(e) => setCustomMsg(e.target.value)}
-                  placeholder="Describe your issue or question..."
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-muted border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                />
+          {/* Message Input */}
+          <div className="space-y-2 pt-1">
+            <textarea
+              rows={2}
+              value={customMsg}
+              onChange={(e) => setCustomMsg(e.target.value)}
+              placeholder="Or describe your issue / requirement here..."
+              className="w-full px-3 py-2 text-xs rounded-xl bg-muted border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+            />
 
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                    placeholder="Your Name (Optional)"
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-muted border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                  />
-                  <input
-                    type="tel"
-                    required
-                    value={senderPhone}
-                    onChange={(e) => setSenderPhone(e.target.value)}
-                    placeholder="Phone/WhatsApp *"
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-muted border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                  />
-                </div>
+            <button
+              type="button"
+              onClick={() => handleOpenWhatsApp()}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow active:scale-98"
+            >
+              <MessageCircle className="w-4 h-4 fill-white" />
+              <span>Open in WhatsApp (Fastest Response)</span>
+            </button>
 
-                <div className="flex gap-2 pt-1">
-                  <button
-                    type="submit"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs shadow-sm transition-colors"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Send Message</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleOpenWhatsApp()}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-colors"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Open WhatsApp</span>
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
+            <p className="text-[10.5px] text-muted-foreground text-center">
+              ⚡ Opens WhatsApp directly with your message pre-typed — ready to send.
+            </p>
+          </div>
         </div>
       )}
 

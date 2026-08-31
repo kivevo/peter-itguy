@@ -1,21 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { getWhatsAppUrl } from "@/config/site";
-import { dataStorage, InquiryLead } from "@/services/dataStorage";
-import { resendService } from "@/services/resendService";
-import { useToast } from "@/hooks/use-toast";
 import { KenyaLocationPicker, KenyaLocationValue } from "@/components/KenyaLocationPicker";
-import SubmissionSuccessModal, { SubmissionDetails } from "@/components/SubmissionSuccessModal";
 import { 
   Calculator, 
   Check, 
   MessageCircle, 
-  Send,
-  Sparkles, 
-  ShieldCheck,
-  CheckCircle2,
   FileText,
   Clock,
-  MapPin
+  Sparkles
 } from "lucide-react";
 
 interface ScopeOption {
@@ -27,15 +19,9 @@ interface ScopeOption {
 }
 
 export const QuickQuoteEstimator: React.FC = () => {
-  const { toast } = useToast();
   const [selectedScopes, setSelectedScopes] = useState<string[]>(["wifi_setup"]);
   const [urgencyLabel, setUrgencyLabel] = useState<string>("Standard (This Week)");
   const [location, setLocation] = useState<string>("Parklands / Highridge, Westlands, Nairobi City");
-  const [clientName, setClientName] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
-  const [showDirectForm, setShowDirectForm] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [successModalDetails, setSuccessModalDetails] = useState<SubmissionDetails | null>(null);
 
   const handleLocationChange = useCallback((loc: KenyaLocationValue) => {
     setLocation(loc.formattedLocation);
@@ -87,7 +73,6 @@ export const QuickQuoteEstimator: React.FC = () => {
   ];
 
   const toggleScope = (id: string) => {
-    setIsSubmitted(false);
     if (selectedScopes.includes(id)) {
       if (selectedScopes.length > 1) {
         setSelectedScopes(selectedScopes.filter((item) => item !== id));
@@ -97,68 +82,16 @@ export const QuickQuoteEstimator: React.FC = () => {
     }
   };
 
-  const handleDirectWebSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clientPhone.trim()) {
-      toast({
-        title: "Phone number required",
-        description: "Please provide a phone number so Peter can deliver your custom proposal.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const selectedNames = selectedScopes
-      .map((id) => scopeCatalog.find((s) => s.id === id)?.name)
-      .filter(Boolean)
-      .join(", ");
-
-    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
-    const lead: InquiryLead = {
-      id: `inq_${Date.now()}`,
-      source: "quote_estimator",
-      name: clientName.trim() || "Website Visitor",
-      phone: clientPhone.trim(),
-      service: `Custom Scope: ${selectedNames}`,
-      urgency: urgencyLabel,
-      details: `Selected Scope: ${selectedNames} | Timeline: ${urgencyLabel} | Location: ${location}`,
-      status: "new",
-      createdAt: new Date().toISOString(),
-    };
-
-    dataStorage.addInquiry(lead);
-
-    // Instant lead email alert to Peter (fire-and-forget)
-    resendService.notifyNewInquiry(lead);
-
-    const waText = `Hi Peter,\n\nI built a custom project scope on your website.\n\n*Ticket:* #${ticketId}\n*Name:* ${clientName.trim() || "Client"}\n*Phone:* ${clientPhone.trim()}\n*Services Needed:*\n• ${selectedNames}\n\n*Location:* ${location}\n*Timeline:* ${urgencyLabel}\n\nPlease review and provide a quotation.`;
-    const waUrl = getWhatsAppUrl(waText);
-
-    setIsSubmitted(true);
-
-    // Show rich success modal that auto-opens WhatsApp
-    setSuccessModalDetails({
-      ticketId,
-      name: clientName.trim() || "Client",
-      phone: clientPhone.trim(),
-      service: `Custom Scope (${selectedScopes.length} items)`,
-      location,
-      urgency: urgencyLabel,
-      waUrl,
-    });
-  };
-
   const generateWhatsAppMessage = () => {
     const selectedNames = selectedScopes
       .map((id) => scopeCatalog.find((s) => s.id === id)?.name)
       .filter(Boolean)
       .join("\n• ");
 
-    return `Hi Peter,\n\nI selected my project requirements on your website:\n\nServices Needed:\n• ${selectedNames}\n\nLocation: *${location}*\nTimeline: *${urgencyLabel}*\n${clientName ? `Name: ${clientName}\nPhone: ${clientPhone}\n` : ""}\nCould you review these requirements and provide a custom proposal / quote?`;
+    return `Hi Peter,\n\nI selected my project requirements on your website:\n\nServices Needed:\n• ${selectedNames}\n\nLocation: *${location}*\nTimeline: *${urgencyLabel}*\n\nCould you review these requirements and provide a custom proposal / quote?`;
   };
 
   return (
-    <>
     <section className="py-20 lg:py-28 bg-background dark:bg-navy-950 relative border-t border-border/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl">
         {/* Section Header */}
@@ -312,92 +245,27 @@ export const QuickQuoteEstimator: React.FC = () => {
                 })}
               </div>
 
-              {isSubmitted ? (
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 space-y-2 text-center animate-in fade-in">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-                  <p className="font-heading font-bold text-sm">
-                    Scope Request Sent Successfully!
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Peter has received your selected scope and will reach out to discuss your custom proposal.
-                  </p>
-                </div>
-              ) : (
                 <div className="space-y-3 pt-2">
-                  {showDirectForm ? (
-                    <form onSubmit={handleDirectWebSubmit} className="space-y-2.5 p-3.5 rounded-2xl bg-muted/40 border border-border">
-                      <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                        <span>Send Scope Directly from Web</span>
-                        <button
-                          type="button"
-                          onClick={() => setShowDirectForm(false)}
-                          className="text-muted-foreground hover:text-foreground text-[11px] underline"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                  <a
+                    href={getWhatsAppUrl(generateWhatsAppMessage())}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow active:scale-98"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                    <span>Send Scope on WhatsApp (Instant Estimate)</span>
+                  </a>
 
-                      <input
-                        type="text"
-                        value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
-                        placeholder="Your Name (e.g. Mary Wanjiku)"
-                        className="w-full px-3 py-2 text-xs rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                      />
-
-                      <input
-                        type="tel"
-                        required
-                        value={clientPhone}
-                        onChange={(e) => setClientPhone(e.target.value)}
-                        placeholder="Phone / WhatsApp Number *"
-                        className="w-full px-3 py-2 text-xs rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                      />
-
-                      <button
-                        type="submit"
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Submit Project Scope</span>
-                      </button>
-                    </form>
-                  ) : (
-                    <div className="space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowDirectForm(true)}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
-                      >
-                        <Send className="w-4 h-4" />
-                        <span>Request Custom Quotation</span>
-                      </button>
-
-                      <div className="flex gap-2">
-                        <a
-                          href={getWhatsAppUrl(generateWhatsAppMessage())}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>WhatsApp Quote</span>
-                        </a>
-
-                        <button
-                          type="button"
-                          onClick={() => window.print()}
-                          title="Print or Save as PDF Proposal"
-                          className="px-3.5 py-3 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold flex items-center gap-1.5 transition-all"
-                        >
-                          <FileText className="w-4 h-4 text-teal-500" />
-                          <span>Save PDF</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    title="Print or Save as PDF Proposal"
+                    className="w-full py-2.5 rounded-xl border border-border bg-muted/50 hover:bg-muted text-foreground text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <FileText className="w-4 h-4 text-teal-500" />
+                    <span>Save / Print Scope as PDF</span>
+                  </button>
                 </div>
-              )}
 
               <p className="text-[11px] text-center text-muted-foreground">
                 🔒 Free initial consultation. Transparent, itemized pricing discussed directly with Peter.
@@ -407,14 +275,6 @@ export const QuickQuoteEstimator: React.FC = () => {
         </div>
       </div>
     </section>
-
-    {/* Client Submission Confirmation Modal */}
-    <SubmissionSuccessModal
-      isOpen={!!successModalDetails}
-      onClose={() => setSuccessModalDetails(null)}
-      details={successModalDetails}
-    />
-    </>
   );
 };
 

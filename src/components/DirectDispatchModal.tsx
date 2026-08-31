@@ -154,7 +154,7 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
             <span>Fast Engineer Response</span>
           </div>
           <h3 className="text-2xl font-extrabold font-heading text-foreground">
-            Send Message to Peter Kivevo
+            Book Direct IT Support with Peter
           </h3>
           <p className="text-xs text-muted-foreground">
             Direct line: <strong className="text-foreground">{siteInfo.phoneDisplay}</strong> • Average reply within 15 minutes.
@@ -273,29 +273,19 @@ export const DirectDispatchModal: React.FC<DirectDispatchModalProps> = ({
             </div>
 
             {/* Submit Action */}
-            <div className="pt-2 space-y-2.5">
+            <div className="pt-2 space-y-2">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-sm shadow-md transition-all hover:shadow-glow disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-glow transition-all active:scale-98 disabled:opacity-60"
               >
-                <Send className="w-4 h-4" />
-                <span>{isSubmitting ? "Sending Request to Peter..." : "Send Message to Peter"}</span>
+                <MessageCircle className="w-5 h-5 text-white fill-white" />
+                <span>{isSubmitting ? "Connecting to WhatsApp..." : "Send Inquiry on WhatsApp (Instant Response)"}</span>
               </button>
 
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-                <span>🔒 Direct engineer inbox • Fast response</span>
-                <a
-                  href={getWhatsAppUrl(message, service)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
-                >
-                  <MessageCircle className="w-3 h-3" />
-                  <span>Open in WhatsApp</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-              </div>
+              <p className="text-[11px] text-muted-foreground text-center">
+                ⚡ Saves your ticket in Peter's CRM and opens WhatsApp with your details pre-filled.
+              </p>
             </div>
           </form>
         </div>

@@ -298,90 +298,20 @@ export const InstantIssueWizard: React.FC = () => {
             </p>
           </div>
         ) : (
-          /* Dual Action Options */
-          <div className="space-y-4 pt-1">
-            {showDirectForm ? (
-              /* Inline Direct Form */
-              <form onSubmit={handleDirectWebSubmit} className="p-4 rounded-2xl bg-card dark:bg-navy-950 border border-border space-y-3.5">
-                <div className="flex items-center justify-between pb-2 border-b border-border text-xs font-heading font-bold text-foreground">
-                  <span>Send Inquiry to Peter</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowDirectForm(false)}
-                    className="text-muted-foreground hover:text-foreground text-[11px] underline"
-                  >
-                    Cancel
-                  </button>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">Your Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      placeholder="e.g. David Mwangi"
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-muted/60 dark:bg-navy-900 border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">Phone Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      placeholder="+254 7XX XXX XXX"
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-muted/60 dark:bg-navy-900 border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                  <button
-                    type="submit"
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all hover:shadow-glow"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Submit Request</span>
-                  </button>
-                  
-                  <a
-                    href={getWhatsAppUrl(generatedWhatsAppText)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Chat on WhatsApp</span>
-                  </a>
-                </div>
-              </form>
-            ) : (
-              /* Default Instant Buttons */
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowDirectForm(true)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:shadow-glow"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>Submit Request</span>
-                </button>
-
-                <a
-                  href={getWhatsAppUrl(generatedWhatsAppText)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:shadow-glow flex-shrink-0"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Chat on WhatsApp</span>
-                </a>
-              </div>
-            )}
+          /* Single Instant WhatsApp Action */
+          <div className="space-y-2 pt-1">
+            <a
+              href={getWhatsAppUrl(generatedWhatsAppText)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg hover:shadow-glow transition-all active:scale-98"
+            >
+              <MessageCircle className="w-5 h-5 text-white fill-white" />
+              <span>Send Diagnosis &amp; Book on WhatsApp (Instant Response)</span>
+            </a>
+            <p className="text-[11px] text-muted-foreground text-center">
+              ⚡ Opens WhatsApp directly with your location &amp; problem diagnosis pre-typed.
+            </p>
           </div>
         )}
       </div>
