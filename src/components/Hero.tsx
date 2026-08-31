@@ -14,7 +14,8 @@ import {
   Globe2, 
   CheckCircle2, 
   Clock, 
-  QrCode
+  QrCode,
+  ChevronDown
 } from "lucide-react";
 import { ProfilePhoto } from "@/components/ProfilePhoto";
 
@@ -73,14 +74,16 @@ export const Hero: React.FC = () => {
 
   return (
     <>
-    <section id="home" className="relative pt-24 sm:pt-28 lg:pt-36 pb-12 sm:pb-16 lg:pb-20 overflow-hidden bg-background dark:bg-navy-950 flex items-center"
+    <section
+      id="home"
+      className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-4 overflow-hidden bg-background dark:bg-navy-950 flex flex-col justify-between"
     >
       {/* Background Tech Grids & Soft Ambient Glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-navy-800/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 my-auto py-2">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center">
           {/* Left Column: Clear Value Proposition — full width on mobile/tablet */}
           <div className="lg:col-span-7 space-y-5 lg:pr-4">
@@ -265,6 +268,21 @@ export const Hero: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Scroll Indicator */}
+      <div className="pt-2 pb-2 text-center relative z-10">
+        <a
+          href="#trust-bar"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById("trust-bar")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono text-muted-foreground hover:text-teal-500 dark:hover:text-teal-400 transition-colors group cursor-pointer"
+        >
+          <span>Scroll down to explore operational proof &amp; services</span>
+          <ChevronDown className="w-3.5 h-3.5 text-teal-500 animate-bounce group-hover:translate-y-0.5 transition-transform" />
+        </a>
       </div>
     </section>
 

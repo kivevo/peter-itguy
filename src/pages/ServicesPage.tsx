@@ -117,13 +117,13 @@ export const ServicesPage: React.FC = () => {
 
       <main className="flex-1">
         {/* Full-Screen High-Impact 2-Column Hero */}
-        <section className="relative pt-24 sm:pt-28 lg:pt-36 pb-10 sm:pb-14 lg:pb-16 bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 overflow-hidden">
+        <section className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-4 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 overflow-hidden">>
           {/* Ambient Glows */}
           <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* 2-Column Hero Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto py-2">
             <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center">
               {/* Left Column: Value Proposition & CTAs */}
               <div className="lg:col-span-7 space-y-4 sm:space-y-5 text-center lg:text-left">
@@ -194,7 +194,7 @@ export const ServicesPage: React.FC = () => {
               </div>
 
               {/* Right Column: Interactive Live Service Navigator Widget */}
-              <div className="hidden lg:block lg:col-span-5">
+              <div className="mt-6 lg:mt-0 lg:col-span-5">
                 <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
                   <div className="flex items-center justify-between pb-3 border-b border-border/80">
                     <div className="flex items-center gap-2">

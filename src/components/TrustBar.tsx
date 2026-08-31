@@ -90,6 +90,7 @@ export const TrustBar: React.FC = () => {
 
   return (
     <section
+      id="trust-bar"
       ref={ref as React.RefObject<HTMLDivElement>}
       className="relative z-20 py-10 bg-muted/40 dark:bg-navy-900/90 border-y border-border/80"
     >
