@@ -721,15 +721,23 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     return `Dear ${doc.client.name},\n\nFriendly payment reminder from *${profile.name}* regarding *Invoice #${doc.docNumber}*.\n\n*Client:* ${doc.client.company}\n*Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n${paidSoFar > 0 ? `*Paid to Date:* ${doc.currency} ${paidSoFar.toLocaleString()}\n` : ""}*Outstanding Balance:* ${doc.currency} ${balance.toLocaleString()}\n*Due Date:* ${doc.dueDate}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})\n${hasBank ? `• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}\n` : ""}• Ref: ${doc.docNumber}\n\nPlease share your M-Pesa confirmation code once sent. Thank you!`;
   };
 
-  // Dedicated High-Resolution Clean A4 Print Handler (Eliminates extra blank pages & background fluff)
+  // Dedicated High-Resolution Clean A4 Print & PDF Generator (Complete Standalone CSS)
   const handlePrintDocument = (doc: InvoiceDocument) => {
-    const printElement = document.getElementById("krenovate-print-document");
-    if (!printElement) {
-      window.print();
-      return;
-    }
+    const totals = calculateDocTotals(doc);
+    const profile = companyProfile;
+    const hasBank =
+      profile.includeBankDetails !== false &&
+      Boolean(profile.bankName?.trim()) &&
+      Boolean(profile.bankAccountNumber?.trim());
 
-    const win = window.open("", "_blank", "width=850,height=1100");
+    const docTitle =
+      doc.docType === "quotation"
+        ? "FORMAL QUOTATION"
+        : doc.docType === "invoice"
+        ? "TAX INVOICE"
+        : "OFFICIAL RECEIPT";
+
+    const win = window.open("", "_blank", "width=900,height=1100");
     if (!win) {
       window.print();
       return;
@@ -739,43 +747,464 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${doc.docType.toUpperCase()} - ${doc.docNumber}</title>
+        <title>${docTitle} - ${doc.docNumber}</title>
         <meta charset="utf-8" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet" />
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           html, body {
             background: #ffffff !important;
             color: #0f172a !important;
             font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-            font-size: 11px;
+            font-size: 11.5px;
             line-height: 1.5;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          .print-wrapper {
-            max-width: 800px;
+          .page {
+            max-width: 820px;
             margin: 0 auto;
-            padding: 24px 28px;
+            padding: 32px 36px;
             background: #ffffff;
           }
-          table { width: 100%; border-collapse: collapse; }
-          th, td { padding: 8px 10px; }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #0d9488;
+            margin-bottom: 18px;
+          }
+          .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #0d9488;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .company-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1.1;
+          }
+          .company-tagline {
+            font-size: 10px;
+            color: #0d9488;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .company-details {
+            font-size: 10.5px;
+            color: #475569;
+            margin-top: 8px;
+            line-height: 1.4;
+          }
+          .doc-meta {
+            text-align: right;
+          }
+          .doc-badge {
+            display: inline-block;
+            background: #0d9488;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 5px 14px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+          }
+          .doc-meta-table {
+            font-size: 11px;
+            color: #334155;
+            font-family: ui-monospace, monospace;
+            line-height: 1.6;
+          }
+          .doc-meta-table strong {
+            color: #0f172a;
+          }
+          .client-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+          }
+          .client-col h4 {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 2px;
+          }
+          .client-col p {
+            font-size: 11px;
+            color: #475569;
+          }
+          .section-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 4px;
+            display: block;
+          }
+          table.items-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+          }
+          table.items-table th {
+            background: #1e293b;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 9px 12px;
+            text-align: left;
+          }
+          table.items-table td {
+            padding: 8px 12px;
+            font-size: 11px;
+            border-bottom: 1px solid #f1f5f9;
+          }
+          table.items-table tr:nth-child(even) td {
+            background: #f8fafc;
+          }
+          .num-cell {
+            text-align: right;
+            font-family: ui-monospace, monospace;
+            font-weight: 600;
+          }
+          .center-cell {
+            text-align: center;
+            font-family: ui-monospace, monospace;
+          }
+          .bottom-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 18px;
+            margin-bottom: 16px;
+          }
+          .notes-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 10.5px;
+            color: #334155;
+            white-space: pre-line;
+            line-height: 1.5;
+          }
+          .totals-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: ui-monospace, monospace;
+            font-size: 11px;
+          }
+          .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            color: #475569;
+          }
+          .totals-row.gross {
+            border-top: 2px solid #0f172a;
+            padding-top: 6px;
+            margin-top: 4px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+          }
+          .totals-row.net {
+            border-top: 2px solid #0d9488;
+            background: #f0fdf4;
+            padding: 6px 8px;
+            margin-top: 6px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #166534;
+          }
+          .wht-notice {
+            background: #fefce8;
+            border: 1px solid #fef08a;
+            color: #854d0e;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-family: ui-monospace, monospace;
+            margin-bottom: 16px;
+            line-height: 1.4;
+          }
+          .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            padding-top: 14px;
+            border-top: 2px solid #e2e8f0;
+            margin-bottom: 14px;
+          }
+          .pay-box {
+            background: #f0fdfa;
+            border: 1px solid #ccfbf1;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: ui-monospace, monospace;
+            font-size: 10.5px;
+            color: #115e59;
+            line-height: 1.5;
+          }
+          .sign-box {
+            text-align: right;
+            display: flex;
+            flex-col;
+            align-items: flex-end;
+            justify-content: flex-end;
+          }
+          .sign-line {
+            width: 180px;
+            border-top: 1px solid #334155;
+            padding-top: 4px;
+            text-align: center;
+            margin-left: auto;
+          }
+          .signature-text {
+            font-family: 'Caveat', cursive;
+            font-size: 22px;
+            color: #0f172a;
+            display: block;
+            margin-bottom: 2px;
+          }
+          .etims-block {
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-family: ui-monospace, monospace;
+            font-size: 9.5px;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+          }
+          .etims-badge {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+          }
           @page {
             size: A4 portrait;
-            margin: 10mm 12mm;
+            margin: 8mm;
           }
           @media print {
-            body { padding: 0; margin: 0; }
-            .print-wrapper { padding: 0; max-width: 100%; }
+            body { margin: 0; padding: 0; }
+            .page { padding: 12px 16px; max-width: 100%; }
           }
         </style>
       </head>
       <body>
-        <div class="print-wrapper">
-          ${printElement.innerHTML}
+        <div class="page">
+          <!-- Header -->
+          <div class="header">
+            <div>
+              <div class="logo-group">
+                ${
+                  profile.logoUrl
+                    ? `<img src="${profile.logoUrl}" alt="${profile.name}" style="height:44px;object-fit:contain;" />`
+                    : `<div class="logo-icon">K</div>`
+                }
+                <div>
+                  <div class="company-name">${profile.name}</div>
+                  <div class="company-tagline">${profile.tagline || "Enterprise IT Support & Digital Engineering"}</div>
+                </div>
+              </div>
+              <div class="company-details">
+                ${profile.address} · Phone: ${profile.phone} · Email: ${profile.email}<br />
+                Web: ${profile.website} · <strong>KRA PIN: ${profile.kraPin}</strong>
+              </div>
+            </div>
+            <div class="doc-meta">
+              <div class="doc-badge">${docTitle}</div>
+              <div class="doc-meta-table">
+                <div>Document No: <strong>${doc.docNumber}</strong></div>
+                <div>Date Issued: <strong>${doc.issueDate}</strong></div>
+                <div>${doc.docType === "quotation" ? "Valid Until:" : "Due Date:"} <strong>${doc.dueDate}</strong></div>
+                <div>Status: <strong style="text-transform:uppercase;color:#0d9488;">${doc.status}</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Details -->
+          <div class="client-grid">
+            <div class="client-col">
+              <span class="section-label">Billed To / Client Organization</span>
+              <h4>${doc.client.company || doc.client.name}</h4>
+              <p>Attn: ${doc.client.name}</p>
+              <p>${doc.client.address || "Nairobi, Kenya"}</p>
+            </div>
+            <div class="client-col" style="text-align:right;">
+              <span class="section-label">Client Contact Details</span>
+              <p style="font-family:ui-monospace, monospace;font-weight:600;">${doc.client.phone}</p>
+              ${doc.client.email ? `<p>${doc.client.email}</p>` : ""}
+              ${doc.client.kraPin ? `<p style="font-family:ui-monospace, monospace;color:#0f172a;"><strong>Client KRA PIN: ${doc.client.kraPin}</strong></p>` : ""}
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width:36px;text-align:center;">#</th>
+                <th>Item / Service Description</th>
+                <th style="width:60px;text-align:center;">Qty</th>
+                <th style="width:110px;text-align:right;">Unit (${doc.currency})</th>
+                <th style="width:120px;text-align:right;">Total (${doc.currency})</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${doc.items
+                .map(
+                  (item, idx) => `
+                <tr>
+                  <td class="center-cell">${idx + 1}</td>
+                  <td><strong>${item.desc}</strong></td>
+                  <td class="center-cell">${item.qty}</td>
+                  <td class="num-cell">${item.unitPrice.toLocaleString()}</td>
+                  <td class="num-cell"><strong>${(item.qty * item.unitPrice).toLocaleString()}</strong></td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+
+          <!-- Bottom Grid: Notes & Totals -->
+          <div class="bottom-grid">
+            <div>
+              <span class="section-label">Terms &amp; Payment Conditions</span>
+              <div class="notes-box">
+                ${doc.notes || "Payment due within stated terms. Hardware remains property of supplier until full payment."}
+              </div>
+            </div>
+            <div>
+              <span class="section-label">Financial Calculation Summary</span>
+              <div class="totals-box">
+                <div class="totals-row">
+                  <span>Subtotal:</span>
+                  <strong>${doc.currency} ${totals.rawSubtotal.toLocaleString()}</strong>
+                </div>
+                ${
+                  totals.discountAmount > 0
+                    ? `
+                  <div class="totals-row" style="color:#b45309;">
+                    <span>Discount:</span>
+                    <span>- ${doc.currency} ${totals.discountAmount.toLocaleString()}</span>
+                  </div>
+                `
+                    : ""
+                }
+                ${
+                  doc.vatEnabled
+                    ? `
+                  <div class="totals-row">
+                    <span>VAT (16% KRA):</span>
+                    <span>+ ${doc.currency} ${totals.vatAmount.toLocaleString()}</span>
+                  </div>
+                `
+                    : ""
+                }
+                <div class="totals-row gross">
+                  <span>GROSS TOTAL:</span>
+                  <span>${doc.currency} ${totals.grandTotal.toLocaleString()}</span>
+                </div>
+                ${
+                  doc.whtEnabled
+                    ? `
+                  <div class="totals-row" style="color:#047857;border-top:1px dashed #cbd5e1;padding-top:4px;margin-top:4px;">
+                    <span>Less 5% WHT (Client Deducts):</span>
+                    <span>- ${doc.currency} ${totals.whtAmount.toLocaleString()}</span>
+                  </div>
+                  <div class="totals-row net">
+                    <span>NET PAYABLE:</span>
+                    <span>${doc.currency} ${totals.netReceivable.toLocaleString()}</span>
+                  </div>
+                `
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+
+          ${
+            doc.whtEnabled
+              ? `
+            <div class="wht-notice">
+              <strong>⚖️ KRA Withholding Tax (WHT 5%) Compliance Notice:</strong><br />
+              Corporate client will deduct 5% WHT (${doc.currency} ${totals.whtAmount.toLocaleString()}) and remit to KRA, then issue a formal KRA WHT Certificate under Supplier KRA PIN: <strong>${profile.kraPin}</strong>.
+            </div>
+          `
+              : ""
+          }
+
+          <!-- Footer: Payment Info & Signature -->
+          <div class="footer-grid">
+            <div class="pay-box">
+              <strong>Official Payment Instructions:</strong><br />
+              • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br />
+              ${
+                hasBank
+                  ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${
+                      profile.bankBranch ? ` (${profile.bankBranch})` : ""
+                    }<br />`
+                  : ""
+              }
+              • Document Reference: <strong>${doc.docNumber}</strong>
+            </div>
+            <div class="sign-box">
+              <div class="sign-line">
+                <span class="signature-text">${profile.authorizedSignatory || "Peter Kivevo"}</span>
+                <span style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Authorized Signatory &amp; Stamp</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- eTIMS Fiscal Compliance Footer -->
+          <div class="etims-block">
+            <div>
+              <span class="etims-badge">KRA eTIMS</span>
+              CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control Code: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong>
+            </div>
+            <div>
+              Internal Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
+            </div>
+          </div>
         </div>
         <script>
           window.onload = function() {
@@ -1334,13 +1763,22 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                                 </a>
                               )}
 
+                              {/* Direct Instant Print PDF */}
+                              <button
+                                onClick={() => handlePrintDocument(doc)}
+                                title="Instant Print / Save PDF"
+                                className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400 hover:bg-teal-500 hover:text-white border border-teal-500/20 transition-colors"
+                              >
+                                <Printer className="w-3.5 h-3.5" />
+                              </button>
+
                               {/* Preview */}
                               <button
                                 onClick={() => {
                                   setCurrentDoc(doc);
                                   setSubView("preview");
                                 }}
-                                title="Preview & Print PDF"
+                                title="Preview on Screen"
                                 className="p-1.5 rounded-lg bg-navy-950 text-slate-300 hover:text-white border border-border hover:border-teal-500"
                               >
                                 <Eye className="w-3.5 h-3.5" />
