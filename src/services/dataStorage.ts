@@ -143,6 +143,15 @@ export interface InvoiceDocument {
   recurringFrequency?: "monthly" | "quarterly" | "annually";
   proForma?: boolean;
   workCompletion?: boolean;
+  // KRA Tax & eTIMS Compliance
+  taxScheme?: "none" | "vat_16" | "tot_3" | "zero_rated" | "exempt";
+  whtEnabled?: boolean;
+  whtPercent?: number;
+  whtAmount?: number;
+  whtCertificateNo?: string;
+  etimsControlCode?: string;
+  etimsInternalSign?: string;
+  etimsQrData?: string;
 }
 
 export interface InvoicePayment {
@@ -201,6 +210,61 @@ export interface InventoryItem {
   warrantyExpiry?: string;
   notes?: string;
   createdAt: string;
+}
+
+export interface KRAProfileSettings {
+  taxpayerName: string;
+  kraPin: string;
+  taxObligation: "turnover_tax" | "standard_vat" | "income_tax_only" | "exempt";
+  turnoverTaxRate: number; // default 3%
+  vatRate: number; // default 16%
+  whtRate: number; // default 5%
+  whtVatRate: number; // default 2%
+  annualPersonalRelief: number; // default 28800 KES (2,400/mo)
+  insuranceRelief: number; // default 0 KES
+  housingRelief: number; // default 0 KES
+  etimsSerialNumber: string;
+  etimsBranchId: string;
+  etimsControlPrefix: string;
+  autoGenerateEtimsSignature: boolean;
+  businessType: "sole_proprietor" | "limited_company" | "partnership";
+}
+
+export interface WhtCertificateRecord {
+  id: string;
+  certificateNumber: string;
+  withholdingAgentName: string;
+  withholdingAgentPin: string;
+  invoiceId?: string;
+  invoiceDocNumber?: string;
+  grossAmount: number;
+  whtAmount: number;
+  whtType: "management_professional_5" | "consultancy_5" | "contractual_3" | "rent_10" | "whvat_2";
+  dateWithheld: string;
+  taxPeriod: string; // e.g. "2026-08" or "2026"
+  status: "verified" | "claimed" | "pending";
+  notes?: string;
+  createdAt: string;
+}
+
+export interface KRATaxReturnSummary {
+  periodType: "monthly" | "annual";
+  periodLabel: string;
+  grossSales: number;
+  totalVatInvoiced: number;
+  totalExpenses: number;
+  allowableDeductions: number;
+  netTaxableIncome: number;
+  outputTax: number;
+  inputTaxCredit: number;
+  whtDeductedCredits: number;
+  grossTaxLiability: number;
+  personalRelief: number;
+  netTaxPayable: number;
+  isRefund: boolean;
+  dueDate: string;
+  daysRemaining: number;
+  filingStatus: "due_soon" | "overdue" | "ready" | "filed";
 }
 
 export interface SubscriberItem {
@@ -277,7 +341,60 @@ const STORAGE_KEYS = {
   PAYMENTS: "itguy_payment_records_v1",
   EXPENSES: "itguy_expense_records_v1",
   INVENTORY: "itguy_inventory_items_v1",
+  KRA_SETTINGS: "itguy_kra_profile_settings_v1",
+  WHT_CERTIFICATES: "itguy_wht_certificates_v1",
 };
+
+export const DEFAULT_KRA_PROFILE: KRAProfileSettings = {
+  taxpayerName: "Peter Kivevo John / Krenovate Systems",
+  kraPin: "P051892401K",
+  taxObligation: "turnover_tax",
+  turnoverTaxRate: 3,
+  vatRate: 16,
+  whtRate: 5,
+  whtVatRate: 2,
+  annualPersonalRelief: 28800,
+  insuranceRelief: 0,
+  housingRelief: 0,
+  etimsSerialNumber: "KRA-ETIMS-PK01-2026",
+  etimsBranchId: "00",
+  etimsControlPrefix: "KRA-INV",
+  autoGenerateEtimsSignature: true,
+  businessType: "sole_proprietor",
+};
+
+export const INITIAL_WHT_CERTIFICATES: WhtCertificateRecord[] = [
+  {
+    id: "wht-1",
+    certificateNumber: "KRA-WHT-2026-0881",
+    withholdingAgentName: "Samchi Telecom Kenya Ltd",
+    withholdingAgentPin: "P051122334A",
+    invoiceDocNumber: "INV-2026-001",
+    grossAmount: 48000,
+    whtAmount: 2400,
+    whtType: "management_professional_5",
+    dateWithheld: "2026-08-16",
+    taxPeriod: "2026-08",
+    status: "verified",
+    notes: "5% WHT deducted for Multi-Floor Wi-Fi Deployment at Westlands HQ.",
+    createdAt: "2026-08-16T12:00:00.000Z",
+  },
+  {
+    id: "wht-2",
+    certificateNumber: "KRA-WHT-2026-0942",
+    withholdingAgentName: "After 40 Hotel Nairobi",
+    withholdingAgentPin: "P051998877B",
+    invoiceDocNumber: "INV-2026-002",
+    grossAmount: 35000,
+    whtAmount: 1750,
+    whtType: "management_professional_5",
+    dateWithheld: "2026-08-25",
+    taxPeriod: "2026-08",
+    status: "verified",
+    notes: "5% WHT deducted for POS Till Isolation & Access Point Upgrades.",
+    createdAt: "2026-08-25T15:30:00.000Z",
+  },
+];
 
 export const DEFAULT_RESEND_SETTINGS: ResendSettings = {
   apiKey: typeof import.meta !== "undefined" && import.meta.env?.VITE_RESEND_API_KEY ? import.meta.env.VITE_RESEND_API_KEY : "",
@@ -1735,6 +1852,8 @@ class DataStorageService {
       if (d.payments) localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(d.payments));
       if (d.expenses) localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(d.expenses));
       if (d.inventory) localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(d.inventory));
+      if (d.kraSettings) localStorage.setItem(STORAGE_KEYS.KRA_SETTINGS, JSON.stringify(d.kraSettings));
+      if (d.whtCertificates) localStorage.setItem(STORAGE_KEYS.WHT_CERTIFICATES, JSON.stringify(d.whtCertificates));
 
       this.notify();
       return { success: true, message: "Complete backup restored successfully!" };
@@ -1742,6 +1861,252 @@ class DataStorageService {
       const message = err instanceof Error ? err.message : "Failed to restore backup.";
       return { success: false, message };
     }
+  }
+
+  // ==========================================
+  // KRA Tax & eTIMS Compliance Methods
+  // ==========================================
+
+  public getKRAProfile(): KRAProfileSettings {
+    const raw = localStorage.getItem(STORAGE_KEYS.KRA_SETTINGS);
+    if (!raw) return { ...DEFAULT_KRA_PROFILE };
+    try {
+      return { ...DEFAULT_KRA_PROFILE, ...JSON.parse(raw) };
+    } catch {
+      return { ...DEFAULT_KRA_PROFILE };
+    }
+  }
+
+  public saveKRAProfile(profile: Partial<KRAProfileSettings>): KRAProfileSettings {
+    const current = this.getKRAProfile();
+    const updated = { ...current, ...profile };
+    localStorage.setItem(STORAGE_KEYS.KRA_SETTINGS, JSON.stringify(updated));
+    this.notify();
+    return updated;
+  }
+
+  public getWhtCertificates(): WhtCertificateRecord[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.WHT_CERTIFICATES);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEYS.WHT_CERTIFICATES, JSON.stringify(INITIAL_WHT_CERTIFICATES));
+      return [...INITIAL_WHT_CERTIFICATES];
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [...INITIAL_WHT_CERTIFICATES];
+    }
+  }
+
+  public addWhtCertificate(cert: Omit<WhtCertificateRecord, "id" | "createdAt">): WhtCertificateRecord {
+    const items = this.getWhtCertificates();
+    const newCert: WhtCertificateRecord = {
+      ...cert,
+      id: `wht-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newCert, ...items];
+    localStorage.setItem(STORAGE_KEYS.WHT_CERTIFICATES, JSON.stringify(updated));
+    this.notify();
+    return newCert;
+  }
+
+  public updateWhtCertificate(id: string, updates: Partial<WhtCertificateRecord>): boolean {
+    const items = this.getWhtCertificates();
+    const idx = items.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+    items[idx] = { ...items[idx], ...updates };
+    localStorage.setItem(STORAGE_KEYS.WHT_CERTIFICATES, JSON.stringify(items));
+    this.notify();
+    return true;
+  }
+
+  public deleteWhtCertificate(id: string): boolean {
+    const items = this.getWhtCertificates();
+    const filtered = items.filter((c) => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.WHT_CERTIFICATES, JSON.stringify(filtered));
+    this.notify();
+    return true;
+  }
+
+  public generateEtimsDetails(docNumber: string, amount: number, clientPin?: string): { controlCode: string; internalSign: string; qrData: string } {
+    const kra = this.getKRAProfile();
+    const cleanDoc = docNumber.replace(/[^A-Za-z0-9]/g, "");
+    const hashSeed = `${cleanDoc}-${amount}-${Date.now().toString(36).toUpperCase()}`;
+    
+    const signPart1 = Math.abs(hashSeed.split("").reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0))
+      .toString(16)
+      .toUpperCase()
+      .padStart(8, "0")
+      .slice(0, 8);
+    const signPart2 = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const controlCode = `${kra.etimsControlPrefix}-${cleanDoc.slice(-4) || "0001"}-${signPart2}`;
+    const internalSign = `${signPart1.slice(0, 4)}-${signPart1.slice(4, 8)}-${signPart2}`;
+    const qrData = `KRA-eTIMS|${kra.kraPin}|${clientPin || "NOT-PROVIDED"}|${docNumber}|${amount.toFixed(2)}|${controlCode}|${new Date().toISOString()}`;
+
+    return { controlCode, internalSign, qrData };
+  }
+
+  public calculateTaxReturn(periodType: "monthly" | "annual", year: number, month?: number): KRATaxReturnSummary {
+    const kra = this.getKRAProfile();
+    const invoices = this.getInvoices().filter((inv) => !inv.deletedAt && (inv.status === "paid" || inv.status === "sent"));
+    const expenses = this.getExpenses();
+    const whtCerts = this.getWhtCertificates();
+
+    const periodInvoices = invoices.filter((inv) => {
+      const d = new Date(inv.issueDate);
+      if (isNaN(d.getTime())) return false;
+      const yrMatch = d.getFullYear() === year;
+      if (!yrMatch) return false;
+      if (periodType === "monthly" && month !== undefined) {
+        return d.getMonth() + 1 === month;
+      }
+      return true;
+    });
+
+    const periodExpenses = expenses.filter((exp) => {
+      const d = new Date(exp.date);
+      if (isNaN(d.getTime())) return false;
+      const yrMatch = d.getFullYear() === year;
+      if (!yrMatch) return false;
+      if (periodType === "monthly" && month !== undefined) {
+        return d.getMonth() + 1 === month;
+      }
+      return true;
+    });
+
+    const periodWhtCerts = whtCerts.filter((cert) => {
+      const d = new Date(cert.dateWithheld);
+      if (isNaN(d.getTime())) return false;
+      const yrMatch = d.getFullYear() === year;
+      if (!yrMatch) return false;
+      if (periodType === "monthly" && month !== undefined) {
+        return d.getMonth() + 1 === month;
+      }
+      return true;
+    });
+
+    let grossSales = 0;
+    let totalVatInvoiced = 0;
+
+    periodInvoices.forEach((inv) => {
+      const subtotal = inv.items.reduce((s, i) => s + (i.qty || 1) * (i.unitPrice || 0), 0);
+      const discount = inv.discountType === "percentage" ? (subtotal * (inv.discountValue || 0)) / 100 : (inv.discountValue || 0);
+      const afterDiscount = Math.max(0, subtotal - discount);
+      const vat = inv.vatEnabled ? afterDiscount * ((inv.vatPercent || 16) / 100) : 0;
+
+      grossSales += afterDiscount;
+      totalVatInvoiced += vat;
+    });
+
+    const totalExpenses = periodExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+    const allowableDeductions = totalExpenses;
+    const netTaxableIncome = Math.max(0, grossSales - allowableDeductions);
+
+    const whtDeductedCredits = periodWhtCerts.reduce((s, c) => s + (c.whtAmount || 0), 0);
+
+    let grossTaxLiability = 0;
+    let outputTax = 0;
+    let inputTaxCredit = 0;
+    let personalRelief = 0;
+
+    if (periodType === "monthly") {
+      if (kra.taxObligation === "turnover_tax") {
+        grossTaxLiability = grossSales * ((kra.turnoverTaxRate || 3) / 100);
+        outputTax = grossTaxLiability;
+      } else if (kra.taxObligation === "standard_vat") {
+        outputTax = totalVatInvoiced;
+        const hardwareExpenses = periodExpenses.filter((e) => e.category === "hardware_parts" || e.category === "software_tools");
+        inputTaxCredit = hardwareExpenses.reduce((s, e) => s + (e.amount * 0.16) / 1.16, 0);
+        grossTaxLiability = Math.max(0, outputTax - inputTaxCredit);
+      } else {
+        grossTaxLiability = (grossSales - allowableDeductions) * 0.15;
+      }
+    } else {
+      let remainingTaxable = netTaxableIncome;
+      let computedTax = 0;
+
+      if (remainingTaxable > 0) {
+        const band1 = Math.min(remainingTaxable, 288000);
+        computedTax += band1 * 0.10;
+        remainingTaxable -= band1;
+      }
+      if (remainingTaxable > 0) {
+        const band2 = Math.min(remainingTaxable, 100000);
+        computedTax += band2 * 0.25;
+        remainingTaxable -= band2;
+      }
+      if (remainingTaxable > 0) {
+        const band3 = Math.min(remainingTaxable, 5612000);
+        computedTax += band3 * 0.30;
+        remainingTaxable -= band3;
+      }
+      if (remainingTaxable > 0) {
+        const band4 = Math.min(remainingTaxable, 3600000);
+        computedTax += band4 * 0.325;
+        remainingTaxable -= band4;
+      }
+      if (remainingTaxable > 0) {
+        computedTax += remainingTaxable * 0.35;
+      }
+
+      grossTaxLiability = computedTax;
+      personalRelief = kra.annualPersonalRelief || 28800;
+    }
+
+    const netTaxPayable = Math.max(0, grossTaxLiability - personalRelief - whtDeductedCredits);
+    const isRefund = grossTaxLiability - personalRelief - whtDeductedCredits < 0;
+
+    let dueDate = "";
+    let daysRemaining = 0;
+    const now = new Date();
+
+    if (periodType === "monthly") {
+      const targetMonth = month !== undefined ? month : now.getMonth() + 1;
+      const nextMonth = targetMonth === 12 ? 1 : targetMonth + 1;
+      const nextYear = targetMonth === 12 ? year + 1 : year;
+      const targetDue = new Date(nextYear, nextMonth - 1, 20);
+      dueDate = targetDue.toISOString().split("T")[0];
+      const diffMs = targetDue.getTime() - now.getTime();
+      daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    } else {
+      const targetDue = new Date(year + 1, 5, 30);
+      dueDate = targetDue.toISOString().split("T")[0];
+      const diffMs = targetDue.getTime() - now.getTime();
+      daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    const filingStatus: KRATaxReturnSummary["filingStatus"] =
+      daysRemaining < 0 ? "overdue" : daysRemaining <= 5 ? "due_soon" : "ready";
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const periodLabel = periodType === "monthly" && month !== undefined
+      ? `${monthNames[month - 1]} ${year}`
+      : `Tax Year ${year}`;
+
+    return {
+      periodType,
+      periodLabel,
+      grossSales,
+      totalVatInvoiced,
+      totalExpenses,
+      allowableDeductions,
+      netTaxableIncome,
+      outputTax,
+      inputTaxCredit,
+      whtDeductedCredits,
+      grossTaxLiability,
+      personalRelief,
+      netTaxPayable,
+      isRefund,
+      dueDate,
+      daysRemaining,
+      filingStatus,
+    };
   }
 
   private async syncReviewToSupabase(review: ReviewItem) {

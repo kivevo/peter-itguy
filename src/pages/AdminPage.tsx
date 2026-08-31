@@ -20,6 +20,7 @@ import { ResendBroadcastManager } from "@/components/admin/ResendBroadcastManage
 import { WhatsAppReplyStudio } from "@/components/admin/WhatsAppReplyStudio";
 import { EarningsTracker } from "@/components/admin/EarningsTracker";
 import { InventoryManager } from "@/components/admin/InventoryManager";
+import { KRATaxAssistant } from "@/components/admin/KRATaxAssistant";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -71,7 +72,8 @@ import {
   DollarSign, 
   PenSquare, 
   MessageCircle,
-  Package
+  Package,
+  ShieldCheck
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
@@ -84,7 +86,7 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "earnings" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "earnings" | "kra_tax" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
@@ -593,6 +595,13 @@ export const AdminPage: React.FC = () => {
           colorClass: "text-emerald-400",
         },
         {
+          id: "kra_tax" as const,
+          label: "KRA Tax & eTIMS Returns",
+          icon: ShieldCheck,
+          count: "iTax",
+          colorClass: "text-red-400",
+        },
+        {
           id: "invoice" as const,
           label: "Quotes & Invoices (Builder)",
           icon: Receipt,
@@ -825,6 +834,7 @@ export const AdminPage: React.FC = () => {
               <h1 className="font-heading font-extrabold text-lg sm:text-xl text-white">
                 {activeTab === "analytics" && "Operational Analytics & Performance"}
                 {activeTab === "earnings" && "Earnings, M-Pesa Receipts & Financial Ledger"}
+                {activeTab === "kra_tax" && "KRA Tax Ledger, eTIMS Returns & WHT Credits"}
                 {activeTab === "inventory" && "Hardware Inventory & Equipment Deployments"}
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
                 {activeTab === "jobs" && "On-Site Dispatch & Appointment Calendar"}
@@ -1630,6 +1640,11 @@ export const AdminPage: React.FC = () => {
           {/* TAB: 💰 EARNINGS & PAYMENTS LEDGER */}
           {activeTab === "earnings" && (
             <EarningsTracker />
+          )}
+
+          {/* TAB: 🛡️ KRA TAX & eTIMS RETURNS */}
+          {activeTab === "kra_tax" && (
+            <KRATaxAssistant />
           )}
 
           {/* TAB: 📦 HARDWARE INVENTORY */}

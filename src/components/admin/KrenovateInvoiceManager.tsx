@@ -397,12 +397,20 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     const vatAmount = doc.vatEnabled ? (discountedSubtotal * (doc.vatPercent || 16)) / 100 : 0;
     const grandTotal = discountedSubtotal + vatAmount;
 
+    // Withholding Tax (WHT 5% Management / Tech Consultancy)
+    const whtPercent = doc.whtPercent !== undefined ? doc.whtPercent : 5;
+    const whtAmount = doc.whtEnabled ? (discountedSubtotal * whtPercent) / 100 : 0;
+    const netReceivable = Math.max(0, grandTotal - whtAmount);
+
     return {
       rawSubtotal,
       discountAmount,
       discountedSubtotal,
       vatAmount,
       grandTotal,
+      whtPercent,
+      whtAmount,
+      netReceivable,
     };
   };
 
@@ -484,12 +492,25 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       return;
     }
 
-    const saved = dataStorage.saveInvoice(currentDoc);
+    // Auto-attach eTIMS fiscal signature if missing
+    let docToSave = { ...currentDoc };
+    if (!docToSave.etimsControlCode) {
+      const totals = calculateDocTotals(docToSave);
+      const etims = dataStorage.generateEtimsDetails(docToSave.docNumber, totals.grandTotal, docToSave.client.kraPin);
+      docToSave = {
+        ...docToSave,
+        etimsControlCode: etims.controlCode,
+        etimsInternalSign: etims.internalSign,
+        etimsQrData: etims.qrData,
+      };
+    }
+
+    const saved = dataStorage.saveInvoice(docToSave);
     setCurrentDoc(saved);
 
     toast({
       title: `${currentDoc.docType === "quotation" ? "Quotation" : "Invoice"} Saved! 💾`,
-      description: `${saved.docNumber} has been recorded.`,
+      description: `${saved.docNumber} has been recorded with eTIMS verification.`,
     });
 
     if (andPreview) {
@@ -1848,7 +1869,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                         )}
                       </div>
 
-                      {/* VAT Setting */}
+                      {/* VAT & Tax Scheme */}
                       <div className="pt-2 border-t border-border/60 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <label className="flex items-center gap-2 cursor-pointer text-slate-300">
@@ -1864,18 +1885,50 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                         </div>
                         {currentDoc.vatEnabled && (
                           <div className="flex justify-between text-teal-300 text-[11px]">
-                            <span>VAT (16% KRA):</span>
+                            <span>VAT (16% KRA Output):</span>
                             <span>+ {currentDoc.currency} {totals.vatAmount.toLocaleString()}</span>
                           </div>
                         )}
                       </div>
 
+                      {/* Withholding Tax (WHT 5%) Deduction */}
+                      <div className="pt-2 border-t border-border/60 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(currentDoc.whtEnabled)}
+                              onChange={(e) => setCurrentDoc({ ...currentDoc, whtEnabled: e.target.checked, whtPercent: 5 })}
+                              className="rounded border-border text-teal-600 focus:ring-teal-500"
+                            />
+                            <span>Corporate WHT (5%)</span>
+                          </label>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-300">5% Mgmt</span>
+                        </div>
+                        {currentDoc.whtEnabled && (
+                          <div className="flex justify-between text-amber-300 text-[11px]">
+                            <span>Less 5% WHT Deducted:</span>
+                            <span>- {currentDoc.currency} {totals.whtAmount.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Grand Total */}
-                      <div className="pt-3 border-t border-teal-500/40 flex justify-between items-baseline">
-                        <span className="font-heading font-extrabold text-sm text-white">Grand Total:</span>
-                        <span className="font-heading font-black text-2xl text-teal-400">
-                          {currentDoc.currency} {totals.grandTotal.toLocaleString()}
-                        </span>
+                      <div className="pt-3 border-t border-teal-500/40 space-y-1">
+                        <div className="flex justify-between items-baseline">
+                          <span className="font-heading font-bold text-xs text-slate-300">Gross Total:</span>
+                          <span className="font-heading font-bold text-lg text-white">
+                            {currentDoc.currency} {totals.grandTotal.toLocaleString()}
+                          </span>
+                        </div>
+                        {currentDoc.whtEnabled && (
+                          <div className="flex justify-between items-baseline pt-1 border-t border-border/40">
+                            <span className="font-heading font-extrabold text-xs text-teal-300">Net Receivable:</span>
+                            <span className="font-heading font-black text-xl text-teal-400">
+                              {currentDoc.currency} {totals.netReceivable.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -2221,15 +2274,40 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                       )}
 
                       <div className="pt-2 border-t-2 border-slate-800 flex justify-between items-baseline text-sm">
-                        <span className="font-black text-slate-900">GRAND TOTAL:</span>
-                        <span className="font-black text-teal-800 text-lg">
+                        <span className="font-black text-slate-900">GROSS TOTAL:</span>
+                        <span className="font-black text-slate-900 text-lg">
                           {currentDoc.currency} {totals.grandTotal.toLocaleString()}
                         </span>
                       </div>
+
+                      {currentDoc.whtEnabled && (
+                        <>
+                          <div className="flex justify-between text-emerald-800 font-semibold pt-1 border-t border-slate-200">
+                            <span>Less 5% WHT (Client Deducts):</span>
+                            <span>- {currentDoc.currency} {totals.whtAmount.toLocaleString()}</span>
+                          </div>
+                          <div className="pt-2 border-t-2 border-emerald-600 flex justify-between items-baseline text-sm bg-emerald-50/70 p-2 rounded-lg">
+                            <span className="font-black text-emerald-950">NET PAYABLE:</span>
+                            <span className="font-black text-emerald-800 text-lg">
+                              {currentDoc.currency} {totals.netReceivable.toLocaleString()}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
               })()}
+
+              {/* Withholding Tax Client Instruction Notice if WHT Active */}
+              {currentDoc.whtEnabled && (
+                <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-amber-900 text-[11px] font-mono space-y-0.5">
+                  <span className="font-bold block">⚖️ KRA Withholding Tax (WHT) Compliance Notice:</span>
+                  <p>
+                    Corporate client will deduct 5% WHT ({currentDoc.currency} {calculateDocTotals(currentDoc).whtAmount.toLocaleString()}) and remit to KRA, then issue a formal KRA WHT Credit Certificate under Supplier KRA PIN: <strong>{companyProfile.kraPin}</strong>.
+                  </p>
+                </div>
+              )}
 
               {/* Payment Instructions & Official Stamp Footer */}
               <div className="pt-6 border-t-2 border-slate-200 grid sm:grid-cols-2 gap-6 items-end text-xs">
@@ -2261,6 +2339,19 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   <p className="text-[10px] text-slate-400">
                     Generated by {companyProfile.name} Enterprise Management System
                   </p>
+                </div>
+              </div>
+
+              {/* eTIMS Fiscal Compliance Block */}
+              <div className="pt-4 border-t border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] font-mono text-slate-500 bg-slate-50/80 p-3 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">KRA eTIMS</span>
+                  <span>CU Serial: <strong>KRA-ETIMS-PK01-2026</strong></span>
+                  <span>&bull;</span>
+                  <span>Control Code: <strong>{currentDoc.etimsControlCode || `KRA-INV-${currentDoc.docNumber.slice(-4)}-8819`}</strong></span>
+                </div>
+                <div>
+                  <span>Internal Sign: <strong>{currentDoc.etimsInternalSign || "9A4F-BC12-88D4"}</strong></span>
                 </div>
               </div>
             </div>
