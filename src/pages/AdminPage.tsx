@@ -18,6 +18,8 @@ import { KrenovateInvoiceManager } from "@/components/admin/KrenovateInvoiceMana
 import { SiteContentManager } from "@/components/admin/SiteContentManager";
 import { ResendBroadcastManager } from "@/components/admin/ResendBroadcastManager";
 import { WhatsAppReplyStudio } from "@/components/admin/WhatsAppReplyStudio";
+import { EarningsTracker } from "@/components/admin/EarningsTracker";
+import { InventoryManager } from "@/components/admin/InventoryManager";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -66,9 +68,10 @@ import {
   Filter,
   Briefcase,
   Receipt,
-  DollarSign,
-  PenSquare,
-  MessageCircle
+  DollarSign, 
+  PenSquare, 
+  MessageCircle,
+  Package
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
@@ -81,7 +84,7 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "earnings" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
@@ -583,6 +586,27 @@ export const AdminPage: React.FC = () => {
       group: "REVENUE & OPERATIONS",
       items: [
         {
+          id: "earnings" as const,
+          label: "Earnings & Financial Ledger",
+          icon: DollarSign,
+          count: "KES",
+          colorClass: "text-emerald-400",
+        },
+        {
+          id: "invoice" as const,
+          label: "Quotes & Invoices (Builder)",
+          icon: Receipt,
+          count: null,
+          colorClass: "text-teal-400",
+        },
+        {
+          id: "inventory" as const,
+          label: "Hardware Stock & Equipment",
+          icon: Package,
+          count: "STOCK",
+          colorClass: "text-cyan-400",
+        },
+        {
           id: "inquiries" as const,
           label: "Client Leads CRM",
           icon: MessageSquare,
@@ -595,13 +619,6 @@ export const AdminPage: React.FC = () => {
           icon: Briefcase,
           count: jobs.filter((j) => j.status === "scheduled").length || null,
           colorClass: "text-blue-400",
-        },
-        {
-          id: "invoice" as const,
-          label: "Quotes & Invoices",
-          icon: Receipt,
-          count: null,
-          colorClass: "text-teal-400",
         },
         {
           id: "broadcast" as const,
@@ -807,6 +824,8 @@ export const AdminPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <h1 className="font-heading font-extrabold text-lg sm:text-xl text-white">
                 {activeTab === "analytics" && "Operational Analytics & Performance"}
+                {activeTab === "earnings" && "Earnings, M-Pesa Receipts & Financial Ledger"}
+                {activeTab === "inventory" && "Hardware Inventory & Equipment Deployments"}
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
                 {activeTab === "jobs" && "On-Site Dispatch & Appointment Calendar"}
                 {activeTab === "invoice" && "Official Quotation & Invoice Generator"}
@@ -1606,6 +1625,16 @@ export const AdminPage: React.FC = () => {
                 )}
               </div>
             </div>
+          )}
+
+          {/* TAB: 💰 EARNINGS & PAYMENTS LEDGER */}
+          {activeTab === "earnings" && (
+            <EarningsTracker />
+          )}
+
+          {/* TAB: 📦 HARDWARE INVENTORY */}
+          {activeTab === "inventory" && (
+            <InventoryManager />
           )}
 
           {/* TAB 4: 🧾 KRENOVATE SYSTEMS INVOICE & QUOTE ENGINE */}

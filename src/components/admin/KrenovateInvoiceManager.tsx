@@ -108,6 +108,26 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const [typeFilter, setTypeFilter] = useState<"all" | "quotation" | "invoice" | "receipt">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "sent" | "paid" | "overdue" | "accepted">("all");
 
+  // Record Invoice Payment state
+  const [paymentTargetDoc, setPaymentTargetDoc] = useState<InvoiceDocument | null>(null);
+  const [invoicePaymentForm, setInvoicePaymentForm] = useState<{
+    amount: number;
+    method: "mpesa" | "bank" | "cash" | "cheque";
+    mpesaCode: string;
+    mpesaPhone: string;
+    bankRef: string;
+    date: string;
+    notes: string;
+  }>({
+    amount: 0,
+    method: "mpesa",
+    mpesaCode: "",
+    mpesaPhone: "",
+    bankRef: "",
+    date: new Date().toISOString().slice(0, 10),
+    notes: "",
+  });
+
   // Client modal / form state
   const [showClientModal, setShowClientModal] = useState(false);
   const [newClient, setNewClient] = useState<{
@@ -660,6 +680,68 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
   };
 
+  // WhatsApp Payment Reminder Generator
+  const generatePaymentReminderWhatsAppMessage = (doc: InvoiceDocument) => {
+    const totals = calculateDocTotals(doc);
+    const paidSoFar = (doc.payments || []).reduce((s, p) => s + p.amount, 0);
+    const balance = Math.max(0, totals.grandTotal - paidSoFar);
+    const profile = companyProfile;
+    const hasBank =
+      profile.includeBankDetails !== false &&
+      Boolean(profile.bankName?.trim()) &&
+      Boolean(profile.bankAccountNumber?.trim());
+
+    return `Dear ${doc.client.name},\n\nFriendly payment reminder from *${profile.name}* regarding *Invoice #${doc.docNumber}*.\n\n💼 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n${paidSoFar > 0 ? `✅ *Paid to Date:* ${doc.currency} ${paidSoFar.toLocaleString()}\n` : ""}⚠️ *Outstanding Balance:* ${doc.currency} ${balance.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})\n${hasBank ? `• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}\n` : ""}• Ref: ${doc.docNumber}\n\nPlease share your M-Pesa confirmation code once sent. Thank you!`;
+  };
+
+  const handleOpenPaymentModal = (doc: InvoiceDocument) => {
+    const totals = calculateDocTotals(doc);
+    const paidSoFar = (doc.payments || []).reduce((s, p) => s + p.amount, 0);
+    const remainingBalance = Math.max(0, totals.grandTotal - paidSoFar);
+
+    setPaymentTargetDoc(doc);
+    setInvoicePaymentForm({
+      amount: remainingBalance,
+      method: "mpesa",
+      mpesaCode: "",
+      mpesaPhone: doc.client.phone || "",
+      bankRef: "",
+      date: new Date().toISOString().slice(0, 10),
+      notes: `Installment payment for ${doc.docNumber}`,
+    });
+  };
+
+  const handleSaveInvoicePayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!paymentTargetDoc || invoicePaymentForm.amount <= 0) {
+      toast({ title: "Invalid Amount", description: "Please enter a valid payment amount.", variant: "destructive" });
+      return;
+    }
+
+    const updated = dataStorage.recordInvoicePayment(paymentTargetDoc.id, {
+      amount: Number(invoicePaymentForm.amount),
+      method: invoicePaymentForm.method,
+      mpesaCode: invoicePaymentForm.mpesaCode,
+      mpesaPhone: invoicePaymentForm.mpesaPhone,
+      bankRef: invoicePaymentForm.bankRef,
+      date: invoicePaymentForm.date,
+      notes: invoicePaymentForm.notes,
+    });
+
+    if (updated) {
+      setInvoices((prev) => prev.map((inv) => (inv.id === updated.id ? updated : inv)));
+      if (currentDoc && currentDoc.id === updated.id) {
+        setCurrentDoc(updated);
+      }
+    }
+
+    setPaymentTargetDoc(null);
+    toast({
+      title: "Payment Recorded & Synchronized! 💰",
+      description: `KES ${Number(invoicePaymentForm.amount).toLocaleString()} credited to ${paymentTargetDoc.docNumber}.`,
+    });
+  };
+
   // Email document handler
   const handleOpenEmailModal = (doc: InvoiceDocument) => {
     setEmailRecipient(doc.client.email || "");
@@ -1098,14 +1180,57 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                             </select>
                           </td>
 
-                          {/* Grand Total */}
-                          <td className="py-3.5 px-4 text-right font-mono font-bold text-white text-sm">
-                            {doc.currency} {totals.grandTotal.toLocaleString()}
+                          {/* Grand Total & Paid Balance */}
+                          <td className="py-3.5 px-4 text-right font-mono whitespace-nowrap">
+                            <div className="font-bold text-white text-sm">
+                              {doc.currency} {totals.grandTotal.toLocaleString()}
+                            </div>
+                            {(() => {
+                              const paid = (doc.payments || []).reduce((s, p) => s + p.amount, 0);
+                              const balance = Math.max(0, totals.grandTotal - paid);
+                              if (doc.status === "paid" || paid >= totals.grandTotal) {
+                                return <span className="text-[10px] text-emerald-400 font-semibold block">Fully Paid</span>;
+                              }
+                              if (paid > 0) {
+                                return (
+                                  <span className="text-[10px] text-amber-300 font-semibold block">
+                                    Bal: KES {balance.toLocaleString()}
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
                           </td>
 
                           {/* Actions */}
                           <td className="py-3.5 px-4 text-center">
                             <div className="flex flex-wrap items-center justify-center gap-1.5">
+                              {/* Record Payment Action */}
+                              {doc.docType === "invoice" && doc.status !== "paid" && (
+                                <button
+                                  onClick={() => handleOpenPaymentModal(doc)}
+                                  title="Record Payment (M-Pesa / Bank)"
+                                  className="p-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 transition-colors"
+                                >
+                                  <DollarSign className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+
+                              {/* WhatsApp Reminder (for sent/overdue invoices) */}
+                              {doc.docType === "invoice" && doc.status !== "paid" && (
+                                <a
+                                  href={`https://wa.me/${doc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                                    generatePaymentReminderWhatsAppMessage(doc)
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Send Payment Reminder on WhatsApp"
+                                  className="p-1.5 rounded-lg bg-amber-500/10 text-amber-300 hover:bg-amber-500 hover:text-navy-950 border border-amber-500/20 transition-colors"
+                                >
+                                  <Clock className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+
                               {/* Preview */}
                               <button
                                 onClick={() => {
@@ -2868,6 +2993,132 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 <span>Delete Client Record</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* RECORD INVOICE PAYMENT MODAL                                              */}
+      {/* ========================================================================= */}
+      {paymentTargetDoc && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-emerald-500/40 p-6 space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">
+                    Record Payment: {paymentTargetDoc.docNumber}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {paymentTargetDoc.client.company || paymentTargetDoc.client.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPaymentTargetDoc(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveInvoicePayment} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Payment Amount (KES) *</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={invoicePaymentForm.amount || ""}
+                  onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, amount: Number(e.target.value) })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-navy-950 border border-emerald-500/40 text-white font-mono text-base font-bold focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">Payment Method</label>
+                  <select
+                    value={invoicePaymentForm.method}
+                    onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, method: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
+                  >
+                    <option value="mpesa">M-Pesa</option>
+                    <option value="bank">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                    <option value="cheque">Cheque</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">Date Received</label>
+                  <input
+                    type="date"
+                    required
+                    value={invoicePaymentForm.date}
+                    onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
+                  />
+                </div>
+
+                {invoicePaymentForm.method === "mpesa" && (
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-slate-300 font-semibold">M-Pesa Confirmation Code</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. QHB72991LK"
+                      value={invoicePaymentForm.mpesaCode}
+                      onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, mpesaCode: e.target.value.toUpperCase() })}
+                      className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono uppercase focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {invoicePaymentForm.method === "bank" && (
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-slate-300 font-semibold">Bank Ref / Cheque No</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. NCBA-TRX-98214"
+                      value={invoicePaymentForm.bankRef}
+                      onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, bankRef: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1 col-span-2">
+                  <label className="text-slate-300 font-semibold">Payment Notes / Description</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 50% upfront deposit received"
+                    value={invoicePaymentForm.notes}
+                    onChange={(e) => setInvoicePaymentForm({ ...invoicePaymentForm, notes: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setPaymentTargetDoc(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 text-xs font-semibold border border-border"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Confirm Payment</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -137,6 +137,70 @@ export interface InvoiceDocument {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string; // ISO string when soft-deleted; undefined = active
+  // Partial payments tracking
+  payments?: InvoicePayment[];
+  recurringTemplate?: boolean;
+  recurringFrequency?: "monthly" | "quarterly" | "annually";
+  proForma?: boolean;
+  workCompletion?: boolean;
+}
+
+export interface InvoicePayment {
+  id: string;
+  amount: number;
+  method: "mpesa" | "bank" | "cash" | "cheque";
+  mpesaCode?: string;
+  mpesaPhone?: string;
+  bankRef?: string;
+  date: string;
+  notes?: string;
+  recordedAt: string;
+}
+
+export interface PaymentRecord {
+  id: string;
+  invoiceId?: string;
+  clientName: string;
+  description: string;
+  amount: number;
+  paymentMethod: "mpesa" | "bank" | "cash" | "cheque";
+  mpesaCode?: string;
+  mpesaPhone?: string;
+  bankRef?: string;
+  category: "wifi_network" | "computer_support" | "website" | "cctv" | "hardware_sale" | "retainer" | "consultation" | "other";
+  date: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ExpenseRecord {
+  id: string;
+  description: string;
+  amount: number;
+  category: "transport" | "hardware_parts" | "software_tools" | "airtime_data" | "marketing" | "office_supplies" | "other";
+  date: string;
+  receiptNote?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+  category: "router" | "switch" | "access_point" | "cable" | "cctv_camera" | "nvr" | "ups" | "laptop" | "printer" | "accessories" | "other";
+  quantity: number;
+  unitCost: number;
+  sellingPrice: number;
+  serialNumbers: string;
+  deployedAt?: string;
+  condition: "new" | "good" | "refurbished" | "faulty";
+  supplier?: string;
+  purchaseDate?: string;
+  warrantyExpiry?: string;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface SubscriberItem {
@@ -210,6 +274,9 @@ const STORAGE_KEYS = {
   SUBSCRIBERS: "itguy_subscribers_v1",
   RESEND_SETTINGS: "itguy_resend_config_v1",
   BROADCAST_HISTORY: "itguy_email_broadcasts_v1",
+  PAYMENTS: "itguy_payment_records_v1",
+  EXPENSES: "itguy_expense_records_v1",
+  INVENTORY: "itguy_inventory_items_v1",
 };
 
 export const DEFAULT_RESEND_SETTINGS: ResendSettings = {
@@ -413,6 +480,168 @@ const INITIAL_INVOICES: InvoiceDocument[] = [
     notes: "Payment received in full via M-Pesa Paybill. Thank you for your partnership!",
     createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
     updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+  },
+];
+
+const INITIAL_PAYMENTS: PaymentRecord[] = [
+  {
+    id: "pay-1",
+    invoiceId: "inv-2",
+    clientName: "After40 Hotel",
+    description: "Full settlement for website revamp & monthly IT retainer",
+    amount: 70000,
+    paymentMethod: "mpesa",
+    mpesaCode: "QHB72991LK",
+    mpesaPhone: "+254 733 987 654",
+    category: "website",
+    date: new Date(Date.now() - 1 * 86400000).toISOString().slice(0, 10),
+    notes: "Direct M-Pesa Paybill confirmation. Zero balance remaining.",
+    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+  },
+  {
+    id: "pay-2",
+    clientName: "Peak Logistics Hub",
+    description: "50% Upfront Deposit for UniFi Wi-Fi 6 Network Overhaul",
+    amount: 37500,
+    paymentMethod: "bank",
+    bankRef: "NCBA-TX-88219",
+    category: "wifi_network",
+    date: new Date(Date.now() - 4 * 86400000).toISOString().slice(0, 10),
+    notes: "Initial deposit before hardware procurement and cabling deployment.",
+    createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+  },
+  {
+    id: "pay-3",
+    clientName: "SNL Lounge & Garden",
+    description: "Emergency Payment Till Isolation & Dual Outdoor Antenna Configuration",
+    amount: 28000,
+    paymentMethod: "mpesa",
+    mpesaCode: "QFD11894MM",
+    mpesaPhone: "+254 711 456 789",
+    category: "wifi_network",
+    date: new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10),
+    notes: "Fixed on-site same-day. Payment confirmed.",
+    createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+  },
+];
+
+const INITIAL_EXPENSES: ExpenseRecord[] = [
+  {
+    id: "exp-1",
+    description: "MikroTik hEX S Router & 2x UniFi U6+ Access Points Procurement",
+    amount: 42000,
+    category: "hardware_parts",
+    date: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10),
+    receiptNote: "Official invoice from Nairobi distributor",
+    notes: "Sourced for Peak Logistics deployment",
+    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+  {
+    id: "exp-2",
+    description: "Uber / Fuel Transport for On-Site Triage (Mombasa Rd & Westlands)",
+    amount: 3500,
+    category: "transport",
+    date: new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10),
+    receiptNote: "Uber trip receipts",
+    notes: "Same-day emergency client dispatches",
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+  },
+  {
+    id: "exp-3",
+    description: "Safaricom 5G/4G Data Bundle for Remote IT Diagnostic Hotspot",
+    amount: 2000,
+    category: "airtime_data",
+    date: new Date(Date.now() - 10 * 86400000).toISOString().slice(0, 10),
+    receiptNote: "M-Pesa Safaricom statement",
+    notes: "Monthly field diagnostics connectivity",
+    createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+  },
+];
+
+const INITIAL_INVENTORY: InventoryItem[] = [
+  {
+    id: "inv-item-1",
+    name: "UniFi U6+ Wi-Fi 6 Long-Range Access Point",
+    brand: "Ubiquiti",
+    model: "U6-Plus",
+    category: "access_point",
+    quantity: 4,
+    unitCost: 14500,
+    sellingPrice: 18500,
+    serialNumbers: "U6P-984210, U6P-984211, U6P-984212, U6P-984213",
+    condition: "new",
+    supplier: "Nairobi Tech Supplies",
+    purchaseDate: "2026-08-15",
+    warrantyExpiry: "2027-08-15",
+    notes: "High demand item for restaurant & office deployments.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "inv-item-2",
+    name: "MikroTik hEX S 5-Port Gigabit Router with SFP",
+    brand: "MikroTik",
+    model: "RB760iGS",
+    category: "router",
+    quantity: 2,
+    unitCost: 8500,
+    sellingPrice: 12000,
+    serialNumbers: "MT-RB760-4491, MT-RB760-4492",
+    condition: "new",
+    supplier: "Kenya Networking Hub",
+    purchaseDate: "2026-08-18",
+    warrantyExpiry: "2027-08-18",
+    notes: "Standard router for guest/POS VLAN isolation & dual WAN 5G failover.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "inv-item-3",
+    name: "16-Port Gigabit PoE+ Managed Switch",
+    brand: "TP-Link Omada",
+    model: "TL-SG1218MPE",
+    category: "switch",
+    quantity: 1,
+    unitCost: 19000,
+    sellingPrice: 24500,
+    serialNumbers: "TPL-POE-88390",
+    condition: "new",
+    supplier: "Nairobi Tech Supplies",
+    purchaseDate: "2026-08-10",
+    warrantyExpiry: "2027-08-10",
+    notes: "Powers CCTV cameras and UniFi APs over Cat6 Ethernet.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "inv-item-4",
+    name: "Hikvision 4K 8MP ColorVu Dome Camera (PoE)",
+    brand: "Hikvision",
+    model: "DS-2CD2187G2-L",
+    category: "cctv_camera",
+    quantity: 6,
+    unitCost: 6500,
+    sellingPrice: 9000,
+    serialNumbers: "HK-CV8-101, HK-CV8-102, HK-CV8-103, HK-CV8-104, HK-CV8-105, HK-CV8-106",
+    condition: "new",
+    supplier: "Security Solutions Kenya",
+    purchaseDate: "2026-08-20",
+    warrantyExpiry: "2027-08-20",
+    notes: "Color night vision with built-in mic & phone streaming app.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "inv-item-5",
+    name: "Cat6 Pure Copper Solid UTP Cable Roll (305m)",
+    brand: "D-Link",
+    model: "NCB-C6UBLUR-305",
+    category: "cable",
+    quantity: 2,
+    unitCost: 12000,
+    sellingPrice: 16000,
+    serialNumbers: "DL-CAT6-305M-A, DL-CAT6-305M-B",
+    condition: "new",
+    supplier: "Kenya Networking Hub",
+    purchaseDate: "2026-08-12",
+    notes: "Zero-latency pure copper for POS & server trunking.",
+    createdAt: new Date().toISOString(),
   },
 ];
 
@@ -1283,8 +1512,206 @@ class DataStorageService {
         subscribers: this.getSubscribers(),
         resendSettings: this.getResendSettings(),
         broadcastHistory: this.getBroadcastHistory(),
+        payments: this.getPayments(),
+        expenses: this.getExpenses(),
+        inventory: this.getInventory(),
       },
     };
+  }
+
+  // --- EARNINGS & PAYMENT LEDGER ---
+  public getPayments(): PaymentRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.PAYMENTS);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(INITIAL_PAYMENTS));
+        return INITIAL_PAYMENTS;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_PAYMENTS;
+    }
+  }
+
+  public addPayment(payment: Omit<PaymentRecord, "id" | "createdAt">): PaymentRecord {
+    const all = this.getPayments();
+    const newPayment: PaymentRecord = {
+      ...payment,
+      id: `pay-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newPayment, ...all];
+    localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(updated));
+    this.notify();
+    return newPayment;
+  }
+
+  public deletePayment(id: string) {
+    const all = this.getPayments().filter((p) => p.id !== id);
+    localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(all));
+    this.notify();
+  }
+
+  // --- BUSINESS EXPENSES LEDGER ---
+  public getExpenses(): ExpenseRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.EXPENSES);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(INITIAL_EXPENSES));
+        return INITIAL_EXPENSES;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_EXPENSES;
+    }
+  }
+
+  public addExpense(expense: Omit<ExpenseRecord, "id" | "createdAt">): ExpenseRecord {
+    const all = this.getExpenses();
+    const newExpense: ExpenseRecord = {
+      ...expense,
+      id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newExpense, ...all];
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(updated));
+    this.notify();
+    return newExpense;
+  }
+
+  public deleteExpense(id: string) {
+    const all = this.getExpenses().filter((e) => e.id !== id);
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(all));
+    this.notify();
+  }
+
+  // --- HARDWARE INVENTORY MANAGEMENT ---
+  public getInventory(): InventoryItem[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.INVENTORY);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(INITIAL_INVENTORY));
+        return INITIAL_INVENTORY;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return INITIAL_INVENTORY;
+    }
+  }
+
+  public saveInventoryItem(item: Omit<InventoryItem, "id" | "createdAt"> & { id?: string }): InventoryItem {
+    const all = this.getInventory();
+    if (item.id) {
+      const updated = all.map((i) => (i.id === item.id ? { ...i, ...item } : i));
+      localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(updated));
+      this.notify();
+      return all.find((i) => i.id === item.id)!;
+    } else {
+      const newItem: InventoryItem = {
+        ...item,
+        id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        createdAt: new Date().toISOString(),
+      };
+      const updated = [newItem, ...all];
+      localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(updated));
+      this.notify();
+      return newItem;
+    }
+  }
+
+  public deleteInventoryItem(id: string) {
+    const all = this.getInventory().filter((i) => i.id !== id);
+    localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(all));
+    this.notify();
+  }
+
+  public updateInventoryQuantity(id: string, delta: number) {
+    const all = this.getInventory();
+    const updated = all.map((i) => {
+      if (i.id === id) {
+        const newQty = Math.max(0, i.quantity + delta);
+        return { ...i, quantity: newQty };
+      }
+      return i;
+    });
+    localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // --- INVOICE PARTIAL PAYMENT & LEDGER SYNC ---
+  public recordInvoicePayment(
+    invoiceId: string,
+    payment: {
+      amount: number;
+      method: "mpesa" | "bank" | "cash" | "cheque";
+      mpesaCode?: string;
+      mpesaPhone?: string;
+      bankRef?: string;
+      date: string;
+      notes?: string;
+    }
+  ): InvoiceDocument | undefined {
+    const inv = this.getInvoiceById(invoiceId);
+    if (!inv) return undefined;
+
+    const paymentEntry: InvoicePayment = {
+      ...payment,
+      id: `inv-pay-${Date.now()}`,
+      recordedAt: new Date().toISOString(),
+    };
+
+    const existingPayments = inv.payments || [];
+    const updatedPayments = [...existingPayments, paymentEntry];
+
+    // Compute invoice total to check if fully paid
+    const subtotal = inv.items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);
+    const discount =
+      inv.discountType === "percentage"
+        ? subtotal * (inv.discountValue / 100)
+        : Math.min(subtotal, inv.discountValue);
+    const afterDiscount = Math.max(0, subtotal - discount);
+    const vat = inv.vatEnabled ? afterDiscount * ((inv.vatPercent || 16) / 100) : 0;
+    const totalAmount = afterDiscount + vat;
+
+    const totalPaidSoFar = updatedPayments.reduce((s, p) => s + p.amount, 0);
+    const isFullyPaid = totalPaidSoFar >= totalAmount - 1; // allow small rounding diff
+
+    const updatedInvoice: InvoiceDocument = {
+      ...inv,
+      payments: updatedPayments,
+      status: isFullyPaid ? "paid" : inv.status === "draft" ? "sent" : inv.status,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save invoice
+    const allInvoices = this.getInvoices().map((item) =>
+      item.id === invoiceId ? updatedInvoice : item
+    );
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(allInvoices));
+
+    // Also auto-record to general payment ledger
+    this.addPayment({
+      invoiceId: inv.id,
+      clientName: inv.client.company || inv.client.name,
+      description: `Payment for ${inv.docNumber} (${inv.items.map((i) => i.desc).slice(0, 2).join(", ")})`,
+      amount: payment.amount,
+      paymentMethod: payment.method,
+      mpesaCode: payment.mpesaCode,
+      mpesaPhone: payment.mpesaPhone,
+      bankRef: payment.bankRef,
+      category: inv.items.some((i) => i.desc.toLowerCase().includes("web"))
+        ? "website"
+        : inv.items.some((i) => i.desc.toLowerCase().includes("wi-fi") || i.desc.toLowerCase().includes("vlan"))
+        ? "wifi_network"
+        : inv.items.some((i) => i.desc.toLowerCase().includes("cctv") || i.desc.toLowerCase().includes("camera"))
+        ? "cctv"
+        : "computer_support",
+      date: payment.date,
+      notes: payment.notes || `Linked to invoice ${inv.docNumber}`,
+    });
+
+    this.notify();
+    return updatedInvoice;
   }
 
   public importFullBackup(backup: { data?: Record<string, unknown> } | null | undefined): { success: boolean; message: string } {
@@ -1305,6 +1732,9 @@ class DataStorageService {
       if (d.subscribers) localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(d.subscribers));
       if (d.resendSettings) localStorage.setItem(STORAGE_KEYS.RESEND_SETTINGS, JSON.stringify(d.resendSettings));
       if (d.broadcastHistory) localStorage.setItem(STORAGE_KEYS.BROADCAST_HISTORY, JSON.stringify(d.broadcastHistory));
+      if (d.payments) localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(d.payments));
+      if (d.expenses) localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(d.expenses));
+      if (d.inventory) localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(d.inventory));
 
       this.notify();
       return { success: true, message: "Complete backup restored successfully!" };
