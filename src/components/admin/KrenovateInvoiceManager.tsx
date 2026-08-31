@@ -94,6 +94,11 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const [emailRecipient, setEmailRecipient] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
+  // Share PDF modal state
+  const [shareModalDoc, setShareModalDoc] = useState<InvoiceDocument | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+
   // Delete-confirm modal state
   const [deleteTarget, setDeleteTarget] = useState<InvoiceDocument | null>(null);
   const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
@@ -1219,6 +1224,205 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     win.document.close();
   };
 
+  // ── PDF Blob Generator (reuses same HTML as handlePrintDocument) ──────────
+  const buildDocumentHTML = (doc: InvoiceDocument): string => {
+    const totals = calculateDocTotals(doc);
+    const profile = companyProfile;
+    const hasBank =
+      profile.includeBankDetails !== false &&
+      Boolean(profile.bankName?.trim()) &&
+      Boolean(profile.bankAccountNumber?.trim());
+    const docTitle = doc.docType === "quotation" ? "FORMAL QUOTATION" : doc.docType === "receipt" ? "OFFICIAL RECEIPT" : "TAX INVOICE";
+    const paidSoFar = (doc.payments || []).reduce((s: number, p: { amount: number }) => s + p.amount, 0);
+    const balance = Math.max(0, totals.grandTotal - paidSoFar);
+    const itemsHtml = doc.items.map((item, i) => `
+      <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#fff"}">
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${i + 1}</td>
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${item.desc}</td>
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center">${item.qty}</td>
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right">${item.unit || ""}</td>
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+      </tr>`);
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+      *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#1e293b;width:794px;margin:0 auto;padding:20px}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:16px}
+      .logo-box{width:48px;height:48px;background:#0f766e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;color:#fff;flex-shrink:0}
+      .company-name{font-size:20px;font-weight:900;color:#0f766e;letter-spacing:-0.5px}
+      .company-sub{font-size:10px;color:#64748b;margin-top:2px}
+      .doc-badge{background:#0f766e;color:#fff;font-size:13px;font-weight:900;padding:5px 14px;border-radius:6px;letter-spacing:1px;text-align:center}
+      .doc-meta{font-size:11px;color:#475569;margin-top:6px;text-align:right;line-height:1.7}
+      .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px;font-size:11px}
+      .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:3px}
+      .value{font-weight:600;color:#1e293b}
+      table{width:100%;border-collapse:collapse;margin-bottom:14px}
+      thead th{background:#0f766e;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left}
+      thead th:last-child{text-align:right}thead th:nth-child(3),thead th:nth-child(4),thead th:nth-child(5){text-align:center}
+      .totals{display:flex;justify-content:flex-end;margin-bottom:14px}
+      .totals-box{width:280px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:11px}
+      .totals-row{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9}
+      .totals-grand{background:#0f766e;color:#fff;font-size:13px;font-weight:900;display:flex;justify-content:space-between;padding:10px 12px}
+      .pay-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:12px;font-size:11px}
+      .pay-title{font-weight:700;color:#15803d;margin-bottom:6px;font-size:12px}
+      .sign-box{display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#64748b}
+      .etims-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px;font-size:9px;color:#94a3b8;margin-top:12px}
+      .etims-badge{background:#0f766e;color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px}
+    </style></head><body>
+    <div class="header">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="logo-box">K</div>
+        <div>
+          <div class="company-name">${profile.name}</div>
+          <div class="company-sub">${profile.tagline || "IT Solutions & Managed Services"}</div>
+          <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.6">${profile.address}<br>Tel: ${profile.phone} · ${profile.email}<br>KRA PIN: <strong>${profile.kraPin}</strong></div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="doc-badge">${docTitle}</div>
+        <div class="doc-meta">
+          ${doc.docType !== "quotation" ? `<strong>Invoice No:</strong> ${doc.docNumber}<br>` : `<strong>Quote No:</strong> ${doc.docNumber}<br>`}
+          <strong>Date Issued:</strong> ${doc.issueDate}<br>
+          <strong>${doc.docType === "quotation" ? "Valid Until" : "Due Date"}:</strong> ${doc.dueDate}<br>
+          <strong>Currency:</strong> ${doc.currency}
+        </div>
+      </div>
+    </div>
+    <div class="client-grid">
+      <div><div class="label">Billed To</div><div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div><div style="font-size:11px;color:#475569;margin-top:3px">${doc.client.company ? doc.client.name : ""}</div><div style="font-size:10px;color:#64748b">${doc.client.phone}</div>${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}</div>
+      <div style="text-align:right">
+        <div><div class="label">Status</div><div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div></div>
+        ${doc.poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${doc.poNumber}</div></div>` : ""}
+      </div>
+    </div>
+    <table><thead><tr><th>#</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:center">Unit</th><th style="text-align:center">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml.join("")}</tbody></table>
+    <div class="totals"><div class="totals-box">
+      ${totals.subtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.subtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      <div class="totals-grand"><span>TOTAL DUE</span><span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
+    </div></div>
+    <div class="pay-box"><div class="pay-title">Payment Instructions</div>
+      • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br>
+      ${hasBank ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${profile.bankBranch ? ` (${profile.bankBranch})` : ""}<br>` : ""}
+      • Reference: <strong>${doc.docNumber}</strong>
+    </div>
+    <div class="sign-box">
+      <div><div class="label">Authorised By</div><div class="value">Peter Kivevo John</div><div style="margin-top:28px;border-top:1px solid #cbd5e1;padding-top:4px;width:160px">Signature &amp; Company Stamp</div></div>
+      <div style="text-align:right"><div class="label">Client Acceptance</div><div style="margin-top:28px;border-top:1px solid #cbd5e1;padding-top:4px;width:160px">Signature &amp; Date</div></div>
+    </div>
+    <div class="etims-block">
+      <span class="etims-badge">KRA eTIMS</span>
+      CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control Code: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong> · Internal Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
+    </div>
+    </body></html>`;
+  };
+
+  // Generate a real PDF Blob from the document HTML using an iframe + canvas
+  const generatePdfBlob = async (doc: InvoiceDocument): Promise<Blob> => {
+    const { default: jsPDF } = await import("jspdf");
+    const { default: html2canvas } = await import("html2canvas");
+
+    // Render the HTML in an off-screen iframe
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;border:none;visibility:hidden;";
+    document.body.appendChild(iframe);
+
+    return new Promise((resolve, reject) => {
+      iframe.onload = async () => {
+        try {
+          const canvas = await html2canvas(iframe.contentDocument!.body, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: 794,
+            windowWidth: 794,
+          });
+          document.body.removeChild(iframe);
+
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+          const pageW = pdf.internal.pageSize.getWidth();
+          const pageH = pdf.internal.pageSize.getHeight();
+          const imgW = pageW;
+          const imgH = (canvas.height * pageW) / canvas.width;
+
+          if (imgH <= pageH) {
+            pdf.addImage(imgData, "JPEG", 0, 0, imgW, imgH);
+          } else {
+            // Multi-page if content is longer than one A4
+            let yPos = 0;
+            while (yPos < imgH) {
+              if (yPos > 0) pdf.addPage();
+              pdf.addImage(imgData, "JPEG", 0, -yPos, imgW, imgH);
+              yPos += pageH;
+            }
+          }
+
+          resolve(pdf.output("blob"));
+        } catch (err) {
+          document.body.removeChild(iframe);
+          reject(err);
+        }
+      };
+      iframe.srcdoc = buildDocumentHTML(doc);
+    });
+  };
+
+  // Download a .pdf file directly to device
+  const handleDownloadPdf = async (doc: InvoiceDocument) => {
+    setIsGeneratingPdf(true);
+    try {
+      const blob = await generatePdfBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${doc.docNumber}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "PDF Downloaded! 📄", description: `${doc.docNumber}.pdf saved to your Downloads.` });
+    } catch {
+      toast({ title: "PDF Error", description: "Could not generate PDF. Try Print / Save PDF instead.", variant: "destructive" });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  // Share via Web Share API (opens native Android/iOS share sheet with real .pdf file)
+  const handleNativeSharePdf = async (doc: InvoiceDocument) => {
+    setIsGeneratingPdf(true);
+    try {
+      const blob = await generatePdfBlob(doc);
+      const file = new File([blob], `${doc.docNumber}.pdf`, { type: "application/pdf" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `${doc.docNumber} – ${companyProfile.name}`,
+          text: generateDocWhatsAppMessage(doc),
+          files: [file],
+        });
+        setPdfBlob(blob);
+      } else {
+        // Fallback: download the PDF if Web Share API not supported
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${doc.docNumber}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast({
+          title: "Saved to Downloads 📄",
+          description: "Native share not supported — PDF downloaded. Open WhatsApp → attach the file manually.",
+        });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        toast({ title: "Share Failed", description: "Could not share PDF. Try downloading instead.", variant: "destructive" });
+      }
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const handleOpenPaymentModal = (doc: InvoiceDocument) => {
     const totals = calculateDocTotals(doc);
     const paidSoFar = (doc.payments || []).reduce((s, p) => s + p.amount, 0);
@@ -1805,18 +2009,14 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
 
-                              {/* WhatsApp Share */}
-                              <a
-                                href={`https://wa.me/${doc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                                  generateDocWhatsAppMessage(doc)
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title="Share via WhatsApp"
+                              {/* Share / Send PDF */}
+                              <button
+                                onClick={() => setShareModalDoc(doc)}
+                                title="Share / Download PDF"
                                 className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 transition-colors"
                               >
                                 <MessageCircle className="w-3.5 h-3.5" />
-                              </a>
+                              </button>
 
                               {/* Move to Bin */}
                               <button
@@ -2533,17 +2733,13 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 <span>Edit Items</span>
               </button>
 
-              <a
-                href={`https://wa.me/${currentDoc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                  generateDocWhatsAppMessage(currentDoc)
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setShareModalDoc(currentDoc)}
                 className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>Send WhatsApp</span>
-              </a>
+                <Download className="w-4 h-4" />
+                <span>Share / PDF</span>
+              </button>
 
               <button
                 onClick={() => handleOpenEmailModal(currentDoc)}
@@ -3741,6 +3937,94 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════
+          SHARE PDF MODAL
+          Opens when user clicks the Share PDF button
+      ══════════════════════════════════════════════════ */}
+      {shareModalDoc && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4" onClick={() => setShareModalDoc(null)}>
+          <div className="bg-card border border-teal-500/40 rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-5 animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400">
+                  <Download className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">Share Document</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">{shareModalDoc.docNumber}</p>
+                </div>
+              </div>
+              <button onClick={() => setShareModalDoc(null)} className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-navy-800 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Client info */}
+            <div className="px-4 py-3 rounded-2xl bg-navy-950 border border-border text-xs space-y-0.5">
+              <p className="text-slate-400">Client: <strong className="text-white">{shareModalDoc.client.name}</strong> — {shareModalDoc.client.company}</p>
+              <p className="text-slate-400">Phone: <strong className="text-white font-mono">{shareModalDoc.client.phone}</strong></p>
+            </div>
+
+            {/* Action options */}
+            <div className="space-y-3">
+              {/* Option 1: Download PDF file */}
+              <button
+                onClick={() => { handleDownloadPdf(shareModalDoc); }}
+                disabled={isGeneratingPdf}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white font-bold text-sm transition-all"
+              >
+                {isGeneratingPdf ? (
+                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                ) : (
+                  <Download className="w-5 h-5 shrink-0" />
+                )}
+                <div className="text-left">
+                  <div>{isGeneratingPdf ? "Generating PDF…" : "Download PDF File"}</div>
+                  <div className="text-[11px] font-normal opacity-80">Saves {shareModalDoc.docNumber}.pdf to Downloads</div>
+                </div>
+              </button>
+
+              {/* Option 2: Native Share (opens WhatsApp/Gmail/Drive with file) */}
+              <button
+                onClick={() => { handleNativeSharePdf(shareModalDoc); }}
+                disabled={isGeneratingPdf}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-bold text-sm transition-all"
+              >
+                {isGeneratingPdf ? (
+                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                ) : (
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                )}
+                <div className="text-left">
+                  <div>Share PDF via WhatsApp / Drive</div>
+                  <div className="text-[11px] font-normal opacity-80">Generates PDF → opens native share sheet</div>
+                </div>
+              </button>
+
+              {/* Option 3: WhatsApp text message fallback */}
+              <a
+                href={`https://wa.me/${shareModalDoc.client.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(generateDocWhatsAppMessage(shareModalDoc))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShareModalDoc(null)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-navy-800 hover:bg-navy-700 border border-border text-slate-200 hover:text-white font-bold text-sm transition-all"
+              >
+                <MessageCircle className="w-5 h-5 shrink-0 text-emerald-400" />
+                <div className="text-left">
+                  <div>Send Summary via WhatsApp</div>
+                  <div className="text-[11px] font-normal text-slate-400">Text message with totals + verify link</div>
+                </div>
+              </a>
+            </div>
+
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+              💡 On Android/iPhone: tap "Share PDF via WhatsApp" — it opens your native share sheet so you can send the actual PDF file.
+            </p>
           </div>
         </div>
       )}
