@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import About from "@/components/About";
 import TrustBadges from "@/components/TrustBadges";
@@ -24,35 +24,18 @@ import {
   HeartHandshake,
   ChevronDown,
   Clock,
-  Briefcase
+  Briefcase,
+  Check
 } from "lucide-react";
 
 export const AboutPage: React.FC = () => {
-  const engineerPillars = [
-    {
-      metric: "BSc Computer Science",
-      label: "Degree Qualified",
-      desc: "Catholic University of Eastern Africa (CUEA) graduate with deep systems theory.",
-      icon: GraduationCap,
-    },
-    {
-      metric: "30+ Retail Branches",
-      label: "Enterprise Footprint",
-      desc: "Daily nationwide IT support for Samchi Telecommunications dealership network.",
-      icon: Building,
-    },
-    {
-      metric: "< 15-Min SLA",
-      label: "Rapid Remote Help",
-      desc: "Immediate remote connection to resolve payment freezes and PC errors.",
-      icon: Clock,
-    },
-    {
-      metric: "Direct Accountability",
-      label: "Zero Middlemen",
-      desc: "You talk directly with the engineer who builds and fixes your systems.",
-      icon: ShieldCheck,
-    },
+  const [activeTab, setActiveTab] = useState<"whoami" | "degree" | "experience" | "stack">("whoami");
+
+  const terminalTabs = [
+    { id: "whoami", label: "whoami", icon: UserCheck },
+    { id: "degree", label: "degree", icon: GraduationCap },
+    { id: "experience", label: "enterprise", icon: Building },
+    { id: "stack", label: "hardware-stack", icon: Cpu },
   ];
 
   const comparison = [
@@ -92,85 +75,185 @@ export const AboutPage: React.FC = () => {
       <Navigation />
 
       <main className="flex-1">
-        {/* Full-Screen Immersive Landing Hero */}
-        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        {/* Full-Screen High-Impact 2-Column Hero */}
+        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Centered Landing Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm animate-in fade-in">
-              <GraduationCap className="w-4 h-4 text-teal-500" />
-              <span>Senior Computer Engineer • BSc CS Graduate (CUEA)</span>
-            </div>
+          {/* 2-Column Hero Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Bio & Core Mission */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm">
+                  <GraduationCap className="w-3.5 h-3.5 text-teal-500" />
+                  <span>Senior Computer Systems Engineer • Nairobi, Kenya</span>
+                </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-              Meet Peter Kivevo John: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">The Engineer Behind Reliable Kenyan IT</span>
-            </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+                  Meet Peter Kivevo John: <br className="hidden sm:inline" />
+                  <span className="text-gradient-teal">The Engineer Behind Reliable Kenyan IT</span>
+                </h1>
 
-            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              I help Kenyan businesses eliminate downtime, secure their payment networks, and build fast websites that drive real revenue. When you work with me, you work directly with the engineer who takes personal responsibility for your uptime.
-            </p>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  I combine formal computer science training with hands-on field experience maintaining retail dealership networks and hotel Wi-Fi infrastructure. When you work with me, you speak directly with the engineer who builds and secures your systems.
+                </p>
 
-            {/* 4 Engineer Credentials & Trust Pillars */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
-              {engineerPillars.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-4 sm:p-5 rounded-2xl bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border border-border/80 hover:border-teal-500/40 shadow-sm space-y-1.5"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-1">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <p className="font-heading font-bold text-sm text-foreground">
-                      {item.metric}
-                    </p>
-                    <p className="text-[11px] font-mono font-semibold text-teal-600 dark:text-teal-400">
-                      {item.label}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      {item.desc}
-                    </p>
+                {/* 3 Key Pillars */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🎓 BSc CompSci</span>
+                    <span className="text-[11px] text-muted-foreground">CUEA Degree Graduate</span>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🏬 30+ Dealerships</span>
+                    <span className="text-[11px] text-muted-foreground">Samchi Telecom Daily IT</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ Direct Contact</span>
+                    <span className="text-[11px] text-muted-foreground">Zero Middlemen Queues</span>
+                  </div>
+                </div>
 
-            {/* Primary Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <a
-                href={getWhatsAppUrl("Hi Peter, I read your About page and would like to discuss IT support for my business.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Chat with Peter on WhatsApp</span>
-              </a>
+                {/* Primary Actions */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                  <a
+                    href={getWhatsAppUrl("Hi Peter, I read your About page and would like to discuss IT support for my business.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Chat with Peter on WhatsApp</span>
+                  </a>
 
-              <a
-                href="/files/Peter_Kivevo_Profile.pdf"
-                download="Peter_Kivevo_IT_Engineer_Profile.pdf"
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
-              >
-                <Download className="w-4 h-4 text-teal-500" />
-                <span>Download CV / Profile (PDF)</span>
-              </a>
+                  <a
+                    href="/files/Peter_Kivevo_Profile.pdf"
+                    download="Peter_Kivevo_IT_Engineer_Profile.pdf"
+                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5 text-teal-500" />
+                    <span>Download CV / Profile (PDF)</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Engineer Verification Terminal Widget */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                      </div>
+                      <span className="font-mono text-xs font-bold text-foreground ml-2">engineer_console.sh</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                      LIVE VERIFIED
+                    </span>
+                  </div>
+
+                  {/* Interactive Terminal Command Tabs */}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {terminalTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id as any)}
+                          className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center gap-1 ${
+                            isActive
+                              ? "bg-teal-500/15 border-teal-500 text-foreground font-bold shadow-sm"
+                              : "bg-muted/40 border-border/70 text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          <Icon className={`w-3.5 h-3.5 ${isActive ? "text-teal-500" : "text-muted-foreground"}`} />
+                          <span className="text-[10px] font-mono truncate">{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Terminal Tab Content */}
+                  <div className="p-4 rounded-2xl bg-muted/30 dark:bg-navy-950/70 border border-border/80 space-y-3 font-mono text-xs animate-in fade-in duration-200">
+                    {activeTab === "whoami" && (
+                      <div className="space-y-2 text-foreground">
+                        <p className="text-teal-600 dark:text-teal-400 font-bold">$ peter --status</p>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">
+                          • Name: Peter Kivevo John<br />
+                          • Role: Senior Computer Systems &amp; Network Engineer<br />
+                          • Location: Nairobi, Kenya (Coverage: Countrywide Remote &amp; On-Site)<br />
+                          • Avg Emergency Response: &lt; 15 mins via WhatsApp
+                        </p>
+                      </div>
+                    )}
+
+                    {activeTab === "degree" && (
+                      <div className="space-y-2 text-foreground">
+                        <p className="text-teal-600 dark:text-teal-400 font-bold">$ verify --academic-credentials</p>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">
+                          • Degree: Bachelor of Science in Computer Science (BSc CS)<br />
+                          • University: Catholic University of Eastern Africa (CUEA)<br />
+                          • Focus: Network Architecture, Distributed Systems, Database Security<br />
+                          • Verification Status: Authenticated Graduate
+                        </p>
+                      </div>
+                    )}
+
+                    {activeTab === "experience" && (
+                      <div className="space-y-2 text-foreground">
+                        <p className="text-teal-600 dark:text-teal-400 font-bold">$ inspect --enterprise-footprint</p>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">
+                          • Samchi Telecom: 30+ nationwide Safaricom retail branches<br />
+                          • After40 Hotel: Central Nairobi CBD hotel Wi-Fi &amp; web infrastructure<br />
+                          • SNL Lounge: High-density hospitality payment till isolation<br />
+                          • Total Uptime Record: 99.8% across managed sites
+                        </p>
+                      </div>
+                    )}
+
+                    {activeTab === "stack" && (
+                      <div className="space-y-2 text-foreground">
+                        <p className="text-teal-600 dark:text-teal-400 font-bold">$ list --hardware-mastery</p>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">
+                          • Routers: MikroTik RouterOS, UniFi Dream Machine, Cisco<br />
+                          • Wi-Fi APs: Ubiquiti UniFi Long Range, TP-Link Omada<br />
+                          • Systems: Windows Server, Linux (Ubuntu/Debian), macOS<br />
+                          • Cloud: Automated daily NAS backup, AnyDesk Enterprise
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="pt-2 border-t border-border/70 flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">Direct Line: +254 751 035 034</span>
+                      <a
+                        href={getWhatsAppUrl("Hi Peter, I saw your engineer terminal and would like to connect.")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
+                      >
+                        <span>Message Peter</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-4 relative z-10">
+          <div className="text-center pt-6 pb-2 relative z-10">
             <button
               onClick={scrollToContent}
               className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to read story, credentials &amp; comparison matrix</span>
-              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to read full story, comparison matrix &amp; reviews</span>
+              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
                 <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
               </div>
             </button>

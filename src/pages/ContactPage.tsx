@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -16,21 +16,25 @@ import {
   Zap,
   Calendar,
   ArrowRight,
-  ChevronDown
+  ChevronDown,
+  Building2,
+  Headphones
 } from "lucide-react";
 
 export const ContactPage: React.FC = () => {
+  const [activeChannelIdx, setActiveChannelIdx] = useState(0);
+
   const directChannels = [
     {
       title: "Direct WhatsApp Line",
       subtitle: "Fastest response (under 5 mins)",
       value: SITE_CONFIG.phoneDisplay,
-      href: getWhatsAppUrl("Hi Peter, reaching out from your website contact page."),
+      href: getWhatsAppUrl("Hi Peter, reaching out from your website contact page for urgent IT help."),
       icon: MessageCircle,
       badge: "Fastest Response",
       badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-      ctaText: "Chat on WhatsApp",
-      isPrimary: true,
+      ctaText: "Start WhatsApp Chat",
+      details: "Direct line to Peter. Send photos, error logs, or voice notes for immediate triage.",
     },
     {
       title: "Direct Phone Call",
@@ -40,30 +44,30 @@ export const ContactPage: React.FC = () => {
       icon: Phone,
       badge: "Emergency Fixes",
       badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
-      ctaText: "Call Now",
-      isPrimary: false,
+      ctaText: "Call Peter Directly",
+      details: "Ideal for sudden network dropouts, server crashes, or POS till emergencies.",
     },
     {
-      title: "Official Email",
-      subtitle: "For RFP, tenders & formal quotes",
+      title: "Official RFP Email",
+      subtitle: "For tenders & formal proposals",
       value: SITE_CONFIG.email,
       href: `mailto:${SITE_CONFIG.email}`,
       icon: Mail,
       badge: "Written Quotes",
       badgeColor: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
-      ctaText: "Send Email",
-      isPrimary: false,
+      ctaText: "Send RFP Email",
+      details: "Detailed PDF quotations and contracts delivered within 24 business hours.",
     },
     {
       title: "Service Base & Coverage",
       subtitle: "On-site Nairobi & Countrywide Remote",
-      value: "Nairobi CBD & Westlands Base",
+      value: "Parklands / Westlands / CBD Base",
       href: "#contact-form",
       icon: MapPin,
       badge: "Nairobi & Remote",
       badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-      ctaText: "Book On-Site Visit",
-      isPrimary: false,
+      ctaText: "Book Physical Visit",
+      details: "Same-day on-site physical dispatch across Nairobi. Remote connection nationwide.",
     },
   ];
 
@@ -90,6 +94,9 @@ export const ContactPage: React.FC = () => {
     },
   ];
 
+  const currentChannel = directChannels[activeChannelIdx];
+  const CurrentChannelIcon = currentChannel.icon;
+
   const scrollToContent = () => {
     document.getElementById("contact-start")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -99,114 +106,155 @@ export const ContactPage: React.FC = () => {
       <Navigation />
 
       <main className="flex-1">
-        {/* Full-Screen Immersive Landing Hero */}
-        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        {/* Full-Screen High-Impact 2-Column Hero */}
+        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Centered Landing Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-mono font-semibold border border-emerald-500/20 shadow-sm animate-in fade-in">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>🟢 Live Availability: Peter is On-Call in Nairobi &amp; Countrywide Remote</span>
-            </div>
+          {/* 2-Column Hero Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Direct Access Message */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-mono font-semibold border border-emerald-500/20 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Live Availability: Peter is On-Call in Nairobi &amp; Remote</span>
+                </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-              Direct Engineering Help: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">No Queues, No Call Center Bots</span>
-            </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+                  Direct Engineering Help: <br className="hidden sm:inline" />
+                  <span className="text-gradient-teal">No Queues, No Call Center Bots</span>
+                </h1>
 
-            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Need urgent computer repairs, office Wi-Fi troubleshooting, security camera installation, or a fast business website? Connect directly with senior computer engineer Peter Kivevo John.
-            </p>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Need urgent computer repairs, office Wi-Fi troubleshooting, security camera installation, or a fast business website? Connect directly with senior computer engineer Peter Kivevo John.
+                </p>
 
-            {/* 4 Direct Channel Cards */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
-              {directChannels.map((ch, idx) => {
-                const Icon = ch.icon;
-                return (
-                  <div
-                    key={idx}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between space-y-3 ${
-                      ch.isPrimary
-                        ? "bg-gradient-to-b from-teal-500/15 to-emerald-500/15 border-teal-500/40 shadow-glow"
-                        : "bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border-border/80 hover:border-teal-500/40 shadow-sm"
-                    }`}
+                {/* 3 Direct Access Badges */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ &lt; 5 Mins</span>
+                    <span className="text-[11px] text-muted-foreground">WhatsApp Triage</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🚗 Same-Day</span>
+                    <span className="text-[11px] text-muted-foreground">Nairobi On-Site</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🔒 Direct Line</span>
+                    <span className="text-[11px] text-muted-foreground">One Single Number</span>
+                  </div>
+                </div>
+
+                {/* Primary Actions */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                  <a
+                    href={getWhatsAppUrl("Hi Peter, reaching out from your website contact page.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
                   >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Start Direct Chat on WhatsApp</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={scrollToContent}
+                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                  >
+                    <span>Book Physical Visit &amp; Form</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-teal-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Direct Channel Hub Widget */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-mono text-xs font-bold text-foreground">Direct Access Channels</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                      ONLINE
+                    </span>
+                  </div>
+
+                  {/* 4 Direct Channel Buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {directChannels.map((ch, idx) => {
+                      const Icon = ch.icon;
+                      const isActive = activeChannelIdx === idx;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveChannelIdx(idx)}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                            isActive
+                              ? "bg-teal-500/15 border-teal-500 text-foreground font-bold shadow-sm"
+                              : "bg-muted/40 border-border/70 text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isActive ? "text-teal-500" : "text-muted-foreground"}`} />
+                          <span className="text-xs truncate">{ch.title.split(" ")[0]} {ch.title.split(" ")[1]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Channel Showcase Card */}
+                  <div className="p-4 rounded-2xl bg-muted/30 dark:bg-navy-950/70 border border-border/80 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
-                          <Icon className="w-4 h-4" />
+                          <CurrentChannelIcon className="w-4 h-4" />
                         </div>
-                        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${ch.badgeColor}`}>
-                          {ch.badge}
-                        </span>
+                        <div>
+                          <h4 className="font-heading font-bold text-xs sm:text-sm text-foreground">
+                            {currentChannel.title}
+                          </h4>
+                          <span className="text-[10px] font-mono text-muted-foreground">{currentChannel.subtitle}</span>
+                        </div>
                       </div>
-
-                      <div>
-                        <h3 className="font-heading font-bold text-xs sm:text-sm text-foreground">
-                          {ch.title}
-                        </h3>
-                        <p className="text-[11px] text-muted-foreground">
-                          {ch.subtitle}
-                        </p>
-                      </div>
-
-                      <p className="text-xs font-mono font-semibold text-foreground pt-0.5">
-                        {ch.value}
-                      </p>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${currentChannel.badgeColor}`}>
+                        {currentChannel.badge}
+                      </span>
                     </div>
 
+                    <p className="text-xs font-mono font-bold text-foreground">
+                      {currentChannel.value}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {currentChannel.details}
+                    </p>
+
                     <a
-                      href={ch.href}
-                      target={ch.href.startsWith("http") ? "_blank" : undefined}
-                      rel={ch.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className={`w-full py-2 px-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all ${
-                        ch.isPrimary
-                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-glow"
-                          : "bg-muted/80 hover:bg-teal-500/10 text-foreground hover:text-teal-600 dark:hover:text-teal-400 border border-border"
-                      }`}
+                      href={currentChannel.href}
+                      target={currentChannel.href.startsWith("http") ? "_blank" : undefined}
+                      rel={currentChannel.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all hover:shadow-glow mt-2"
                     >
-                      <span>{ch.ctaText}</span>
-                      <ArrowRight className="w-3 h-3" />
+                      <CurrentChannelIcon className="w-3.5 h-3.5" />
+                      <span>{currentChannel.ctaText}</span>
                     </a>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Primary Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <a
-                href={getWhatsAppUrl("Hi Peter, reaching out from your website contact page.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Start Direct Chat on WhatsApp</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={scrollToContent}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
-              >
-                <span>Book On-Site Visit &amp; View Intake Form</span>
-                <ArrowRight className="w-4 h-4 text-teal-500" />
-              </button>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-4 relative z-10">
+          <div className="text-center pt-6 pb-2 relative z-10">
             <button
               onClick={scrollToContent}
               className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to book on-site appointment &amp; view intake form</span>
-              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to book appointment &amp; view intake form</span>
+              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
                 <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
               </div>
             </button>

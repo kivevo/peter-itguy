@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Process from "@/components/Process";
 import CallToActionBand from "@/components/CallToActionBand";
@@ -18,30 +18,63 @@ import {
   FileText,
   ChevronDown,
   Activity,
-  Check
+  Check,
+  Search,
+  Wrench,
+  TrendingUp
 } from "lucide-react";
 
 export const ProcessPage: React.FC = () => {
-  const processPillars = [
+  const [activeStepIdx, setActiveStepIdx] = useState(0);
+
+  const workflowSteps = [
     {
       step: "01",
       title: "15-Min Rapid Triage",
-      desc: "Emergency remote connection or immediate WhatsApp response to stabilize systems.",
+      sla: "< 15 Mins Response",
+      icon: Zap,
+      summary: "Immediate remote connection or WhatsApp diagnosis during urgent outages.",
+      details: [
+        "Instant remote connection via AnyDesk/TeamViewer",
+        "Triage payment till timeouts and computer lockups",
+        "Stabilize critical sales & reception systems first",
+      ],
     },
     {
       step: "02",
       title: "Root-Cause Diagnostics",
-      desc: "We diagnose the underlying network, cable, or hardware bottleneck, not just symptoms.",
+      sla: "Zero Guesswork",
+      icon: Search,
+      summary: "We find the exact faulty cable, ISP bottleneck, or hardware failure.",
+      details: [
+        "Full Wi-Fi signal heatmap & interference scan",
+        "Inspect LAN switches, router logs & DHCP pools",
+        "Identify bandwidth hogs crashing payment tills",
+      ],
     },
     {
       step: "03",
       title: "Permanent Fix & Hardening",
-      desc: "Hardware replacement, VLAN isolation, and 5G failover setup so issues never repeat.",
+      sla: "Same-Day / 24–48h",
+      icon: Wrench,
+      summary: "Hardware replacement, VLAN till isolation & automatic 5G failover line.",
+      details: [
+        "Isolate POS machines on protected private channel",
+        "Install automatic 5G/4G failover backup router",
+        "Mount weatherproof outdoor antennas for gardens/patio",
+      ],
     },
     {
       step: "04",
       title: "Proactive Monitoring",
-      desc: "Continuous health checks and preventative maintenance to prevent future downtime.",
+      sla: "24/7 Peace of Mind",
+      icon: TrendingUp,
+      summary: "Daily health checks so your systems stay online and never freeze.",
+      details: [
+        "Automated daily cloud backups for accounting data",
+        "Monthly firmware updates and security hardening",
+        "Direct engineer hotline for staff emergency help",
+      ],
     },
   ];
 
@@ -96,6 +129,9 @@ export const ProcessPage: React.FC = () => {
     },
   ];
 
+  const currentStep = workflowSteps[activeStepIdx];
+  const CurrentStepIcon = currentStep.icon;
+
   const scrollToContent = () => {
     document.getElementById("process-start")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -105,79 +141,159 @@ export const ProcessPage: React.FC = () => {
       <Navigation />
 
       <main className="flex-1">
-        {/* Full-Screen Immersive Landing Hero */}
-        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        {/* Full-Screen High-Impact 2-Column Hero */}
+        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Centered Landing Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm animate-in fade-in">
-              <Zap className="w-4 h-4 text-teal-500" />
-              <span>15-Minute Response SLA • Zero-Guesswork Protocol</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-              How We Work: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">From Urgent Problem to Permanent Fix</span>
-            </h1>
-
-            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              We eliminate technical frustration with transparent workflows, certified engineering practices, and measurable response SLAs. Learn how we handle emergency tickets, on-site surveys, and proactive maintenance across Kenya.
-            </p>
-
-            {/* 4 Process Pillars */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
-              {processPillars.map((p, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 sm:p-5 rounded-2xl bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border border-border/80 hover:border-teal-500/40 shadow-sm space-y-1.5"
-                >
-                  <span className="text-xl font-black font-heading text-teal-500">
-                    {p.step}
-                  </span>
-                  <h3 className="font-heading font-bold text-xs sm:text-sm text-foreground">
-                    {p.title}
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    {p.desc}
-                  </p>
+          {/* 2-Column Hero Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: SLA Value Proposition */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm">
+                  <Zap className="w-3.5 h-3.5 text-teal-500" />
+                  <span>15-Minute SLA Guarantee • Nairobi &amp; Kenya</span>
                 </div>
-              ))}
-            </div>
 
-            {/* Primary Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <a
-                href={getWhatsAppUrl("Hi Peter, I need urgent IT assistance under your 15-minute SLA.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Get 15-Minute Urgent Triage on WhatsApp</span>
-              </a>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+                  Our Engineering Workflow: <br className="hidden sm:inline" />
+                  <span className="text-gradient-teal">From Urgent Problem to Permanent Fix</span>
+                </h1>
 
-              <button
-                type="button"
-                onClick={scrollToContent}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
-              >
-                <span>View SLA Matrix &amp; Coverage Zones</span>
-                <ArrowRight className="w-4 h-4 text-teal-500" />
-              </button>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  No guessing and no endless waiting. We follow a strict 4-step engineering protocol with guaranteed response SLAs to resolve critical outages, harden networks, and keep your staff productive.
+                </p>
+
+                {/* 3 Process SLA Badges */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ &lt; 15 Mins</span>
+                    <span className="text-[11px] text-muted-foreground">Emergency Triage</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🚗 &lt; 45 Mins</span>
+                    <span className="text-[11px] text-muted-foreground">Nairobi On-Site</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🛡️ Root-Cause</span>
+                    <span className="text-[11px] text-muted-foreground">Permanent Solution</span>
+                  </div>
+                </div>
+
+                {/* Primary Actions */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                  <a
+                    href={getWhatsAppUrl("Hi Peter, I need emergency IT help under your 15-minute SLA.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Get 15-Min Triage on WhatsApp</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={scrollToContent}
+                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                  >
+                    <span>View SLA Matrix &amp; Zones</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-teal-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive 4-Step Protocol Navigator */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-mono text-xs font-bold text-foreground">Interactive Engineering Protocol</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-teal-600 dark:text-teal-400 font-semibold">{currentStep.sla}</span>
+                  </div>
+
+                  {/* 4 Step Selector Buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {workflowSteps.map((ws, idx) => {
+                      const Icon = ws.icon;
+                      const isActive = activeStepIdx === idx;
+                      return (
+                        <button
+                          key={ws.step}
+                          onClick={() => setActiveStepIdx(idx)}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                            isActive
+                              ? "bg-teal-500/15 border-teal-500 text-foreground font-bold shadow-sm"
+                              : "bg-muted/40 border-border/70 text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          <span className="font-mono text-xs font-bold text-teal-500">{ws.step}</span>
+                          <span className="text-xs truncate">{ws.title.split(" ")[0]} {ws.title.split(" ")[1]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Step Showcase Card */}
+                  <div className="p-4 rounded-2xl bg-muted/30 dark:bg-navy-950/70 border border-border/80 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                          <CurrentStepIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono text-teal-600 dark:text-teal-400 font-bold">STEP {currentStep.step}</span>
+                          <h4 className="font-heading font-bold text-xs sm:text-sm text-foreground">
+                            {currentStep.title}
+                          </h4>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        {currentStep.sla}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {currentStep.summary}
+                    </p>
+
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-mono font-bold text-foreground uppercase tracking-wider block">Key Deliverables:</span>
+                      {currentStep.details.map((det, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] text-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+                          <span>{det}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <a
+                      href={getWhatsAppUrl(`Hi Peter, I need urgent IT assistance. Step: ${currentStep.title}.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all hover:shadow-glow mt-2"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>Request Urgent Connection on WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-4 relative z-10">
+          <div className="text-center pt-6 pb-2 relative z-10">
             <button
               onClick={scrollToContent}
               className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to view 4-step workflow, response SLAs &amp; Kenya coverage</span>
-              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to view full workflow, SLAs &amp; coverage matrix</span>
+              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
                 <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
               </div>
             </button>

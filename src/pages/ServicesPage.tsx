@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Services from "@/components/Services";
 import ClientLogoStrip from "@/components/ClientLogoStrip";
@@ -26,42 +26,86 @@ import {
   ChevronDown,
   Activity,
   Server,
-  Zap
+  Zap,
+  Clock,
+  ArrowUpRight,
+  Shield
 } from "lucide-react";
 
 export const ServicesPage: React.FC = () => {
+  const [activeServiceIdx, setActiveServiceIdx] = useState(0);
+
+  const heroServices = [
+    {
+      id: "wifi",
+      icon: Wifi,
+      badge: "Zero Till Freezes",
+      title: "Office Wi-Fi & VLANs",
+      turnaround: "Same-Day Setup",
+      rate: "From KES 15,000",
+      highlight: "Isolated guest Wi-Fi + 5G/4G automatic failover router for payment machines.",
+      included: [
+        "Private POS lane so M-Pesa never lags",
+        "UniFi & MikroTik long-range AP mounting",
+        "Automatic backup internet router failover",
+      ],
+    },
+    {
+      id: "remote",
+      icon: Cpu,
+      badge: "15-Min Connection",
+      title: "Remote Computer & IT Support",
+      turnaround: "< 15 Mins",
+      rate: "From KES 2,500 / fix",
+      highlight: "Fast hands-on remote triage for slow Windows/Mac PCs, virus locks, and servers.",
+      included: [
+        "Instant AnyDesk/TeamViewer remote triage",
+        "Point of Sale & accounting software fix",
+        "Automated daily cloud backup setup",
+      ],
+    },
+    {
+      id: "web",
+      icon: Globe,
+      badge: "Sub-2s Speed",
+      title: "Fast Mobile Websites & SEO",
+      turnaround: "5–10 Days",
+      rate: "From KES 35,000",
+      highlight: "High-converting web design optimized for Safaricom 5G/4G with direct WhatsApp CTAs.",
+      included: [
+        "Sub-2s mobile loading speed on Kenyan 5G",
+        "Direct 1-click WhatsApp order flows",
+        "Google Maps & Local Search SEO ranking",
+      ],
+    },
+    {
+      id: "cctv",
+      icon: ShieldCheck,
+      badge: "HD Live Phone Feed",
+      title: "CCTV Security & Access Control",
+      turnaround: "1–2 Days",
+      rate: "From KES 25,000",
+      highlight: "Night-vision HD cameras with encrypted live phone viewing app for managers.",
+      included: [
+        "Color night vision & remote phone app",
+        "Biometric door access & attendance logs",
+        "Clean structured trunking & cabling",
+      ],
+    },
+  ];
+
   const quickJumps = [
     { label: "Core 4 Services", href: "#core-services" },
     { label: "Interactive IT Tools", href: "#interactive-tools" },
-    { label: "Scope & Deliverables", href: "#scope-breakdown" },
-    { label: "Project Scope Builder", href: "#quote-builder" },
-    { label: "Pricing & Retainers", href: "#pricing-plans" },
+    { label: "Itemized Scope", href: "#scope-breakdown" },
+    { label: "Quote Builder", href: "#quote-builder" },
+    { label: "Retainer Pricing", href: "#pricing-plans" },
     { label: "50+ IT Directory", href: "#it-directory" },
     { label: "Technical FAQ", href: "#technical-faq" },
   ];
 
-  const servicePillars = [
-    {
-      icon: Wifi,
-      title: "Office Wi-Fi & VLANs",
-      desc: "Zero payment till freezes with isolated guest channels & automatic 5G failover.",
-    },
-    {
-      icon: Cpu,
-      title: "15-Min Remote IT Support",
-      desc: "Fast hands-on troubleshooting for slow PCs, retail portals, and servers.",
-    },
-    {
-      icon: Globe,
-      title: "Fast Mobile Websites",
-      desc: "Sub-2s load speeds on Safaricom 5G/4G with direct WhatsApp booking flows.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "HD CCTV & Security",
-      desc: "Encrypted live phone viewing, night vision, and structured cabling for managers.",
-    },
-  ];
+  const currentHeroService = heroServices[activeServiceIdx];
+  const CurrentIcon = currentHeroService.icon;
 
   const scrollToContent = () => {
     document.getElementById("content-start")?.scrollIntoView({ behavior: "smooth" });
@@ -72,95 +116,172 @@ export const ServicesPage: React.FC = () => {
       <Navigation />
 
       <main className="flex-1">
-        {/* Full-Screen Immersive Landing Hero */}
-        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        {/* Full-Screen High-Impact 2-Column Hero */}
+        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 right-10 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 left-10 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Centered Landing Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm animate-in fade-in">
-              <Layers className="w-4 h-4 text-teal-500" />
-              <span>Full-Stack IT Engineering Catalog • Nairobi &amp; Kenya</span>
-            </div>
+          {/* 2-Column Hero Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Value Proposition & CTAs */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm">
+                  <Layers className="w-3.5 h-3.5 text-teal-500" />
+                  <span>Enterprise Catalog • Nairobi &amp; Countrywide</span>
+                </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-              Enterprise IT Support, <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Unbreakable Wi-Fi &amp; Fast Web</span>
-            </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+                  Enterprise IT Support, <br className="hidden sm:inline" />
+                  <span className="text-gradient-teal">Unbreakable Wi-Fi &amp; Fast Web</span>
+                </h1>
 
-            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              From resolving 15-minute emergency computer freezes to engineering multi-floor UniFi Wi-Fi and building high-converting websites, explore our complete scope of services designed for Kenyan businesses.
-            </p>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Whether you need 15-minute emergency computer help, multi-floor Wi-Fi that never crashes your payment tills, or a high-converting business website, explore our certified turnkey services.
+                </p>
 
-            {/* 4 Interactive Feature Pillars */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
-              {servicePillars.map((p, idx) => {
-                const Icon = p.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-4 sm:p-5 rounded-2xl bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border border-border/80 hover:border-teal-500/40 shadow-sm transition-all space-y-2"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-heading font-bold text-xs sm:text-sm text-foreground">
-                      {p.title}
-                    </h3>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      {p.desc}
-                    </p>
+                {/* 3 Value Pillars */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ &lt; 15 Mins</span>
+                    <span className="text-[11px] text-muted-foreground">Urgent Remote SLA</span>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🏢 30+ Branches</span>
+                    <span className="text-[11px] text-muted-foreground">Retail &amp; Hotel Proof</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">🔒 100% Fixed</span>
+                    <span className="text-[11px] text-muted-foreground">Transparent Quotes</span>
+                  </div>
+                </div>
 
-            {/* Primary Action Buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <a
-                href={getWhatsAppUrl("Hi Peter, I am looking for custom IT services for my business.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Book Service Consultation on WhatsApp</span>
-              </a>
+                {/* Primary Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                  <a
+                    href={getWhatsAppUrl("Hi Peter, I want to book a service consultation for my business.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Book Service on WhatsApp</span>
+                  </a>
 
-              <button
-                type="button"
-                onClick={scrollToContent}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
-              >
-                <span>Browse All Interactive Tools &amp; Catalog</span>
-                <ArrowRight className="w-4 h-4 text-teal-500" />
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={scrollToContent}
+                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                  >
+                    <span>Browse 50+ IT Directory</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-teal-500" />
+                  </button>
+                </div>
 
-            {/* Quick Navigation Anchor Bar */}
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
-              {quickJumps.map((jump, idx) => (
-                <a
-                  key={idx}
-                  href={jump.href}
-                  className="px-3 py-1.5 rounded-xl bg-muted/70 hover:bg-teal-500/10 hover:text-teal-600 dark:hover:text-teal-400 text-muted-foreground text-xs font-medium border border-border/70 transition-colors"
-                >
-                  {jump.label}
-                </a>
-              ))}
+                {/* Quick Navigation Anchor Bar */}
+                <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2">
+                  {quickJumps.map((jump, idx) => (
+                    <a
+                      key={idx}
+                      href={jump.href}
+                      className="px-2.5 py-1 rounded-xl bg-muted/60 hover:bg-teal-500/10 hover:text-teal-600 dark:hover:text-teal-400 text-muted-foreground text-[11px] font-medium border border-border/70 transition-colors"
+                    >
+                      {jump.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Live Service Navigator Widget */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-mono text-xs font-bold text-foreground">Interactive Service Selector</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-teal-600 dark:text-teal-400 font-semibold">{currentHeroService.rate}</span>
+                  </div>
+
+                  {/* 4 Service Tabs */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {heroServices.map((srv, idx) => {
+                      const Icon = srv.icon;
+                      const isActive = activeServiceIdx === idx;
+                      return (
+                        <button
+                          key={srv.id}
+                          onClick={() => setActiveServiceIdx(idx)}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                            isActive
+                              ? "bg-teal-500/15 border-teal-500 text-foreground font-bold shadow-sm"
+                              : "bg-muted/40 border-border/70 text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isActive ? "text-teal-500" : "text-muted-foreground"}`} />
+                          <span className="text-xs truncate">{srv.title.split("&")[0]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Service Showcase Card */}
+                  <div className="p-4 rounded-2xl bg-muted/30 dark:bg-navy-950/70 border border-border/80 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                          <CurrentIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-bold text-xs sm:text-sm text-foreground">
+                            {currentHeroService.title}
+                          </h4>
+                          <span className="text-[10px] font-mono text-muted-foreground">Turnaround: {currentHeroService.turnaround}</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
+                        {currentHeroService.badge}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {currentHeroService.highlight}
+                    </p>
+
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-mono font-bold text-foreground uppercase tracking-wider block">Scope Highlights:</span>
+                      {currentHeroService.included.map((inc, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] text-foreground">
+                          <Check className="w-3 h-3 text-teal-500 flex-shrink-0" />
+                          <span>{inc}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <a
+                      href={getWhatsAppUrl(`Hi Peter, I would like to book a quotation for ${currentHeroService.title}.`, currentHeroService.title)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all hover:shadow-glow mt-2"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>Book {currentHeroService.title.split("&")[0]} via WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-4 relative z-10">
+          <div className="text-center pt-6 pb-2 relative z-10">
             <button
               onClick={scrollToContent}
               className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to explore full catalog</span>
-              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to explore full catalog &amp; interactive tools</span>
+              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
                 <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
               </div>
             </button>

@@ -18,18 +18,72 @@ import {
   Server,
   ArrowRight,
   ChevronDown,
-  FileText
+  FileText,
+  Zap,
+  CheckCircle2
 } from "lucide-react";
 
 export const BlogPage: React.FC = () => {
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+  const [activeCatIdx, setActiveCatIdx] = useState(0);
 
   const categories = [
-    { title: "Office Wi-Fi & Networks", count: "8 Guides", icon: Wifi, desc: "Fixing signal deadzones, VLAN till isolation & 5G failover." },
-    { title: "Payment Tills & M-Pesa", count: "4 Guides", icon: Server, desc: "Preventing card machine timeouts during busy sales hours." },
-    { title: "Fast Websites & 5G SEO", count: "6 Guides", icon: Smartphone, desc: "Sub-2s mobile loading, WhatsApp ordering & Google local rank." },
-    { title: "CCTV & Office Cyber Safety", count: "5 Guides", icon: ShieldCheck, desc: "Phone live streaming, secure passwords & phishing defense." },
+    {
+      id: "wifi",
+      title: "Office Wi-Fi & Networks",
+      count: "8 Guides",
+      icon: Wifi,
+      badge: "High Demand",
+      topic: "How to fix Wi-Fi signal deadzones and isolate guest phones from payment machines.",
+      tips: [
+        "Position antennas at ceiling height for 360° coverage",
+        "Put payment machines on an exclusive private VLAN lane",
+        "Enable 5G/4G automatic router failover for fiber cuts",
+      ],
+    },
+    {
+      id: "pos",
+      title: "Payment Tills & M-Pesa",
+      count: "4 Guides",
+      icon: Server,
+      badge: "Zero Freezes",
+      topic: "Stopping card machine timeouts and POS crashes during peak customer sales hours.",
+      tips: [
+        "Assign fixed static IP addresses to payment PDQ machines",
+        "Limit guest Wi-Fi bandwidth to prevent video buffering drag",
+        "Connect main tills via shielded Cat6 Ethernet cables",
+      ],
+    },
+    {
+      id: "web",
+      title: "Fast Websites & 5G SEO",
+      count: "6 Guides",
+      icon: Smartphone,
+      badge: "Sub-2s Mobile",
+      topic: "How to make business websites load in under 2 seconds on Safaricom & Airtel networks.",
+      tips: [
+        "Compress all product images to next-gen WebP format",
+        "Add direct 1-click WhatsApp order flows on mobile",
+        "Setup Google Business Profile for local Nairobi SEO",
+      ],
+    },
+    {
+      id: "cctv",
+      title: "CCTV & Security",
+      count: "5 Guides",
+      icon: ShieldCheck,
+      badge: "24/7 Monitoring",
+      topic: "Best practices for phone live viewing, encrypted access control & data backup.",
+      tips: [
+        "Use private NVR network to prevent camera feed snooping",
+        "Automate daily cloud backups for accounting databases",
+        "Enforce two-factor authentication on manager emails",
+      ],
+    },
   ];
+
+  const currentCategory = categories[activeCatIdx];
+  const CurrentCatIcon = currentCategory.icon;
 
   const scrollToContent = () => {
     document.getElementById("resources-start")?.scrollIntoView({ behavior: "smooth" });
@@ -40,86 +94,154 @@ export const BlogPage: React.FC = () => {
       <Navigation />
 
       <main className="flex-1">
-        {/* Full-Screen Immersive Landing Hero */}
-        <section className="min-h-screen pt-28 pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/40 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
+        {/* Full-Screen High-Impact 2-Column Hero */}
+        <section className="min-h-[calc(100vh-80px)] pt-28 pb-8 lg:pt-36 lg:pb-12 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 relative overflow-hidden">
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Centered Landing Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-5xl my-auto py-8 text-center space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm animate-in fade-in">
-              <BookOpen className="w-4 h-4 text-teal-500" />
-              <span>Practical Advice • Free IT Knowledge Base for Kenya</span>
-            </div>
+          {/* 2-Column Hero Content */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl my-auto">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Knowledge Base Mission */}
+              <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-mono font-semibold border border-teal-500/20 shadow-sm">
+                  <BookOpen className="w-3.5 h-3.5 text-teal-500" />
+                  <span>Free IT Knowledge Base • Practical Advice for Kenya</span>
+                </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
-              Practical IT Knowledge: <br className="hidden sm:inline" />
-              <span className="text-gradient-teal">Guides, Diagnostics &amp; Checklists</span>
-            </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight leading-[1.1]">
+                  Practical IT Knowledge: <br className="hidden sm:inline" />
+                  <span className="text-gradient-teal">Guides, Diagnostics &amp; Tools</span>
+                </h1>
 
-            <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Clear, non-technical advice on fixing slow office internet, preventing payment till freezes, protecting CCTV security feeds, and boosting website speeds across Kenya.
-            </p>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Clear, non-technical advice for business owners on fixing slow office internet, preventing payment till freezes, protecting CCTV security feeds, and boosting website speeds across Kenya.
+                </p>
 
-            {/* 4 Topic Category Pills */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 text-left pt-2">
-              {categories.map((cat, idx) => {
-                const Icon = cat.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-4 sm:p-5 rounded-2xl bg-card/80 dark:bg-navy-900/80 backdrop-blur-sm border border-border/80 hover:border-teal-500/40 shadow-sm transition-all space-y-1.5"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-1">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="font-heading font-bold text-xs sm:text-sm text-foreground">
-                        {cat.title}
-                      </p>
-                    </div>
-                    <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400 block">
-                      {cat.count}
-                    </span>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      {cat.desc}
-                    </p>
+                {/* 3 Free Resources Badges */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-left pt-1">
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">📥 Free PDF</span>
+                    <span className="text-[11px] text-muted-foreground">Audit Checklist</span>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">⚡ Live Speed Tool</span>
+                    <span className="text-[11px] text-muted-foreground">Kenyan 5G/4G Ping</span>
+                  </div>
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-card/80 dark:bg-navy-900/80 border border-border/80">
+                    <span className="text-teal-600 dark:text-teal-400 font-mono font-bold text-xs sm:text-sm block">📚 12+ Guides</span>
+                    <span className="text-[11px] text-muted-foreground">Actionable Steps</span>
+                  </div>
+                </div>
 
-            {/* Primary Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <button
-                type="button"
-                onClick={() => setIsChecklistOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Free Office Wi-Fi PDF Checklist</span>
-              </button>
+                {/* Primary Actions */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsChecklistOpen(true)}
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-glow transition-all active:scale-98"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Free Wi-Fi PDF Checklist</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={scrollToContent}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-card/70 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
-              >
-                <span>Read Articles &amp; Test Live Speed</span>
-                <ArrowRight className="w-4 h-4 text-teal-500" />
-              </button>
+                  <button
+                    type="button"
+                    onClick={scrollToContent}
+                    className="inline-flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted text-foreground font-semibold text-xs sm:text-sm transition-colors"
+                  >
+                    <span>Read Guides &amp; Test Live Speed</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-teal-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Knowledge Base Navigator Widget */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-mono text-xs font-bold text-foreground">Interactive Knowledge Topics</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-teal-600 dark:text-teal-400 font-semibold">{currentCategory.badge}</span>
+                  </div>
+
+                  {/* 4 Category Tabs */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {categories.map((cat, idx) => {
+                      const Icon = cat.icon;
+                      const isActive = activeCatIdx === idx;
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setActiveCatIdx(idx)}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                            isActive
+                              ? "bg-teal-500/15 border-teal-500 text-foreground font-bold shadow-sm"
+                              : "bg-muted/40 border-border/70 text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isActive ? "text-teal-500" : "text-muted-foreground"}`} />
+                          <span className="text-xs truncate">{cat.title.split("&")[0]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active Category Card */}
+                  <div className="p-4 rounded-2xl bg-muted/30 dark:bg-navy-950/70 border border-border/80 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                          <CurrentCatIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-bold text-xs sm:text-sm text-foreground">
+                            {currentCategory.title}
+                          </h4>
+                          <span className="text-[10px] font-mono text-muted-foreground">{currentCategory.count} available</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {currentCategory.topic}
+                    </p>
+
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-mono font-bold text-foreground uppercase tracking-wider block">Key Engineering Advice:</span>
+                      {currentCategory.tips.map((tip, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] text-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+                          <span>{tip}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsChecklistOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm transition-all hover:shadow-glow mt-2"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download Free Audit Checklist (PDF)</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Animated Scroll Down Indicator */}
-          <div className="text-center pt-4 relative z-10">
+          <div className="text-center pt-6 pb-2 relative z-10">
             <button
               onClick={scrollToContent}
               className="inline-flex flex-col items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
-              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to read practical guides, tools &amp; technical FAQs</span>
-              <div className="w-6 h-9 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
+              <span className="font-mono text-[11px] uppercase tracking-wider">Scroll to read guides, test live speed &amp; view FAQs</span>
+              <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/40 group-hover:border-teal-500 flex items-start justify-center p-1 transition-colors">
                 <div className="w-1.5 h-2 bg-teal-500 rounded-full animate-bounce" />
               </div>
             </button>
