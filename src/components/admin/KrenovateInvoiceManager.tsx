@@ -1240,7 +1240,6 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${i + 1}</td>
         <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${item.desc}</td>
         <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center">${item.qty}</td>
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right">${item.unit || ""}</td>
         <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
         <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
       </tr>`);
@@ -1291,12 +1290,12 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       <div><div class="label">Billed To</div><div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div><div style="font-size:11px;color:#475569;margin-top:3px">${doc.client.company ? doc.client.name : ""}</div><div style="font-size:10px;color:#64748b">${doc.client.phone}</div>${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}</div>
       <div style="text-align:right">
         <div><div class="label">Status</div><div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div></div>
-        ${doc.poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${doc.poNumber}</div></div>` : ""}
+        ${(doc as Record<string, unknown>).poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${(doc as Record<string, unknown>).poNumber}</div></div>` : ""}
       </div>
     </div>
-    <table><thead><tr><th>#</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:center">Unit</th><th style="text-align:center">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml.join("")}</tbody></table>
+    <table><thead><tr><th>#</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:center">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml.join("")}</tbody></table>
     <div class="totals"><div class="totals-box">
-      ${totals.subtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.subtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
       ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
       ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
       ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
