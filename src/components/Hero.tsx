@@ -76,7 +76,7 @@ export const Hero: React.FC = () => {
     <>
     <section
       id="home"
-      className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-4 overflow-hidden bg-background dark:bg-navy-950 flex flex-col justify-between"
+      className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-8 overflow-hidden bg-background dark:bg-navy-950 flex flex-col justify-center"
     >
       {/* Background Tech Grids & Soft Ambient Glow */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
@@ -268,21 +268,6 @@ export const Hero: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Scroll Indicator */}
-      <div className="pt-2 pb-2 text-center relative z-10">
-        <a
-          href="#trust-bar"
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById("trust-bar")?.scrollIntoView({ behavior: "smooth" });
-          }}
-          className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono text-muted-foreground hover:text-teal-500 dark:hover:text-teal-400 transition-colors group cursor-pointer"
-        >
-          <span>Scroll down to explore operational proof &amp; services</span>
-          <ChevronDown className="w-3.5 h-3.5 text-teal-500 animate-bounce group-hover:translate-y-0.5 transition-transform" />
-        </a>
       </div>
     </section>
 

@@ -16,7 +16,6 @@ import {
   Zap,
   Calendar,
   ArrowRight,
-  ChevronDown,
   Building2,
   Headphones
 } from "lucide-react";
@@ -40,7 +39,7 @@ export const ContactPage: React.FC = () => {
       title: "Direct Phone Call",
       subtitle: "Speak directly with Peter",
       value: SITE_CONFIG.phoneDisplay,
-      href: `tel:${SITE_CONFIG.phone}`,
+      href: `tel:${SITE_CONFIG.phoneTel}`,
       icon: Phone,
       badge: "Emergency Fixes",
       badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
@@ -107,7 +106,7 @@ export const ContactPage: React.FC = () => {
 
       <main className="flex-1">
         {/* Full-Screen High-Impact 2-Column Hero */}
-        <section className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-4 flex flex-col justify-between bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 overflow-hidden">
+        <section className="relative min-h-[100dvh] pt-20 sm:pt-24 lg:pt-28 pb-8 flex flex-col justify-center bg-gradient-to-b from-muted/50 via-background to-muted/20 dark:from-navy-950 dark:via-navy-900/60 dark:to-navy-950 border-b border-border/80 overflow-hidden">
           {/* Ambient Glows */}
           <div className="absolute top-1/4 -right-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 -left-20 w-96 lg:w-[600px] h-96 lg:h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -171,7 +170,7 @@ export const ContactPage: React.FC = () => {
               </div>
 
               {/* Right Column: Interactive Direct Channel Hub Widget */}
-              <div className="mt-6 lg:mt-0 lg:col-span-5">
+              <div className="hidden lg:block lg:col-span-5">
                 <div className="rounded-3xl bg-card dark:bg-navy-900 border border-teal-500/30 shadow-card-dark dark:shadow-glow p-5 sm:p-6 space-y-4 relative overflow-hidden backdrop-blur-md">
                   <div className="flex items-center justify-between pb-3 border-b border-border/80">
                     <div className="flex items-center gap-2">
@@ -245,17 +244,6 @@ export const ContactPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-        
-          {/* Viewport Bottom Scroll Down Bar */}
-          <div className="pt-2 pb-2 text-center relative z-10">
-            <button
-              onClick={() => document.getElementById("content-start")?.scrollIntoView({ behavior: "smooth" })}
-              className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono text-muted-foreground hover:text-teal-500 dark:hover:text-teal-400 transition-colors group cursor-pointer"
-            >
-              <span>Scroll down to explore full details</span>
-              <ChevronDown className="w-3.5 h-3.5 text-teal-500 animate-bounce group-hover:translate-y-0.5 transition-transform" />
-            </button>
           </div>
         </section>
         <div id="content-start" />
