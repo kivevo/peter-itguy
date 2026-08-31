@@ -2100,36 +2100,47 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   {!currentDoc.client.email && (
                     <p className="text-[11px] text-amber-400 flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
-                      No email saved for this client — you can type it above and it will be used for this send only.
+                      No email saved for this client — type recipient email above.
                     </p>
                   )}
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex gap-3 pt-1">
-                  <button
-                    onClick={() => setShowEmailModal(false)}
-                    className="flex-1 py-2.5 rounded-xl bg-navy-800 border border-border text-slate-300 hover:text-white text-sm font-semibold transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    disabled={isSendingEmail || !emailRecipient.trim()}
-                    onClick={handleSendDocumentEmail}
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-md"
-                  >
-                    {isSendingEmail ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Send Now</span>
-                      </>
-                    )}
-                  </button>
+                {/* Direct Mail App Option */}
+                <div className="pt-1 space-y-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={isSendingEmail || !emailRecipient.trim()}
+                      onClick={handleSendDocumentEmail}
+                      className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md"
+                    >
+                      {isSendingEmail ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Sending via Server...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Send via Resend</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href={`mailto:${emailRecipient}?subject=${encodeURIComponent(
+                        `${currentDoc.docType === "quotation" ? "Quotation" : "Tax Invoice"} ${currentDoc.docNumber} - ${companyProfile.name}`
+                      )}&body=${encodeURIComponent(generateDocWhatsAppMessage(currentDoc))}`}
+                      className="flex-1 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 border border-border text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-center"
+                      onClick={() => setShowEmailModal(false)}
+                    >
+                      <Mail className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Open in Mail App</span>
+                    </a>
+                  </div>
+
+                  <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+                    💡 Tip: To attach the PDF file directly, click <strong>Print / Save PDF</strong> to save the file, then attach it in your email or WhatsApp chat.
+                  </p>
                 </div>
               </div>
             </div>
