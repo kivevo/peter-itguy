@@ -685,7 +685,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     setClientDeleteInput("");
   };
 
-  // WhatsApp Message Generator for Invoices / Quotes
+  // WhatsApp Message Generator for Invoices / Quotes (Clean ASCII & Universally Supported Formatting)
   const generateDocWhatsAppMessage = (doc: InvoiceDocument) => {
     const totals = calculateDocTotals(doc);
     const profile = companyProfile;
@@ -695,13 +695,15 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       Boolean(profile.bankAccountNumber?.trim());
 
     const paymentLine = hasBank
-      ? `Payment via ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount}) or Bank: ${profile.bankName} Acc: ${profile.bankAccountNumber}`
+      ? `Payment via M-Pesa ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount}) or Bank: ${profile.bankName} Acc: ${profile.bankAccountNumber}`
       : `Payment via M-Pesa ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})`;
 
+    const verifyUrl = `${window.location.origin}/verify?doc=${doc.docNumber}`;
+
     if (doc.docType === "quotation") {
-      return `Dear ${doc.client.name},\n\n*${profile.name}* has prepared your formal quotation:\n\n📄 *Quote No:* ${doc.docNumber}\n🏢 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Valid Until:* ${doc.dueDate}\n\n*Key Deliverables:*\n${doc.items.map((i) => `• ${i.desc} (${i.qty}x)`).join("\n")}\n\n${paymentLine}.\n\nPlease let us know if you would like us to schedule on-site deployment.`;
+      return `Dear ${doc.client.name},\n\n*${profile.name}* has prepared your formal quotation:\n\n*Quote No:* ${doc.docNumber}\n*Client:* ${doc.client.company}\n*Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n*Valid Until:* ${doc.dueDate}\n\n*Key Deliverables:*\n${doc.items.map((i) => `• ${i.desc} (${i.qty}x)`).join("\n")}\n\n${paymentLine}\n\n*Verify & View Online:* ${verifyUrl}\n\nPlease let us know if you would like us to schedule on-site deployment.`;
     } else {
-      return `Dear ${doc.client.name},\n\n*${profile.name}* Official Tax Invoice:\n\n📄 *Invoice No:* ${doc.docNumber}\n🏢 *Bill To:* ${doc.client.company}\n💰 *Amount Due:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n📌 *Status:* ${doc.status.toUpperCase()}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})${hasBank ? `\n• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}` : ""}\n\nThank you for choosing ${profile.name}!`;
+      return `Dear ${doc.client.name},\n\n*${profile.name}* Official Tax Invoice:\n\n*Invoice No:* ${doc.docNumber}\n*Bill To:* ${doc.client.company}\n*Amount Due:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n*Due Date:* ${doc.dueDate}\n*Status:* ${doc.status.toUpperCase()}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})${hasBank ? `\n• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}` : ""}\n\n*eTIMS Verification:* ${verifyUrl}\n\nThank you for choosing ${profile.name}!`;
     }
   };
 
@@ -716,7 +718,76 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       Boolean(profile.bankName?.trim()) &&
       Boolean(profile.bankAccountNumber?.trim());
 
-    return `Dear ${doc.client.name},\n\nFriendly payment reminder from *${profile.name}* regarding *Invoice #${doc.docNumber}*.\n\n💼 *Client:* ${doc.client.company}\n💰 *Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n${paidSoFar > 0 ? `✅ *Paid to Date:* ${doc.currency} ${paidSoFar.toLocaleString()}\n` : ""}⚠️ *Outstanding Balance:* ${doc.currency} ${balance.toLocaleString()}\n📅 *Due Date:* ${doc.dueDate}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})\n${hasBank ? `• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}\n` : ""}• Ref: ${doc.docNumber}\n\nPlease share your M-Pesa confirmation code once sent. Thank you!`;
+    return `Dear ${doc.client.name},\n\nFriendly payment reminder from *${profile.name}* regarding *Invoice #${doc.docNumber}*.\n\n*Client:* ${doc.client.company}\n*Total Amount:* ${doc.currency} ${totals.grandTotal.toLocaleString()}\n${paidSoFar > 0 ? `*Paid to Date:* ${doc.currency} ${paidSoFar.toLocaleString()}\n` : ""}*Outstanding Balance:* ${doc.currency} ${balance.toLocaleString()}\n*Due Date:* ${doc.dueDate}\n\n*Payment Details:*\n• ${profile.mpesaType}: ${profile.mpesaNumber} (${profile.mpesaAccount})\n${hasBank ? `• Bank: ${profile.bankName} | Acc: ${profile.bankAccountNumber}\n` : ""}• Ref: ${doc.docNumber}\n\nPlease share your M-Pesa confirmation code once sent. Thank you!`;
+  };
+
+  // Dedicated High-Resolution Clean A4 Print Handler (Eliminates extra blank pages & background fluff)
+  const handlePrintDocument = (doc: InvoiceDocument) => {
+    const printElement = document.getElementById("krenovate-print-document");
+    if (!printElement) {
+      window.print();
+      return;
+    }
+
+    const win = window.open("", "_blank", "width=850,height=1100");
+    if (!win) {
+      window.print();
+      return;
+    }
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${doc.docType.toUpperCase()} - ${doc.docNumber}</title>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          html, body {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+            font-size: 11px;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            background: #ffffff;
+          }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { padding: 8px 10px; }
+          @page {
+            size: A4 portrait;
+            margin: 10mm 12mm;
+          }
+          @media print {
+            body { padding: 0; margin: 0; }
+            .print-wrapper { padding: 0; max-width: 100%; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-wrapper">
+          ${printElement.innerHTML}
+        </div>
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 300);
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    win.document.close();
   };
 
   const handleOpenPaymentModal = (doc: InvoiceDocument) => {
@@ -2045,7 +2116,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </button>
 
               <button
-                onClick={() => window.print()}
+                onClick={() => handlePrintDocument(currentDoc)}
                 className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 shadow-glow"
               >
                 <Printer className="w-4 h-4" />
