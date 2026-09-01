@@ -1225,6 +1225,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   };
 
   // ── PDF Blob Generator (reuses same HTML as handlePrintDocument) ──────────
+  // ── PDF Blob Generator (reuses same HTML as handlePrintDocument) ──────────
   const buildDocumentHTML = (doc: InvoiceDocument): string => {
     const totals = calculateDocTotals(doc);
     const profile = companyProfile;
@@ -1235,50 +1236,96 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     const docTitle = doc.docType === "quotation" ? "FORMAL QUOTATION" : doc.docType === "receipt" ? "OFFICIAL RECEIPT" : "TAX INVOICE";
     const paidSoFar = (doc.payments || []).reduce((s: number, p: { amount: number }) => s + p.amount, 0);
     const balance = Math.max(0, totals.grandTotal - paidSoFar);
+
     const itemsHtml = doc.items.map((item, i) => `
       <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
-        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;color:#64748b;">${i + 1}</td>
-        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;color:#0f172a;line-height:1.45;word-break:break-word;">
-          <strong>${item.desc}</strong>
+        <td style="padding:9px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;color:#64748b;">${i + 1}</td>
+        <td style="padding:9px 12px;font-size:11px;border-bottom:1px solid #e2e8f0;color:#0f172a;line-height:1.45;word-break:break-word;">
+          <strong style="color:#0f172a;">${item.desc}</strong>
         </td>
-        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:600;color:#0f172a;">${item.qty}</td>
-        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;color:#334155;white-space:nowrap;">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
-        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#0f766e;white-space:nowrap;">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
-      </tr>`);
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#fff;color:#1e293b;width:750px;margin:0 auto;padding:16px 20px;line-height:1.4}
-      .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f766e;padding-bottom:14px;margin-bottom:14px}
-      .logo-box{width:46px;height:46px;background:#0f766e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;flex-shrink:0}
-      .company-name{font-size:19px;font-weight:900;color:#0f766e;letter-spacing:-0.5px}
-      .company-sub{font-size:10px;color:#64748b;margin-top:2px}
-      .doc-badge{background:#0f766e;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;letter-spacing:1px;text-align:center;display:inline-block}
-      .doc-meta{font-size:11px;color:#475569;margin-top:6px;text-align:right;line-height:1.6}
-      .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px}
-      .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:2px}
-      .value{font-weight:600;color:#1e293b}
-      table.items-table{width:100%;border-collapse:collapse;margin-bottom:14px;table-layout:fixed}
-      table.items-table th{background:#0f766e;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-      .totals-section{width:100%;clear:both;display:flex;justify-content:flex-end;margin-bottom:14px}
-      .totals-box{width:300px;border:1px solid #cbd5e1;border-radius:8px;overflow:hidden;font-size:11px;background:#fff}
-      .totals-row{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9}
-      .totals-grand{background:#0f766e;color:#fff;font-size:13px;font-weight:900;display:flex;justify-content:space-between;padding:9px 12px}
-      .pay-box{clear:both;width:100%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px;line-height:1.5}
-      .pay-title{font-weight:700;color:#15803d;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
-      .sign-box{clear:both;display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#64748b;margin-bottom:10px}
-      .etims-block{clear:both;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:9px;color:#64748b;display:flex;justify-content:space-between;align-items:center}
-      .etims-badge{background:#0f766e;color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px}
-    </style></head><body>
-    <div class="header">
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div class="logo-box">K</div>
-        <div>
-          <div class="company-name">${profile.name}</div>
-          <div class="company-sub">${profile.tagline || "IT Solutions & Managed Services"}</div>
-          <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.5">${profile.address}<br>Tel: ${profile.phone} · ${profile.email}<br>KRA PIN: <strong>${profile.kraPin}</strong></div>
-        </div>
-      </div>
-      <div style="text-align:right">
+        <td style="padding:9px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:700;color:#0f172a;font-family:monospace;">${item.qty}</td>
+        <td style="padding:9px 12px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;color:#334155;white-space:nowrap;font-family:monospace;">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+        <td style="padding:9px 12px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#0f766e;white-space:nowrap;font-family:monospace;">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+      </tr>`).join("");
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #ffffff;
+      color: #1e293b;
+      width: 794px;
+      margin: 0 auto;
+      padding: 32px 36px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    .header-table { width: 100%; border-collapse: collapse; border-bottom: 2.5px solid #0f766e; padding-bottom: 16px; margin-bottom: 18px; }
+    .logo-container { width: 48px; height: 48px; background: #0f766e; border-radius: 10px; text-align: center; line-height: 48px; font-weight: 900; font-size: 24px; color: #ffffff; display: inline-block; vertical-align: top; }
+    .company-name { font-size: 20px; font-weight: 900; color: #0f766e; letter-spacing: -0.5px; line-height: 1.2; }
+    .company-sub { font-size: 10.5px; color: #64748b; font-weight: 500; margin-top: 3px; }
+    .company-contact { font-size: 10px; color: #64748b; margin-top: 5px; line-height: 1.5; }
+    .doc-badge { background: #0f766e; color: #ffffff; font-size: 12px; font-weight: 900; padding: 6px 14px; border-radius: 6px; letter-spacing: 0.8px; display: inline-block; text-transform: uppercase; }
+    .doc-meta { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.6; text-align: right; }
+    
+    .client-table { width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 18px; }
+    .client-table td { padding: 12px 16px; vertical-align: top; font-size: 11px; }
+    .label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 3px; }
+    .value { font-weight: 700; color: #0f172a; font-size: 13px; }
+    
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed; }
+    .items-table th { background: #0f766e; color: #ffffff; padding: 9px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; border: none; }
+    
+    .totals-container { width: 100%; margin-bottom: 16px; display: table; }
+    .totals-box { width: 310px; float: right; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff; font-size: 11px; }
+    .totals-row { display: flex; justify-content: space-between; padding: 6px 14px; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
+    .totals-row span:first-child { font-family: 'Inter', sans-serif; font-weight: 500; color: #475569; }
+    .totals-grand { background: #0f766e; color: #ffffff; font-size: 13px; font-weight: 900; display: flex; justify-content: space-between; padding: 10px 14px; font-family: monospace; }
+    .totals-grand span:first-child { font-family: 'Inter', sans-serif; }
+    
+    .pay-box { clear: both; width: 100%; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; line-height: 1.6; }
+    .pay-title { font-weight: 800; color: #15803d; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .sign-table { clear: both; width: 100%; border-collapse: collapse; border-top: 1px solid #e2e8f0; padding-top: 14px; margin-top: 10px; margin-bottom: 14px; font-size: 10px; }
+    .sign-table td { width: 50%; vertical-align: top; padding: 10px 4px 0 4px; }
+    .sign-line { margin-top: 28px; border-top: 1px solid #cbd5e1; padding-top: 4px; width: 180px; color: #64748b; font-size: 10px; }
+    
+    .etims-table { clear: both; width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 9.5px; color: #64748b; }
+    .etims-table td { padding: 8px 12px; }
+    .etims-badge { background: #0f766e; color: #ffffff; font-size: 8.5px; font-weight: 800; padding: 2px 7px; border-radius: 4px; margin-right: 6px; display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <table class="header-table">
+    <tr>
+      <td style="vertical-align:top; width:65%;">
+        <table style="border-collapse:collapse;">
+          <tr>
+            <td style="vertical-align:top; padding-right:14px; width:52px;">
+              ${profile.logoUrl ? `<img src="${profile.logoUrl}" style="width:48px;height:48px;border-radius:10px;object-fit:contain;" alt="Logo" />` : `<div class="logo-container">K</div>`}
+            </td>
+            <td style="vertical-align:top;">
+              <div class="company-name">${profile.name}</div>
+              <div class="company-sub">${profile.tagline || "Enterprise IT Support, Network Engineering & Digital Systems"}</div>
+              <div class="company-contact">
+                ${profile.address}<br>
+                Tel: <strong>${profile.phone}</strong> · ${profile.email}<br>
+                KRA PIN: <strong>${profile.kraPin}</strong>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td style="vertical-align:top; text-align:right; width:35%;">
         <div class="doc-badge">${docTitle}</div>
         <div class="doc-meta">
           ${doc.docType !== "quotation" ? `<strong>Invoice No:</strong> ${doc.docNumber}<br>` : `<strong>Quote No:</strong> ${doc.docNumber}<br>`}
@@ -1286,60 +1333,100 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           <strong>${doc.docType === "quotation" ? "Valid Until" : "Due Date"}:</strong> ${doc.dueDate}<br>
           <strong>Currency:</strong> ${doc.currency}
         </div>
-      </div>
-    </div>
-    <div class="client-grid">
-      <div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- BILLED TO -->
+  <table class="client-table">
+    <tr>
+      <td style="width:65%;">
         <div class="label">Billed To</div>
-        <div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div>
-        <div style="font-size:11px;color:#475569;margin-top:2px">${doc.client.company ? doc.client.name : ""}</div>
-        <div style="font-size:10px;color:#64748b">${doc.client.phone}</div>
-        ${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}
-      </div>
-      <div style="text-align:right">
-        <div>
-          <div class="label">Status</div>
-          <div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div>
+        <div class="value">${doc.client.company || doc.client.name}</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px;font-weight:500;">${doc.client.company ? doc.client.name : ""}</div>
+        <div style="font-size:10.5px;color:#64748b;margin-top:2px;">${doc.client.phone}</div>
+        ${doc.client.email ? `<div style="font-size:10px;color:#64748b;">${doc.client.email}</div>` : ""}
+        ${doc.client.kraPin ? `<div style="font-size:10px;color:#0f766e;font-weight:600;margin-top:2px;">Client KRA PIN: ${doc.client.kraPin}</div>` : ""}
+      </td>
+      <td style="width:35%; text-align:right;">
+        <div class="label">Status</div>
+        <div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:4px 12px;border-radius:999px;font-weight:800;font-size:11px;letter-spacing:0.5px;">
+          ${doc.status.toUpperCase()}
         </div>
-        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:6px"><div class="label">PO / Ref</div><div class="value">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
+        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:6px;"><div class="label">PO / Ref</div><div class="value" style="font-size:11px;">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
+      </td>
+    </tr>
+  </table>
+
+  <!-- LINE ITEMS -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="width:5%;text-align:center;">#</th>
+        <th style="width:51%;text-align:left;">Description</th>
+        <th style="width:10%;text-align:center;">Qty</th>
+        <th style="width:17%;text-align:right;">Unit Price</th>
+        <th style="width:17%;text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsHtml}
+    </tbody>
+  </table>
+
+  <!-- TOTALS -->
+  <div class="totals-container">
+    <div class="totals-box">
+      ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>`}
+      ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626;">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d;font-weight:bold;">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      <div class="totals-grand">
+        <span>TOTAL DUE</span>
+        <span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
       </div>
     </div>
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th style="width:6%;text-align:center">#</th>
-          <th style="width:48%;text-align:left">Description</th>
-          <th style="width:10%;text-align:center">Qty</th>
-          <th style="width:18%;text-align:right">Unit Price</th>
-          <th style="width:18%;text-align:right">Total</th>
-        </tr>
-      </thead>
-      <tbody>${itemsHtml.join("")}</tbody>
-    </table>
-    <div class="totals-section">
-      <div class="totals-box">
-        ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-        ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-        ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-        ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-        <div class="totals-grand"><span>TOTAL DUE</span><span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
-      </div>
-    </div>
-    <div class="pay-box">
-      <div class="pay-title">Payment Instructions</div>
-      • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br>
-      ${hasBank ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${profile.bankBranch ? ` (${profile.bankBranch})` : ""}<br>` : ""}
-      • Reference: <strong>${doc.docNumber}</strong>
-    </div>
-    <div class="sign-box">
-      <div><div class="label">Authorised By</div><div class="value">Peter Kivevo John</div><div style="margin-top:24px;border-top:1px solid #cbd5e1;padding-top:3px;width:150px">Signature &amp; Company Stamp</div></div>
-      <div style="text-align:right"><div class="label">Client Acceptance</div><div style="margin-top:24px;border-top:1px solid #cbd5e1;padding-top:3px;width:150px">Signature &amp; Date</div></div>
-    </div>
-    <div class="etims-block">
-      <div><span class="etims-badge">KRA eTIMS</span> CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong></div>
-      <div>Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong></div>
-    </div>
-    </body></html>`;
+  </div>
+
+  <!-- PAYMENT INSTRUCTIONS -->
+  <div class="pay-box">
+    <div class="pay-title">Payment Instructions</div>
+    • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br>
+    ${hasBank ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${profile.bankBranch ? ` (${profile.bankBranch})` : ""}<br>` : ""}
+    • Reference: <strong>${doc.docNumber}</strong>
+  </div>
+
+  <!-- SIGNATURES -->
+  <table class="sign-table">
+    <tr>
+      <td>
+        <div class="label">Authorised By</div>
+        <div style="font-weight:700;color:#0f172a;font-size:12px;">Peter Kivevo John</div>
+        <div class="sign-line">Signature &amp; Company Stamp</div>
+      </td>
+      <td style="text-align:right;">
+        <div class="label">Client Acceptance</div>
+        <div style="height:14px;"></div>
+        <div class="sign-line" style="margin-left:auto;">Signature &amp; Date</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- eTIMS FISCAL CODE -->
+  <table class="etims-table">
+    <tr>
+      <td style="text-align:left;">
+        <span class="etims-badge">KRA eTIMS</span>
+        CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong>
+      </td>
+      <td style="text-align:right; font-family:monospace;">
+        Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
   };
 
   // Generate a real PDF Blob from the document HTML using an iframe + canvas
@@ -1347,9 +1434,9 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     const { default: jsPDF } = await import("jspdf");
     const { default: html2canvas } = await import("html2canvas");
 
-    // Render the HTML in an off-screen but fully rendered iframe container
+    // Render the HTML in an off-screen container matching exact A4 proportions (794px width)
     const iframe = document.createElement("iframe");
-    iframe.style.cssText = "position:fixed;left:0;top:0;width:750px;height:1200px;border:none;opacity:0;pointer-events:none;z-index:-9999;";
+    iframe.style.cssText = "position:fixed;left:0;top:0;width:794px;height:1200px;border:none;opacity:0;pointer-events:none;z-index:-9999;";
     document.body.appendChild(iframe);
 
     return new Promise((resolve, reject) => {
@@ -1359,15 +1446,15 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           if (iframe.contentDocument?.fonts) {
             await iframe.contentDocument.fonts.ready;
           }
-          await new Promise((res) => setTimeout(res, 150));
+          await new Promise((res) => setTimeout(res, 200));
 
           const body = iframe.contentDocument!.body;
           const canvas = await html2canvas(body, {
-            scale: 2,
+            scale: 2.5, // Retina crisp rendering
             useCORS: true,
             backgroundColor: "#ffffff",
-            width: 750,
-            windowWidth: 750,
+            width: 794,
+            windowWidth: 794,
             scrollY: 0,
             scrollX: 0,
           });
@@ -1377,27 +1464,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
           const pageW = pdf.internal.pageSize.getWidth(); // 210mm
           const pageH = pdf.internal.pageSize.getHeight(); // 297mm
-          
-          const margin = 8;
-          const maxW = pageW - (margin * 2); // 194mm
-          const maxH = pageH - (margin * 2); // 281mm
+
+          const margin = 6;
+          const maxW = pageW - (margin * 2); // 198mm
+          const maxH = pageH - (margin * 2); // 285mm
 
           const imgAspect = canvas.height / canvas.width;
           let renderW = maxW;
           let renderH = maxW * imgAspect;
 
-          // If document height is close to single page (within 1.25x), scale down to guarantee 1 single A4 page
-          if (renderH > maxH && renderH <= maxH * 1.3) {
-            renderH = maxH;
-            renderW = maxH / imgAspect;
-          }
-
+          // If document height fits within a single A4 page
           if (renderH <= maxH) {
-            // Perfect single-page alignment
             const xOffset = margin + (maxW - renderW) / 2;
             pdf.addImage(imgData, "JPEG", xOffset, margin, renderW, renderH);
           } else {
-            // Multi-page support for very long itemized lists
+            // Multi-page support for long itemized lists
             let yPos = 0;
             while (yPos < renderH) {
               if (yPos > 0) pdf.addPage();
