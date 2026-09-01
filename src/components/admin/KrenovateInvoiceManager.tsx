@@ -1236,35 +1236,37 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     const paidSoFar = (doc.payments || []).reduce((s: number, p: { amount: number }) => s + p.amount, 0);
     const balance = Math.max(0, totals.grandTotal - paidSoFar);
     const itemsHtml = doc.items.map((item, i) => `
-      <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#fff"}">
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${i + 1}</td>
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0">${item.desc}</td>
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center">${item.qty}</td>
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
-        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+      <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
+        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;color:#64748b;">${i + 1}</td>
+        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;color:#0f172a;line-height:1.45;word-break:break-word;">
+          <strong>${item.desc}</strong>
+        </td>
+        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:600;color:#0f172a;">${item.qty}</td>
+        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;color:#334155;white-space:nowrap;">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+        <td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#0f766e;white-space:nowrap;">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
       </tr>`);
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#1e293b;width:794px;margin:0 auto;padding:20px}
-      .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:16px}
-      .logo-box{width:48px;height:48px;background:#0f766e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;color:#fff;flex-shrink:0}
-      .company-name{font-size:20px;font-weight:900;color:#0f766e;letter-spacing:-0.5px}
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#fff;color:#1e293b;width:750px;margin:0 auto;padding:16px 20px;line-height:1.4}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f766e;padding-bottom:14px;margin-bottom:14px}
+      .logo-box{width:46px;height:46px;background:#0f766e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;flex-shrink:0}
+      .company-name{font-size:19px;font-weight:900;color:#0f766e;letter-spacing:-0.5px}
       .company-sub{font-size:10px;color:#64748b;margin-top:2px}
-      .doc-badge{background:#0f766e;color:#fff;font-size:13px;font-weight:900;padding:5px 14px;border-radius:6px;letter-spacing:1px;text-align:center}
-      .doc-meta{font-size:11px;color:#475569;margin-top:6px;text-align:right;line-height:1.7}
-      .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px;font-size:11px}
-      .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:3px}
+      .doc-badge{background:#0f766e;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;border-radius:6px;letter-spacing:1px;text-align:center;display:inline-block}
+      .doc-meta{font-size:11px;color:#475569;margin-top:6px;text-align:right;line-height:1.6}
+      .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px}
+      .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:2px}
       .value{font-weight:600;color:#1e293b}
-      table{width:100%;border-collapse:collapse;margin-bottom:14px}
-      thead th{background:#0f766e;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left}
-      thead th:last-child{text-align:right}thead th:nth-child(3),thead th:nth-child(4),thead th:nth-child(5){text-align:center}
-      .totals{display:flex;justify-content:flex-end;margin-bottom:14px}
-      .totals-box{width:280px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:11px}
+      table.items-table{width:100%;border-collapse:collapse;margin-bottom:14px;table-layout:fixed}
+      table.items-table th{background:#0f766e;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+      .totals-section{width:100%;clear:both;display:flex;justify-content:flex-end;margin-bottom:14px}
+      .totals-box{width:300px;border:1px solid #cbd5e1;border-radius:8px;overflow:hidden;font-size:11px;background:#fff}
       .totals-row{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #f1f5f9}
-      .totals-grand{background:#0f766e;color:#fff;font-size:13px;font-weight:900;display:flex;justify-content:space-between;padding:10px 12px}
-      .pay-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:12px;font-size:11px}
-      .pay-title{font-weight:700;color:#15803d;margin-bottom:6px;font-size:12px}
-      .sign-box{display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#64748b}
-      .etims-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px;font-size:9px;color:#94a3b8;margin-top:12px}
+      .totals-grand{background:#0f766e;color:#fff;font-size:13px;font-weight:900;display:flex;justify-content:space-between;padding:9px 12px}
+      .pay-box{clear:both;width:100%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px;line-height:1.5}
+      .pay-title{font-weight:700;color:#15803d;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+      .sign-box{clear:both;display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#64748b;margin-bottom:10px}
+      .etims-block{clear:both;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:9px;color:#64748b;display:flex;justify-content:space-between;align-items:center}
       .etims-badge{background:#0f766e;color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px}
     </style></head><body>
     <div class="header">
@@ -1273,7 +1275,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         <div>
           <div class="company-name">${profile.name}</div>
           <div class="company-sub">${profile.tagline || "IT Solutions & Managed Services"}</div>
-          <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.6">${profile.address}<br>Tel: ${profile.phone} · ${profile.email}<br>KRA PIN: <strong>${profile.kraPin}</strong></div>
+          <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.5">${profile.address}<br>Tel: ${profile.phone} · ${profile.email}<br>KRA PIN: <strong>${profile.kraPin}</strong></div>
         </div>
       </div>
       <div style="text-align:right">
@@ -1287,32 +1289,55 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       </div>
     </div>
     <div class="client-grid">
-      <div><div class="label">Billed To</div><div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div><div style="font-size:11px;color:#475569;margin-top:3px">${doc.client.company ? doc.client.name : ""}</div><div style="font-size:10px;color:#64748b">${doc.client.phone}</div>${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}</div>
+      <div>
+        <div class="label">Billed To</div>
+        <div class="value" style="font-size:13px">${doc.client.company || doc.client.name}</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px">${doc.client.company ? doc.client.name : ""}</div>
+        <div style="font-size:10px;color:#64748b">${doc.client.phone}</div>
+        ${doc.client.email ? `<div style="font-size:10px;color:#64748b">${doc.client.email}</div>` : ""}
+      </div>
       <div style="text-align:right">
-        <div><div class="label">Status</div><div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div></div>
-        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:8px"><div class="label">PO / Ref</div><div class="value">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
+        <div>
+          <div class="label">Status</div>
+          <div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:3px 10px;border-radius:999px;font-weight:700;font-size:11px">${doc.status.toUpperCase()}</div>
+        </div>
+        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:6px"><div class="label">PO / Ref</div><div class="value">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
       </div>
     </div>
-    <table><thead><tr><th>#</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:center">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemsHtml.join("")}</tbody></table>
-    <div class="totals"><div class="totals-box">
-      ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      <div class="totals-grand"><span>TOTAL DUE</span><span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
-    </div></div>
-    <div class="pay-box"><div class="pay-title">Payment Instructions</div>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width:6%;text-align:center">#</th>
+          <th style="width:48%;text-align:left">Description</th>
+          <th style="width:10%;text-align:center">Qty</th>
+          <th style="width:18%;text-align:right">Unit Price</th>
+          <th style="width:18%;text-align:right">Total</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHtml.join("")}</tbody>
+    </table>
+    <div class="totals-section">
+      <div class="totals-box">
+        ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+        ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+        ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+        ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
+        <div class="totals-grand"><span>TOTAL DUE</span><span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
+      </div>
+    </div>
+    <div class="pay-box">
+      <div class="pay-title">Payment Instructions</div>
       • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br>
       ${hasBank ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${profile.bankBranch ? ` (${profile.bankBranch})` : ""}<br>` : ""}
       • Reference: <strong>${doc.docNumber}</strong>
     </div>
     <div class="sign-box">
-      <div><div class="label">Authorised By</div><div class="value">Peter Kivevo John</div><div style="margin-top:28px;border-top:1px solid #cbd5e1;padding-top:4px;width:160px">Signature &amp; Company Stamp</div></div>
-      <div style="text-align:right"><div class="label">Client Acceptance</div><div style="margin-top:28px;border-top:1px solid #cbd5e1;padding-top:4px;width:160px">Signature &amp; Date</div></div>
+      <div><div class="label">Authorised By</div><div class="value">Peter Kivevo John</div><div style="margin-top:24px;border-top:1px solid #cbd5e1;padding-top:3px;width:150px">Signature &amp; Company Stamp</div></div>
+      <div style="text-align:right"><div class="label">Client Acceptance</div><div style="margin-top:24px;border-top:1px solid #cbd5e1;padding-top:3px;width:150px">Signature &amp; Date</div></div>
     </div>
     <div class="etims-block">
-      <span class="etims-badge">KRA eTIMS</span>
-      CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control Code: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong> · Internal Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
+      <div><span class="etims-badge">KRA eTIMS</span> CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong></div>
+      <div>Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong></div>
     </div>
     </body></html>`;
   };
@@ -1322,45 +1347,70 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     const { default: jsPDF } = await import("jspdf");
     const { default: html2canvas } = await import("html2canvas");
 
-    // Render the HTML in an off-screen iframe
+    // Render the HTML in an off-screen but fully rendered iframe container
     const iframe = document.createElement("iframe");
-    iframe.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;border:none;visibility:hidden;";
+    iframe.style.cssText = "position:fixed;left:0;top:0;width:750px;height:1200px;border:none;opacity:0;pointer-events:none;z-index:-9999;";
     document.body.appendChild(iframe);
 
     return new Promise((resolve, reject) => {
       iframe.onload = async () => {
         try {
-          const canvas = await html2canvas(iframe.contentDocument!.body, {
+          // Wait for all fonts and layout to settle
+          if (iframe.contentDocument?.fonts) {
+            await iframe.contentDocument.fonts.ready;
+          }
+          await new Promise((res) => setTimeout(res, 150));
+
+          const body = iframe.contentDocument!.body;
+          const canvas = await html2canvas(body, {
             scale: 2,
             useCORS: true,
             backgroundColor: "#ffffff",
-            width: 794,
-            windowWidth: 794,
+            width: 750,
+            windowWidth: 750,
+            scrollY: 0,
+            scrollX: 0,
           });
           document.body.removeChild(iframe);
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          const imgData = canvas.toDataURL("image/jpeg", 0.98);
           const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-          const pageW = pdf.internal.pageSize.getWidth();
-          const pageH = pdf.internal.pageSize.getHeight();
-          const imgW = pageW;
-          const imgH = (canvas.height * pageW) / canvas.width;
+          const pageW = pdf.internal.pageSize.getWidth(); // 210mm
+          const pageH = pdf.internal.pageSize.getHeight(); // 297mm
+          
+          const margin = 8;
+          const maxW = pageW - (margin * 2); // 194mm
+          const maxH = pageH - (margin * 2); // 281mm
 
-          if (imgH <= pageH) {
-            pdf.addImage(imgData, "JPEG", 0, 0, imgW, imgH);
+          const imgAspect = canvas.height / canvas.width;
+          let renderW = maxW;
+          let renderH = maxW * imgAspect;
+
+          // If document height is close to single page (within 1.25x), scale down to guarantee 1 single A4 page
+          if (renderH > maxH && renderH <= maxH * 1.3) {
+            renderH = maxH;
+            renderW = maxH / imgAspect;
+          }
+
+          if (renderH <= maxH) {
+            // Perfect single-page alignment
+            const xOffset = margin + (maxW - renderW) / 2;
+            pdf.addImage(imgData, "JPEG", xOffset, margin, renderW, renderH);
           } else {
-            // Multi-page if content is longer than one A4
+            // Multi-page support for very long itemized lists
             let yPos = 0;
-            while (yPos < imgH) {
+            while (yPos < renderH) {
               if (yPos > 0) pdf.addPage();
-              pdf.addImage(imgData, "JPEG", 0, -yPos, imgW, imgH);
-              yPos += pageH;
+              pdf.addImage(imgData, "JPEG", margin, margin - yPos, renderW, renderH);
+              yPos += maxH;
             }
           }
 
           resolve(pdf.output("blob"));
         } catch (err) {
-          document.body.removeChild(iframe);
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
           reject(err);
         }
       };
