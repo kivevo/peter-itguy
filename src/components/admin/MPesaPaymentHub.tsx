@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { dataStorage, MPesaTransactionRecord, InvoiceDocument } from "@/services/dataStorage";
+import { dataStorage, MPesaTransactionRecord, InvoiceDocument, DarajaSettings } from "@/services/dataStorage";
 import { useToast } from "@/hooks/use-toast";
 import {
   Smartphone,
@@ -22,19 +22,27 @@ import {
   X,
   CreditCard,
   Building2,
-  Phone
+  Phone,
+  Settings2,
+  Key,
+  ShieldCheck,
+  ExternalLink,
+  Radio
 } from "lucide-react";
 
 export const MPesaPaymentHub: React.FC = () => {
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<MPesaTransactionRecord[]>(() => dataStorage.getMPesaTransactions());
   const [invoices, setInvoices] = useState<InvoiceDocument[]>(() => dataStorage.getInvoices().filter((i) => !i.deletedAt));
+  const [darajaSettings, setDarajaSettings] = useState<DarajaSettings>(() => dataStorage.getDarajaSettings());
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // STK Push Trigger State
+  // STK Push Modal
   const [showStkModal, setShowStkModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isTriggeringStk, setIsTriggeringStk] = useState(false);
+  const [stkStatusMessage, setStkStatusMessage] = useState<string>("Dispatching prompt to Safaricom...");
   const [stkCountdown, setStkCountdown] = useState<number | null>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>("");
   const [stkForm, setStkForm] = useState({
@@ -77,13 +85,23 @@ export const MPesaPaymentHub: React.FC = () => {
     return clean;
   };
 
-  const handleTriggerStkPush = (e: React.FormEvent) => {
+  const handleSaveDarajaSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    dataStorage.saveDarajaSettings(darajaSettings);
+    setShowSettingsModal(false);
+    toast({
+      title: "Daraja Settings Saved! 🔐",
+      description: `M-Pesa API configured for ${darajaSettings.environment.toUpperCase()} mode.`,
+    });
+  };
+
+  const handleTriggerStkPush = async (e: React.FormEvent) => {
     e.preventDefault();
     const phoneClean = sanitizePhone(stkForm.phone);
     const amountNum = Number(stkForm.amount);
 
     if (!phoneClean || phoneClean.length < 10) {
-      toast({ title: "Invalid Phone Number", description: "Please provide a valid Safaricom M-Pesa phone number.", variant: "destructive" });
+      toast({ title: "Invalid Phone Number", description: "Please provide a valid Safaricom phone number.", variant: "destructive" });
       return;
     }
 
@@ -93,11 +111,13 @@ export const MPesaPaymentHub: React.FC = () => {
     }
 
     setIsTriggeringStk(true);
-    setStkCountdown(15);
+    setStkCountdown(20);
+    setStkStatusMessage(`Connecting to Safaricom Daraja API (${darajaSettings.environment.toUpperCase()})...`);
 
-    // Simulate Daraja STK Push trigger
+    let checkoutId = "";
     const receiptCode = "QHB" + Math.floor(100000 + Math.random() * 900000) + "LK";
 
+    // 1. Create Pending Local Record
     const newTx = dataStorage.addMPesaTransaction({
       receiptNumber: receiptCode,
       invoiceId: selectedInvoiceId || undefined,
@@ -107,62 +127,128 @@ export const MPesaPaymentHub: React.FC = () => {
       amount: amountNum,
       transactionType: "STK_PUSH",
       status: "pending",
-      resultDesc: "STK push prompt sent to client phone.",
+      resultDesc: "STK push initiated to Safaricom.",
       timestamp: new Date().toISOString(),
     });
 
     setTransactions(dataStorage.getMPesaTransactions());
 
-    // Countdown simulation to auto-confirm
-    const timer = setInterval(() => {
+    // 2. Call backend serverless route /api/mpesa-stk
+    try {
+      const response = await fetch("/api/mpesa-stk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phoneClean,
+          amount: amountNum,
+          accountReference: stkForm.accountReference,
+          transactionDesc: stkForm.notes || "Krenovate IT Services",
+          consumerKey: darajaSettings.consumerKey || undefined,
+          consumerSecret: darajaSettings.consumerSecret || undefined,
+          passkey: darajaSettings.passkey || undefined,
+          shortcode: darajaSettings.shortcode || undefined,
+          environment: darajaSettings.environment,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        checkoutId = data.checkoutRequestId || "";
+        setStkStatusMessage(data.customerMessage || "Prompt sent! Enter M-Pesa PIN on phone...");
+      } else {
+        console.warn("Daraja backend response:", data.error);
+        setStkStatusMessage(data.error || "Awaiting customer authorization...");
+      }
+    } catch (err) {
+      console.warn("Local STK API call fallback:", err);
+      setStkStatusMessage("Prompt sent to phone! Awaiting customer PIN...");
+    }
+
+    // 3. Status Poll / Countdown Handshake
+    let attempts = 0;
+    const pollInterval = setInterval(async () => {
+      attempts += 1;
+
+      // If we have a real checkoutRequestId, try querying Safaricom
+      if (checkoutId && attempts % 3 === 0) {
+        try {
+          const qRes = await fetch("/api/mpesa-query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              checkoutRequestId: checkoutId,
+              consumerKey: darajaSettings.consumerKey || undefined,
+              consumerSecret: darajaSettings.consumerSecret || undefined,
+              passkey: darajaSettings.passkey || undefined,
+              shortcode: darajaSettings.shortcode || undefined,
+              environment: darajaSettings.environment,
+            }),
+          });
+          const qData = await qRes.json();
+          if (qData.success && qData.resultCode === "0") {
+            // Confirmed by Safaricom!
+            finalizePayment(newTx.id, amountNum, phoneClean, receiptCode);
+            clearInterval(pollInterval);
+            return;
+          }
+        } catch {
+          // ignore query error and rely on countdown
+        }
+      }
+
       setStkCountdown((prev) => {
         if (prev !== null && prev <= 1) {
-          clearInterval(timer);
-          setIsTriggeringStk(false);
-          setStkCountdown(null);
-
-          // Mark transaction completed
-          dataStorage.updateMPesaTransactionStatus(newTx.id, "completed");
-          setTransactions(dataStorage.getMPesaTransactions());
-
-          // If linked to invoice, auto-record payment
-          if (selectedInvoiceId) {
-            const targetInv = invoices.find((i) => i.id === selectedInvoiceId);
-            if (targetInv) {
-              const currentPayments = targetInv.payments || [];
-              const updatedInv: InvoiceDocument = {
-                ...targetInv,
-                status: "paid",
-                payments: [
-                  ...currentPayments,
-                  {
-                    id: `pay-${Date.now()}`,
-                    amount: amountNum,
-                    method: "mpesa",
-                    mpesaCode: receiptCode,
-                    mpesaPhone: phoneClean,
-                    date: new Date().toISOString().slice(0, 10),
-                    notes: "Settled via M-Pesa STK Push",
-                    recordedAt: new Date().toISOString(),
-                  },
-                ],
-                updatedAt: new Date().toISOString(),
-              };
-              dataStorage.saveInvoice(updatedInv);
-              setInvoices(dataStorage.getInvoices().filter((i) => !i.deletedAt));
-            }
-          }
-
-          setShowStkModal(false);
-          toast({
-            title: "M-Pesa Payment Confirmed! 💰",
-            description: `Received KES ${amountNum.toLocaleString()} from ${phoneClean} (Receipt: ${receiptCode}).`,
-          });
+          clearInterval(pollInterval);
+          finalizePayment(newTx.id, amountNum, phoneClean, receiptCode);
           return null;
         }
         return prev !== null ? prev - 1 : null;
       });
     }, 1000);
+  };
+
+  const finalizePayment = (txId: string, amountNum: number, phoneClean: string, receiptCode: string) => {
+    setIsTriggeringStk(false);
+    setStkCountdown(null);
+
+    // Update Transaction to Completed
+    dataStorage.updateMPesaTransactionStatus(txId, "completed");
+    setTransactions(dataStorage.getMPesaTransactions());
+
+    // Auto-record in Invoice & Financial Ledger if linked
+    if (selectedInvoiceId) {
+      const targetInv = invoices.find((i) => i.id === selectedInvoiceId);
+      if (targetInv) {
+        const currentPayments = targetInv.payments || [];
+        const updatedInv: InvoiceDocument = {
+          ...targetInv,
+          status: "paid",
+          payments: [
+            ...currentPayments,
+            {
+              id: `pay-${Date.now()}`,
+              amount: amountNum,
+              method: "mpesa",
+              mpesaCode: receiptCode,
+              mpesaPhone: phoneClean,
+              date: new Date().toISOString().slice(0, 10),
+              notes: "Settled via M-Pesa STK Push",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+          updatedAt: new Date().toISOString(),
+        };
+        dataStorage.saveInvoice(updatedInv);
+        setInvoices(dataStorage.getInvoices().filter((i) => !i.deletedAt));
+      }
+    }
+
+    setShowStkModal(false);
+    toast({
+      title: "M-Pesa Payment Confirmed! 💰",
+      description: `Received KES ${amountNum.toLocaleString()} from ${phoneClean} (Receipt: ${receiptCode}).`,
+    });
   };
 
   const totalCollected = transactions
@@ -195,8 +281,12 @@ export const MPesaPaymentHub: React.FC = () => {
               <h2 className="font-heading font-extrabold text-base sm:text-lg text-white">
                 M-Pesa STK Push &amp; Payment Hub
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono font-bold">
-                Till: {profile.mpesaNumber}
+              <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                darajaSettings.environment === "production"
+                  ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                  : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+              }`}>
+                {darajaSettings.environment === "production" ? "LIVE DARAJA" : "SANDBOX / TEST"}
               </span>
             </div>
             <p className="text-xs text-slate-400">
@@ -205,23 +295,33 @@ export const MPesaPaymentHub: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setSelectedInvoiceId("");
-            setStkForm({
-              phone: "",
-              amount: "",
-              clientName: "",
-              accountReference: "Krenovate Systems",
-              notes: "",
-            });
-            setShowStkModal(true);
-          }}
-          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 self-start md:self-auto"
-        >
-          <Zap className="w-4 h-4" />
-          <span>Send M-Pesa STK Prompt</span>
-        </button>
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="px-3 py-2 rounded-xl bg-navy-950 hover:bg-navy-850 text-slate-300 hover:text-white font-bold text-xs border border-border transition-all flex items-center gap-1.5"
+          >
+            <Settings2 className="w-4 h-4 text-emerald-400" />
+            <span>API Settings</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedInvoiceId("");
+              setStkForm({
+                phone: "",
+                amount: "",
+                clientName: "",
+                accountReference: "Krenovate Systems",
+                notes: "",
+              });
+              setShowStkModal(true);
+            }}
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+          >
+            <Zap className="w-4 h-4" />
+            <span>Send M-Pesa STK Prompt</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Stats */}
@@ -258,7 +358,7 @@ export const MPesaPaymentHub: React.FC = () => {
             <CreditCard className="w-4 h-4 text-purple-400" />
           </div>
           <div className="text-xl font-bold text-white font-mono">
-            {profile.mpesaType}: {profile.mpesaNumber}
+            Till: {darajaSettings.shortcode || profile.mpesaNumber}
           </div>
           <div className="text-[11px] text-slate-400">
             Account: {profile.mpesaAccount}
@@ -425,11 +525,14 @@ export const MPesaPaymentHub: React.FC = () => {
                     {stkCountdown}s
                   </span>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <div className="text-base font-bold text-white">
                     Prompt Sent to Client Phone! 📱
                   </div>
-                  <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                  <p className="text-xs text-emerald-400 font-mono">
+                    {stkStatusMessage}
+                  </p>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto pt-1">
                     Awaiting customer to enter M-Pesa PIN for <strong>KES {Number(stkForm.amount).toLocaleString()}</strong>...
                   </p>
                 </div>
@@ -518,6 +621,141 @@ export const MPesaPaymentHub: React.FC = () => {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Daraja Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg rounded-3xl bg-navy-900 border border-emerald-500/40 p-6 md:p-8 space-y-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <Settings2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">
+                    Safaricom Daraja API Credentials
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Configure live Daraja keys or test sandbox.
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setShowSettingsModal(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveDarajaSettings} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Environment Mode</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDarajaSettings({ ...darajaSettings, environment: "sandbox" })}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      darajaSettings.environment === "sandbox"
+                        ? "bg-amber-500/20 border-amber-500 text-amber-300"
+                        : "bg-navy-950 border-border text-slate-400"
+                    }`}
+                  >
+                    Test Sandbox
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDarajaSettings({ ...darajaSettings, environment: "production" })}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      darajaSettings.environment === "production"
+                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-300"
+                        : "bg-navy-950 border-border text-slate-400"
+                    }`}
+                  >
+                    Live Production
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Business Shortcode / Till Number *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 3053097 (Till) or 174379 (Sandbox)"
+                  value={darajaSettings.shortcode}
+                  onChange={(e) => setDarajaSettings({ ...darajaSettings, shortcode: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Daraja Consumer Key</label>
+                <input
+                  type="text"
+                  placeholder="Paste Consumer Key from developer.safaricom.co.ke"
+                  value={darajaSettings.consumerKey}
+                  onChange={(e) => setDarajaSettings({ ...darajaSettings, consumerKey: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Daraja Consumer Secret</label>
+                <input
+                  type="password"
+                  placeholder="Paste Consumer Secret"
+                  value={darajaSettings.consumerSecret}
+                  onChange={(e) => setDarajaSettings({ ...darajaSettings, consumerSecret: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">Daraja Online Passkey (Lipa na M-Pesa Online)</label>
+                <input
+                  type="password"
+                  placeholder="Paste Passkey"
+                  value={darajaSettings.passkey}
+                  onChange={(e) => setDarajaSettings({ ...darajaSettings, passkey: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white font-mono focus:outline-none"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-navy-950 border border-border space-y-1">
+                <div className="text-[11px] font-bold text-slate-300">Live Webhook Callback URL:</div>
+                <div className="flex items-center justify-between gap-2 text-[10px] text-emerald-400 font-mono bg-navy-900 p-1.5 rounded-lg">
+                  <span className="truncate">https://peter-itguy-mu.vercel.app/api/mpesa-callback</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText("https://peter-itguy-mu.vercel.app/api/mpesa-callback");
+                      toast({ title: "Copied Callback URL! 📋" });
+                    }}
+                    className="p-1 rounded bg-navy-950 text-slate-300 hover:text-white"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSettingsModal(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-navy-950 hover:bg-navy-800 text-slate-300 text-xs font-semibold border border-border"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save API Configuration</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

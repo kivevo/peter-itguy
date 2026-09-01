@@ -432,6 +432,24 @@ export interface WhatsAppCampaignRecord {
   createdAt: string;
 }
 
+export interface DarajaSettings {
+  environment: "sandbox" | "production";
+  consumerKey: string;
+  consumerSecret: string;
+  passkey: string;
+  shortcode: string;
+  tillOrPaybill: "till" | "paybill";
+}
+
+export const DEFAULT_DARAJA_SETTINGS: DarajaSettings = {
+  environment: "sandbox",
+  consumerKey: "",
+  consumerSecret: "",
+  passkey: "",
+  shortcode: "3053097",
+  tillOrPaybill: "till",
+};
+
 const STORAGE_KEYS = {
   REVIEWS: "itguy_custom_reviews_v1",
   INQUIRIES: "itguy_inquiries_leads_v1",
@@ -456,6 +474,7 @@ const STORAGE_KEYS = {
   EQUIPMENT_INTAKES: "itguy_equipment_intakes_v1",
   MPESA_TRANSACTIONS: "itguy_mpesa_transactions_v1",
   WHATSAPP_CAMPAIGNS: "itguy_whatsapp_campaigns_v1",
+  DARAJA_SETTINGS: "itguy_daraja_settings_v1",
 };
 
 export const DEFAULT_KRA_PROFILE: KRAProfileSettings = {
@@ -2520,6 +2539,20 @@ class DataStorageService {
     const all = this.getWhatsAppCampaigns();
     const updated = all.filter((c) => c.id !== id);
     localStorage.setItem(STORAGE_KEYS.WHATSAPP_CAMPAIGNS, JSON.stringify(updated));
+  }
+
+  public getDarajaSettings(): DarajaSettings {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.DARAJA_SETTINGS);
+      if (!stored) return DEFAULT_DARAJA_SETTINGS;
+      return { ...DEFAULT_DARAJA_SETTINGS, ...JSON.parse(stored) };
+    } catch {
+      return DEFAULT_DARAJA_SETTINGS;
+    }
+  }
+
+  public saveDarajaSettings(settings: DarajaSettings): void {
+    localStorage.setItem(STORAGE_KEYS.DARAJA_SETTINGS, JSON.stringify(settings));
   }
 }
 
