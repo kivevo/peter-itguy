@@ -1470,8 +1470,8 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           const maxH = pageH - (margin * 2); // 285mm
 
           const imgAspect = canvas.height / canvas.width;
-          let renderW = maxW;
-          let renderH = maxW * imgAspect;
+          const renderW = maxW;
+          const renderH = maxW * imgAspect;
 
           // If document height fits within a single A4 page
           if (renderH <= maxH) {
