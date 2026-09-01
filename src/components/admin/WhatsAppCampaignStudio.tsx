@@ -91,7 +91,7 @@ export const WhatsAppCampaignStudio: React.FC = () => {
         if (!uniqueMap.has(clean)) {
           uniqueMap.set(clean, {
             name: inq.name || "Client",
-            company: inq.company || "Your Business",
+            company: inq.location ? `${inq.location} (${inq.service})` : inq.service || "Your Business",
             phone: inq.phone,
           });
         }
@@ -102,11 +102,13 @@ export const WhatsAppCampaignStudio: React.FC = () => {
   };
 
   const handleApplyPreset = (preset: typeof CAMPAIGN_PRESETS[0]) => {
-    const recipients = getTargetRecipients(preset.audience as any);
+    const audience = preset.audience as WhatsAppCampaignRecord["targetAudience"];
+    const category = preset.category as WhatsAppCampaignRecord["templateCategory"];
+    const recipients = getTargetRecipients(audience);
     setFormData({
       campaignTitle: preset.title,
-      targetAudience: preset.audience as any,
-      templateCategory: preset.category as any,
+      targetAudience: audience,
+      templateCategory: category,
       messageTemplate: preset.template,
       recipientCount: recipients.length,
       dispatchedCount: 0,
@@ -438,7 +440,7 @@ export const WhatsAppCampaignStudio: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Target Audience Segment</label>
                   <select
                     value={formData.targetAudience}
-                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value as WhatsAppCampaignRecord["targetAudience"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="all">All Contacts &amp; Leads ({getTargetRecipients("all").length})</option>
@@ -453,7 +455,7 @@ export const WhatsAppCampaignStudio: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Category Tag</label>
                   <select
                     value={formData.templateCategory}
-                    onChange={(e) => setFormData({ ...formData, templateCategory: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, templateCategory: e.target.value as WhatsAppCampaignRecord["templateCategory"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="wifi_upgrade">Wi-Fi &amp; Bandwidth</option>

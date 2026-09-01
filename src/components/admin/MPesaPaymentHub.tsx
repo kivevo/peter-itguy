@@ -143,6 +143,7 @@ export const MPesaPaymentHub: React.FC = () => {
                     mpesaPhone: phoneClean,
                     date: new Date().toISOString().slice(0, 10),
                     notes: "Settled via M-Pesa STK Push",
+                    recordedAt: new Date().toISOString(),
                   },
                 ],
                 updatedAt: new Date().toISOString(),

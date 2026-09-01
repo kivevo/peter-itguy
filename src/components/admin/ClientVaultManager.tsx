@@ -452,15 +452,15 @@ export const ClientVaultManager: React.FC = () => {
               {/* Dossier Tabs */}
               <div className="flex flex-wrap gap-2 border-b border-border/40 pb-3">
                 {[
-                  { id: "network", label: "Network & Wi-Fi", icon: <Network className="w-3.5 h-3.5" /> },
-                  { id: "isp", label: "ISP & Circuit", icon: <Radio className="w-3.5 h-3.5" /> },
-                  { id: "credentials", label: "Credentials Vault", icon: <Key className="w-3.5 h-3.5" /> },
-                  { id: "renewals", label: "Licenses & Renewals", icon: <Calendar className="w-3.5 h-3.5" /> },
-                  { id: "notes", label: "Site Access & Notes", icon: <FileText className="w-3.5 h-3.5" /> },
+                  { id: "network" as const, label: "Network & Wi-Fi", icon: <Network className="w-3.5 h-3.5" /> },
+                  { id: "isp" as const, label: "ISP & Circuit", icon: <Radio className="w-3.5 h-3.5" /> },
+                  { id: "credentials" as const, label: "Credentials Vault", icon: <Key className="w-3.5 h-3.5" /> },
+                  { id: "renewals" as const, label: "Licenses & Renewals", icon: <Calendar className="w-3.5 h-3.5" /> },
+                  { id: "notes" as const, label: "Site Access & Notes", icon: <FileText className="w-3.5 h-3.5" /> },
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveDossierTab(tab.id as any)}
+                    onClick={() => setActiveDossierTab(tab.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                       activeDossierTab === tab.id
                         ? "bg-teal-600 text-white shadow-sm"

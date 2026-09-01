@@ -399,7 +399,7 @@ export const EquipmentIntakeManager: React.FC = () => {
                       <td className="py-3.5 px-4">
                         <select
                           value={item.status}
-                          onChange={(e) => handleStatusChange(item, e.target.value as any)}
+                          onChange={(e) => handleStatusChange(item, e.target.value as EquipmentIntakeRecord["status"])}
                           className={`px-2.5 py-1 rounded-full text-[11px] font-bold border outline-none bg-navy-950 cursor-pointer ${
                             statusColors[item.status] || "text-slate-400"
                           }`}
@@ -541,7 +541,7 @@ export const EquipmentIntakeManager: React.FC = () => {
                   <label className="text-slate-300 font-semibold">Device Type</label>
                   <select
                     value={formData.deviceType}
-                    onChange={(e) => setFormData({ ...formData, deviceType: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, deviceType: e.target.value as EquipmentIntakeRecord["deviceType"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white focus:outline-none"
                   >
                     <option value="laptop">Laptop</option>
@@ -598,7 +598,7 @@ export const EquipmentIntakeManager: React.FC = () => {
                     <label className="text-slate-400 block mb-1">Cosmetic Grade</label>
                     <select
                       value={formData.cosmeticCondition}
-                      onChange={(e) => setFormData({ ...formData, cosmeticCondition: e.target.value as any })}
+                      onChange={(e) => setFormData({ ...formData, cosmeticCondition: e.target.value as EquipmentIntakeRecord["cosmeticCondition"] })}
                       className="w-full px-3 py-2 rounded-xl bg-navy-900 border border-border text-white focus:outline-none"
                     >
                       <option value="pristine">Pristine / Like New</option>
