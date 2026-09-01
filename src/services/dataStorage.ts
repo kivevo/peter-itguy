@@ -1801,6 +1801,13 @@ class DataStorageService {
     this.notify();
   }
 
+  public clearFinancialData(): void {
+    localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify([]));
+    this.notify();
+  }
+
   // --- BUSINESS EXPENSES LEDGER ---
   public getExpenses(): ExpenseRecord[] {
     try {
@@ -2479,6 +2486,12 @@ class DataStorageService {
   public updateMPesaTransactionStatus(id: string, status: MPesaTransactionRecord["status"]) {
     const all = this.getMPesaTransactions();
     const updated = all.map((t) => (t.id === id ? { ...t, status } : t));
+    localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify(updated));
+  }
+
+  public deleteMPesaTransaction(id: string): void {
+    const all = this.getMPesaTransactions();
+    const updated = all.filter((t) => t.id !== id);
     localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify(updated));
   }
 

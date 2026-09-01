@@ -306,6 +306,23 @@ export const EarningsTracker: React.FC = () => {
     });
   };
 
+  // Clear all demo financial data
+  const handleClearFinancialData = () => {
+    if (
+      window.confirm(
+        "⚠️ Clear all demo financial records?\n\nThis will reset your Revenue, Income Payments, Expenses, and M-Pesa Transactions to KES 0 so you can enter your real business numbers."
+      )
+    ) {
+      dataStorage.clearFinancialData();
+      setPayments([]);
+      setExpenses([]);
+      toast({
+        title: "Financial Ledger Cleared (0 KES) 🧹",
+        description: "All demo money entries have been reset to 0. Ready for your real data!",
+      });
+    }
+  };
+
   // Filtered lists
   const filteredPayments = payments.filter((p) => {
     if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
@@ -381,6 +398,15 @@ export const EarningsTracker: React.FC = () => {
           >
             <Download className="w-3.5 h-3.5 text-teal-400" />
             <span>Export CSV</span>
+          </button>
+
+          <button
+            onClick={handleClearFinancialData}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-navy-800 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition-colors"
+            title="Clear demo financial data and start from 0 KES"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+            <span>Clear Demo Data (0 KES)</span>
           </button>
         </div>
       </div>

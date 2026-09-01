@@ -251,6 +251,14 @@ export const MPesaPaymentHub: React.FC = () => {
     });
   };
 
+  const handleDeleteTx = (id: string, ref: string) => {
+    if (window.confirm(`Delete M-Pesa transaction record ${ref}?`)) {
+      dataStorage.deleteMPesaTransaction(id);
+      setTransactions(dataStorage.getMPesaTransactions());
+      toast({ title: "Transaction Deleted", description: `Record ${ref} removed from ledger.` });
+    }
+  };
+
   const totalCollected = transactions
     .filter((t) => t.status === "completed")
     .reduce((acc, t) => acc + t.amount, 0);
@@ -469,18 +477,28 @@ export const MPesaPaymentHub: React.FC = () => {
                     </td>
 
                     <td className="py-3.5 px-4 text-right">
-                      <a
-                        href={`https://wa.me/${tx.clientPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                          `Hello ${tx.clientName}! 👋\n\nPayment confirmation from *Krenovate Systems*:\n\n• *M-Pesa Receipt:* ${tx.receiptNumber}\n• *Amount Paid:* KES ${tx.amount.toLocaleString()}\n• *Reference:* ${tx.invoiceDocNumber || "IT Services"}\n• *Status:* CONFIRMED & SETTLED ✅\n\nThank you for doing business with us!\n— Peter Kivevo John`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Send M-Pesa WhatsApp Receipt"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 text-[11px] font-semibold transition-colors"
-                      >
-                        <MessageCircle className="w-3 h-3" />
-                        <span>Receipt</span>
-                      </a>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <a
+                          href={`https://wa.me/${tx.clientPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                            `Hello ${tx.clientName}! 👋\n\nPayment confirmation from *Krenovate Systems*:\n\n• *M-Pesa Receipt:* ${tx.receiptNumber}\n• *Amount Paid:* KES ${tx.amount.toLocaleString()}\n• *Reference:* ${tx.invoiceDocNumber || "IT Services"}\n• *Status:* CONFIRMED & SETTLED ✅\n\nThank you for doing business with us!\n— Peter Kivevo John`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Send M-Pesa WhatsApp Receipt"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 text-[11px] font-semibold transition-colors"
+                        >
+                          <MessageCircle className="w-3 h-3" />
+                          <span>Receipt</span>
+                        </a>
+
+                        <button
+                          onClick={() => handleDeleteTx(tx.id, tx.receiptNumber)}
+                          title="Delete Transaction"
+                          className="p-1.5 rounded-lg bg-navy-950 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 border border-border transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
