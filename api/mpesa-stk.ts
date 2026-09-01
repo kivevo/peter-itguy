@@ -91,13 +91,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Sandbox standard defaults if keys not configured
     const consumerKey =
       customKey ||
-      process.env.MPESA_CONSUMER_KEY ||
-      (isProd ? "" : "g7zYFf6eKzK1xAqT00d0XhQJb26qG4O1");
+      process.env.MPESA_CONSUMER_KEY || "";
 
     const consumerSecret =
       customSecret ||
-      process.env.MPESA_CONSUMER_SECRET ||
-      (isProd ? "" : "8z8n6d8d9f10d938");
+      process.env.MPESA_CONSUMER_SECRET || "";
 
     const shortcode =
       customShortcode ||
@@ -107,16 +105,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const passkey =
       customPasskey ||
       process.env.MPESA_PASSKEY ||
-      (isProd
-        ? ""
-        : "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
+      (isProd ? "" : "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
 
-    // If in production without keys, return helpful error
-    if (isProd && (!consumerKey || !consumerSecret || !passkey)) {
+    // If credentials are not available, return helpful error
+    if (!consumerKey || !consumerSecret) {
       return res.status(400).json({
         success: false,
         error:
-          "Production M-Pesa credentials not found. Please provide MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, and MPESA_PASSKEY in your environment or Admin Settings.",
+          "M-Pesa credentials not found. Please set MPESA_CONSUMER_KEY and MPESA_CONSUMER_SECRET in your Vercel environment variables.",
       });
     }
 
