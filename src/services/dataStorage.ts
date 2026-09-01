@@ -176,7 +176,8 @@ export interface PaymentRecord {
   mpesaCode?: string;
   mpesaPhone?: string;
   bankRef?: string;
-  category: "wifi_network" | "computer_support" | "website" | "cctv" | "hardware_sale" | "retainer" | "consultation" | "other";
+  category: "wifi_network" | "computer_support" | "website" | "cctv" | "hardware_sale" | "retainer" | "consultation" | "personal_transfer" | "other";
+  wallet?: "business" | "personal";
   date: string;
   notes?: string;
   createdAt: string;
@@ -186,10 +187,55 @@ export interface ExpenseRecord {
   id: string;
   description: string;
   amount: number;
-  category: "transport" | "hardware_parts" | "software_tools" | "airtime_data" | "marketing" | "office_supplies" | "other";
+  category: "transport" | "hardware_parts" | "software_tools" | "airtime_data" | "marketing" | "office_supplies" | "rent_housing" | "food_groceries" | "personal_living" | "utilities" | "other";
+  wallet?: "business" | "personal";
   date: string;
   receiptNote?: string;
   notes?: string;
+  createdAt: string;
+}
+
+export interface BudgetLimit {
+  id: string;
+  category: string;
+  limitAmount: number;
+  wallet: "business" | "personal";
+  period: "monthly" | "weekly";
+  createdAt: string;
+}
+
+export interface SavingsGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string;
+  category: "tech_gear" | "emergency_fund" | "vehicle" | "savings" | "investment" | "other";
+  notes?: string;
+  createdAt: string;
+}
+
+export interface DebtRecord {
+  id: string;
+  type: "owed_to_me" | "owed_by_me";
+  partyName: string;
+  phone?: string;
+  amount: number;
+  paidAmount: number;
+  dueDate: string;
+  description: string;
+  status: "pending" | "partial" | "settled";
+  createdAt: string;
+}
+
+export interface RecurringBill {
+  id: string;
+  title: string;
+  amount: number;
+  dueDayOfMonth: number;
+  category: "internet" | "rent" | "software" | "utilities" | "insurance" | "other";
+  wallet: "business" | "personal";
+  lastPaidMonth?: string;
   createdAt: string;
 }
 
@@ -475,6 +521,10 @@ const STORAGE_KEYS = {
   MPESA_TRANSACTIONS: "itguy_mpesa_transactions_v1",
   WHATSAPP_CAMPAIGNS: "itguy_whatsapp_campaigns_v1",
   DARAJA_SETTINGS: "itguy_daraja_settings_v1",
+  BUDGETS: "itguy_budget_limits_v1",
+  SAVINGS_GOALS: "itguy_savings_goals_v1",
+  DEBTS: "itguy_debt_records_v1",
+  RECURRING_BILLS: "itguy_recurring_bills_v1",
 };
 
 export const DEFAULT_KRA_PROFILE: KRAProfileSettings = {
@@ -2566,6 +2616,178 @@ class DataStorageService {
 
   public saveDarajaSettings(settings: DarajaSettings): void {
     localStorage.setItem(STORAGE_KEYS.DARAJA_SETTINGS, JSON.stringify(settings));
+  }
+
+  // ==========================================
+  // BUDGETS & SPENDING LIMITS
+  // ==========================================
+  public getBudgets(): BudgetLimit[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.BUDGETS);
+      if (!stored) {
+        const seedBudgets: BudgetLimit[] = [
+          { id: "b-1", category: "hardware_parts", limitAmount: 40000, wallet: "business", period: "monthly", createdAt: new Date().toISOString() },
+          { id: "b-2", category: "transport", limitAmount: 15000, wallet: "business", period: "monthly", createdAt: new Date().toISOString() },
+          { id: "b-3", category: "airtime_data", limitAmount: 5000, wallet: "business", period: "monthly", createdAt: new Date().toISOString() },
+          { id: "b-4", category: "food_groceries", limitAmount: 25000, wallet: "personal", period: "monthly", createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem(STORAGE_KEYS.BUDGETS, JSON.stringify(seedBudgets));
+        return seedBudgets;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveBudget(b: BudgetLimit): BudgetLimit {
+    const all = this.getBudgets();
+    const idx = all.findIndex((item) => item.id === b.id);
+    let updated: BudgetLimit[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = b;
+    } else {
+      updated = [b, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.BUDGETS, JSON.stringify(updated));
+    this.notify();
+    return b;
+  }
+
+  public deleteBudget(id: string): void {
+    const all = this.getBudgets();
+    const updated = all.filter((item) => item.id !== id);
+    localStorage.setItem(STORAGE_KEYS.BUDGETS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // ==========================================
+  // SAVINGS GOALS & SINKING FUNDS
+  // ==========================================
+  public getSavingsGoals(): SavingsGoal[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SAVINGS_GOALS);
+      if (!stored) {
+        const seedGoals: SavingsGoal[] = [
+          { id: "g-1", title: "Emergency Reserve Fund (3 Months)", targetAmount: 150000, currentAmount: 45000, category: "emergency_fund", createdAt: new Date().toISOString() },
+          { id: "g-2", title: "Fluke Optical Fiber Power Meter & Splicer", targetAmount: 85000, currentAmount: 32000, category: "tech_gear", createdAt: new Date().toISOString() },
+          { id: "g-3", title: "MacBook M3 Pro Laptop Upgrade", targetAmount: 220000, currentAmount: 75000, category: "tech_gear", createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem(STORAGE_KEYS.SAVINGS_GOALS, JSON.stringify(seedGoals));
+        return seedGoals;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveSavingsGoal(g: SavingsGoal): SavingsGoal {
+    const all = this.getSavingsGoals();
+    const idx = all.findIndex((item) => item.id === g.id);
+    let updated: SavingsGoal[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = g;
+    } else {
+      updated = [g, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.SAVINGS_GOALS, JSON.stringify(updated));
+    this.notify();
+    return g;
+  }
+
+  public deleteSavingsGoal(id: string): void {
+    const all = this.getSavingsGoals();
+    const updated = all.filter((item) => item.id !== id);
+    localStorage.setItem(STORAGE_KEYS.SAVINGS_GOALS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // ==========================================
+  // DEBTS & RECEIVABLES TRACKER
+  // ==========================================
+  public getDebts(): DebtRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.DEBTS);
+      if (!stored) {
+        const seedDebts: DebtRecord[] = [
+          { id: "d-1", type: "owed_to_me", partyName: "After40 Hotel (Mary)", phone: "+254733987654", amount: 45000, paidAmount: 0, dueDate: new Date(Date.now() + 86400000 * 5).toISOString().slice(0, 10), description: "Cat6 Cabling balance on 2nd floor", status: "pending", createdAt: new Date().toISOString() },
+          { id: "d-2", type: "owed_by_me", partyName: "Bright Technologies Nairobi", phone: "+254722112233", amount: 18500, paidAmount: 5000, dueDate: new Date(Date.now() + 86400000 * 10).toISOString().slice(0, 10), description: "MikroTik RB5009 router on credit", status: "partial", createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem(STORAGE_KEYS.DEBTS, JSON.stringify(seedDebts));
+        return seedDebts;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveDebt(d: DebtRecord): DebtRecord {
+    const all = this.getDebts();
+    const idx = all.findIndex((item) => item.id === d.id);
+    let updated: DebtRecord[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = d;
+    } else {
+      updated = [d, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.DEBTS, JSON.stringify(updated));
+    this.notify();
+    return d;
+  }
+
+  public deleteDebt(id: string): void {
+    const all = this.getDebts();
+    const updated = all.filter((item) => item.id !== id);
+    localStorage.setItem(STORAGE_KEYS.DEBTS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // ==========================================
+  // RECURRING BILLS & SUBSCRIPTIONS
+  // ==========================================
+  public getRecurringBills(): RecurringBill[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.RECURRING_BILLS);
+      if (!stored) {
+        const seedBills: RecurringBill[] = [
+          { id: "rb-1", title: "Safaricom Home Fiber (50 Mbps)", amount: 5000, dueDayOfMonth: 5, category: "internet", wallet: "business", createdAt: new Date().toISOString() },
+          { id: "rb-2", title: "Vercel Pro & Custom Domains", amount: 2600, dueDayOfMonth: 12, category: "software", wallet: "business", createdAt: new Date().toISOString() },
+          { id: "rb-3", title: "Office Workshop Rent & Power", amount: 28000, dueDayOfMonth: 1, category: "rent", wallet: "business", createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem(STORAGE_KEYS.RECURRING_BILLS, JSON.stringify(seedBills));
+        return seedBills;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveRecurringBill(b: RecurringBill): RecurringBill {
+    const all = this.getRecurringBills();
+    const idx = all.findIndex((item) => item.id === b.id);
+    let updated: RecurringBill[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = b;
+    } else {
+      updated = [b, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.RECURRING_BILLS, JSON.stringify(updated));
+    this.notify();
+    return b;
+  }
+
+  public deleteRecurringBill(id: string): void {
+    const all = this.getRecurringBills();
+    const updated = all.filter((item) => item.id !== id);
+    localStorage.setItem(STORAGE_KEYS.RECURRING_BILLS, JSON.stringify(updated));
+    this.notify();
   }
 }
 
