@@ -1224,287 +1224,129 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     win.document.close();
   };
 
-  // ── PDF Blob Generator (reuses same HTML as handlePrintDocument) ──────────
-  // ── PDF Blob Generator (reuses same HTML as handlePrintDocument) ──────────
+  // ── PDF Blob Generator — uses IDENTICAL layout as handlePrintDocument ──────
   const buildDocumentHTML = (doc: InvoiceDocument): string => {
     const totals = calculateDocTotals(doc);
     const profile = companyProfile;
-    const hasBank =
-      profile.includeBankDetails !== false &&
-      Boolean(profile.bankName?.trim()) &&
-      Boolean(profile.bankAccountNumber?.trim());
-    const docTitle = doc.docType === "quotation" ? "FORMAL QUOTATION" : doc.docType === "receipt" ? "OFFICIAL RECEIPT" : "TAX INVOICE";
-    const paidSoFar = (doc.payments || []).reduce((s: number, p: { amount: number }) => s + p.amount, 0);
-    const balance = Math.max(0, totals.grandTotal - paidSoFar);
-
-    const itemsHtml = doc.items.map((item, i) => `
-      <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#ffffff"}">
-        <td style="padding:7px 10px;font-size:10.5px;border-bottom:1px solid #e2e8f0;text-align:center;color:#64748b;">${i + 1}</td>
-        <td style="padding:7px 12px;font-size:10.5px;border-bottom:1px solid #e2e8f0;color:#0f172a;line-height:1.4;word-break:break-word;">
-          <strong style="color:#0f172a;">${item.desc}</strong>
-        </td>
-        <td style="padding:7px 10px;font-size:10.5px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:700;color:#0f172a;font-family:monospace;">${item.qty}</td>
-        <td style="padding:7px 12px;font-size:10.5px;border-bottom:1px solid #e2e8f0;text-align:right;color:#334155;white-space:nowrap;font-family:monospace;">${doc.currency} ${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
-        <td style="padding:7px 12px;font-size:10.5px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;color:#0f766e;white-space:nowrap;font-family:monospace;">${doc.currency} ${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+    const hasBank = profile.includeBankDetails !== false && Boolean(profile.bankName?.trim()) && Boolean(profile.bankAccountNumber?.trim());
+    const docTitle = doc.docType === "quotation" ? "FORMAL QUOTATION" : doc.docType === "invoice" ? "TAX INVOICE" : "OFFICIAL RECEIPT";
+    const itemsHtml = doc.items.map((item, idx) => `
+      <tr>
+        <td class="center-cell">${idx + 1}</td>
+        <td><strong>${item.desc}</strong></td>
+        <td class="center-cell">${item.qty}</td>
+        <td class="num-cell">${item.unitPrice.toLocaleString()}</td>
+        <td class="num-cell"><strong>${(item.qty * item.unitPrice).toLocaleString()}</strong></td>
       </tr>`).join("");
 
     return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #ffffff;
-      color: #1e293b;
-      width: 794px;
-      margin: 0 auto;
-      padding: 24px 32px;
-      line-height: 1.4;
-      -webkit-font-smoothing: antialiased;
-    }
-    .header-box { width: 100%; border-bottom: 2.5px solid #0f766e; padding-bottom: 14px; margin-bottom: 14px; }
-    .header-table { width: 100%; border-collapse: collapse; }
-    .header-table td { vertical-align: top; padding: 0 0 4px 0; }
-    
-    .logo-container { width: 44px; height: 44px; background: #0f766e; border-radius: 10px; text-align: center; line-height: 44px; font-weight: 900; font-size: 22px; color: #ffffff; display: inline-block; vertical-align: top; }
-    .company-name { font-size: 19px; font-weight: 900; color: #0f766e; letter-spacing: -0.5px; line-height: 1.2; }
-    .company-sub { font-size: 10px; color: #64748b; font-weight: 500; margin-top: 2px; }
-    .company-contact { font-size: 9.5px; color: #64748b; margin-top: 4px; line-height: 1.45; }
-    
-    .doc-badge { background: #0f766e; color: #ffffff; font-size: 11px; font-weight: 900; padding: 5px 12px; border-radius: 6px; letter-spacing: 0.8px; display: inline-block; text-transform: uppercase; }
-    .doc-meta { font-size: 10.5px; color: #475569; margin-top: 6px; line-height: 1.5; text-align: right; }
-    
-    .client-table { width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 14px; }
-    .client-table td { padding: 10px 14px; vertical-align: top; font-size: 10.5px; }
-    .label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 2px; }
-    .value { font-weight: 700; color: #0f172a; font-size: 12.5px; }
-    
-    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; table-layout: fixed; }
-    .items-table th { background: #0f766e; color: #ffffff; padding: 8px 10px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; border: none; }
-    
-    .totals-container { width: 100%; margin-bottom: 12px; display: table; }
-    .totals-box { width: 290px; float: right; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff; font-size: 10.5px; }
-    .totals-row { display: flex; justify-content: space-between; padding: 5px 12px; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
-    .totals-row span:first-child { font-family: 'Inter', sans-serif; font-weight: 500; color: #475569; }
-    .totals-grand { background: #0f766e; color: #ffffff; font-size: 12.5px; font-weight: 900; display: flex; justify-content: space-between; padding: 8px 12px; font-family: monospace; }
-    .totals-grand span:first-child { font-family: 'Inter', sans-serif; }
-    
-    .pay-box { clear: both; width: 100%; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 10.5px; line-height: 1.5; }
-    .pay-title { font-weight: 800; color: #15803d; margin-bottom: 3px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    .sign-table { clear: both; width: 100%; border-collapse: collapse; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 8px; margin-bottom: 10px; font-size: 9.5px; }
-    .sign-table td { width: 50%; vertical-align: top; padding: 8px 4px 0 4px; }
-    .sign-line { margin-top: 22px; border-top: 1px solid #cbd5e1; padding-top: 3px; width: 170px; color: #64748b; font-size: 9.5px; }
-    
-    .etims-table { clear: both; width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 9.5px; color: #64748b; }
-    .etims-table td { padding: 7px 12px; vertical-align: middle; }
-    .etims-badge { background: #0f766e; color: #ffffff; font-size: 9px; font-weight: 800; line-height: 18px; padding: 0 8px; border-radius: 4px; margin-right: 6px; display: inline-block; vertical-align: middle; }
-  </style>
-</head>
-<body>
-
-  <!-- HEADER BOX -->
-  <div class="header-box">
-    <table class="header-table">
-      <tr>
-        <td style="width:65%;">
-          <table style="border-collapse:collapse;">
-            <tr>
-              <td style="padding-right:12px; width:48px;">
-                ${profile.logoUrl ? `<img src="${profile.logoUrl}" style="width:44px;height:44px;border-radius:10px;object-fit:contain;" alt="Logo" />` : `<div class="logo-container">K</div>`}
-              </td>
-              <td>
-                <div class="company-name">${profile.name}</div>
-                <div class="company-sub">${profile.tagline || "Enterprise IT Support, Network Engineering & Digital Systems"}</div>
-                <div class="company-contact">
-                  ${profile.address}<br>
-                  Tel: <strong>${profile.phone}</strong> · ${profile.email}<br>
-                  KRA PIN: <strong>${profile.kraPin}</strong>
+      <html>
+      <head>
+        <title>${doc.docNumber}</title>
+        <meta charset="utf-8" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet" />
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          html, body { background: #ffffff !important; color: #0f172a !important; font-family: 'Inter', system-ui, sans-serif !important; font-size: 11.5px; line-height: 1.5; -webkit-print-color-adjust: exact !important; }
+          .page { max-width: 820px; margin: 0 auto; padding: 32px 36px; background: #ffffff; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 2px solid #0d9488; margin-bottom: 18px; }
+          .logo-group { display: flex; align-items: center; gap: 12px; }
+          .logo-icon { width: 44px; height: 44px; border-radius: 10px; background: #0d9488; color: #ffffff; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+            .doc-badge { background: #0f766e; color: white; padding: 4px 12px; font-weight: bold; font-size: 12px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+            .doc-meta-table { font-size: 11px; color: #475569; text-align: right; }
+            .client-grid { display: flex; justify-content: space-between; margin-bottom: 30px; }
+            .section-label { font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: bold; letter-spacing: 0.05em; }
+            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .items-table th { background: #f8fafc; padding: 10px; text-align: left; font-size: 11px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+            .items-table td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+            .num-cell { text-align: right; }
+            .center-cell { text-align: center; }
+            .bottom-grid { display: grid; grid-template-columns: 1fr 300px; gap: 40px; }
+            .totals-box { border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; }
+            .totals-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+            .totals-row.gross { border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 8px; font-weight: bold; color: #0f766e; }
+            .wht-notice { margin-top: 20px; padding: 12px; background: #fff7ed; border: 1px solid #ffedd5; font-size: 11px; color: #9a3412; border-radius: 6px; }
+            .footer-grid { margin-top: 40px; display: grid; grid-template-columns: 1fr 200px; gap: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+            .pay-box { font-size: 11px; color: #475569; }
+            .sign-line { border-top: 1px solid #94a3b8; margin-top: 40px; font-size: 10px; color: #64748b; text-align: center; }
+            .etims-block { margin-top: 30px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 10px; display: flex; justify-content: space-between; color: #64748b; }
+            .etims-badge { background: #0f766e; color: white; padding: 2px 6px; border-radius: 3px; margin-right: 5px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="logo-group">
+                ${profile.logoUrl ? `<img src="${profile.logoUrl}" alt="${profile.name}" style="height:44px;object-fit:contain;" />` : `<div class="logo-icon">K</div>`}
+                <div>
+                  <div class="company-name">${profile.name}</div>
+                  <div class="company-tagline">${profile.tagline || "Enterprise IT Support & Digital Engineering"}</div>
                 </div>
-              </td>
-            </tr>
-          </table>
-        </td>
-        <td style="text-align:right; width:35%;">
-          <div class="doc-badge">${docTitle}</div>
-          <div class="doc-meta">
-            ${doc.docType !== "quotation" ? `<strong>Invoice No:</strong> ${doc.docNumber}<br>` : `<strong>Quote No:</strong> ${doc.docNumber}<br>`}
-            <strong>Date Issued:</strong> ${doc.issueDate}<br>
-            <strong>${doc.docType === "quotation" ? "Valid Until" : "Due Date"}:</strong> ${doc.dueDate}<br>
-            <strong>Currency:</strong> ${doc.currency}
+              </div>
+              <div class="company-details">${profile.address} · Phone: ${profile.phone} · Email: ${profile.email}<br />Web: ${profile.website} · <strong>KRA PIN: ${profile.kraPin}</strong></div>
+            </div>
+            <div class="doc-meta">
+              <div class="doc-badge">${docTitle}</div>
+              <div class="doc-meta-table">
+                <div>Document No: <strong>${doc.docNumber}</strong></div>
+                <div>Date Issued: <strong>${doc.issueDate}</strong></div>
+                <div>${doc.docType === "quotation" ? "Valid Until:" : "Due Date:"} <strong>${doc.dueDate}</strong></div>
+                <div>Status: <strong style="text-transform:uppercase;color:#0d9488;">${doc.status}</strong></div>
+              </div>
+            </div>
           </div>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- BILLED TO -->
-  <table class="client-table">
-    <tr>
-      <td style="width:65%;">
-        <div class="label">Billed To</div>
-        <div class="value">${doc.client.company || doc.client.name}</div>
-        <div style="font-size:10.5px;color:#475569;margin-top:2px;font-weight:500;">${doc.client.company ? doc.client.name : ""}</div>
-        <div style="font-size:10px;color:#64748b;margin-top:2px;">${doc.client.phone}</div>
-        ${doc.client.email ? `<div style="font-size:10px;color:#64748b;">${doc.client.email}</div>` : ""}
-        ${doc.client.kraPin ? `<div style="font-size:10px;color:#0f766e;font-weight:600;margin-top:2px;">Client KRA PIN: ${doc.client.kraPin}</div>` : ""}
-      </td>
-      <td style="width:35%; text-align:right;">
-        <div class="label">Status</div>
-        <div style="display:inline-block;background:${doc.status === "paid" ? "#dcfce7" : doc.status === "overdue" ? "#fee2e2" : "#fef9c3"};color:${doc.status === "paid" ? "#15803d" : doc.status === "overdue" ? "#dc2626" : "#854d0e"};padding:4px 12px;border-radius:999px;font-weight:800;font-size:11px;letter-spacing:0.5px;">
-          ${doc.status.toUpperCase()}
-        </div>
-        ${(doc as unknown as Record<string, unknown>).poNumber ? `<div style="margin-top:6px;"><div class="label">PO / Ref</div><div class="value" style="font-size:10.5px;">${(doc as unknown as Record<string, unknown>).poNumber}</div></div>` : ""}
-      </td>
-    </tr>
-  </table>
-
-  <!-- LINE ITEMS -->
-  <table class="items-table">
-    <thead>
-      <tr>
-        <th style="width:5%;text-align:center;">#</th>
-        <th style="width:51%;text-align:left;">Description</th>
-        <th style="width:10%;text-align:center;">Qty</th>
-        <th style="width:17%;text-align:right;">Unit Price</th>
-        <th style="width:17%;text-align:right;">Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${itemsHtml}
-    </tbody>
-  </table>
-
-  <!-- TOTALS -->
-  <div class="totals-container">
-    <div class="totals-box">
-      ${totals.discountedSubtotal !== totals.grandTotal ? `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.discountedSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : `<div class="totals-row"><span>Subtotal</span><span>${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>`}
-      ${totals.vatAmount > 0 ? `<div class="totals-row"><span>VAT (16%)</span><span>${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${totals.whtAmount > 0 ? `<div class="totals-row"><span>WHT (-5%)</span><span style="color:#dc2626;">-${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${paidSoFar > 0 ? `<div class="totals-row"><span>Less Paid</span><span style="color:#15803d;font-weight:bold;">-${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      <div class="totals-grand">
-        <span>TOTAL DUE</span>
-        <span>${doc.currency} ${(paidSoFar > 0 ? balance : totals.grandTotal).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAYMENT INSTRUCTIONS -->
-  <div class="pay-box">
-    <div class="pay-title">Payment Instructions</div>
-    • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br>
-    ${hasBank ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${profile.bankBranch ? ` (${profile.bankBranch})` : ""}<br>` : ""}
-    • Reference: <strong>${doc.docNumber}</strong>
-  </div>
-
-  <!-- SIGNATURES -->
-  <table class="sign-table">
-    <tr>
-      <td>
-        <div class="label">Authorised By</div>
-        <div style="font-weight:700;color:#0f172a;font-size:11.5px;">Peter Kivevo John</div>
-        <div class="sign-line">Signature &amp; Company Stamp</div>
-      </td>
-      <td style="text-align:right;">
-        <div class="label">Client Acceptance</div>
-        <div style="height:12px;"></div>
-        <div class="sign-line" style="margin-left:auto;">Signature &amp; Date</div>
-      </td>
-    </tr>
-  </table>
-
-  <!-- eTIMS FISCAL CODE -->
-  <table class="etims-table">
-    <tr>
-      <td style="text-align:left;">
-        <span class="etims-badge">KRA eTIMS</span>
-        CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong>
-      </td>
-      <td style="text-align:right; font-family:monospace;">
-        Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
-      </td>
-    </tr>
-  </table>
-
-</body>
-</html>`;
+          <div class="client-grid">
+            <div class="client-col">
+              <span class="section-label">Billed To</span>
+              <h4>${doc.client.company || doc.client.name}</h4>
+              <p>Attn: ${doc.client.name}</p>
+            </div>
+            <div class="client-col" style="text-align:right;">
+              <span class="section-label">Client Details</span>
+              <p>${doc.client.phone}</p>
+              ${doc.client.email ? `<p>${doc.client.email}</p>` : ""}
+            </div>
+          </div>
+          <table class="items-table">
+            <thead><tr><th style="width:36px;">#</th><th>Description</th><th style="width:60px;">Qty</th><th style="width:110px;text-align:right;">Unit</th><th style="width:120px;text-align:right;">Total</th></tr></thead>
+            <tbody>${itemsHtml}</tbody>
+          </table>
+          <div class="bottom-grid">
+            <div><span class="section-label">Notes</span><div style="font-size:11px;">${doc.notes || ""}</div></div>
+            <div class="totals-box">
+              <div class="totals-row"><span>Subtotal:</span><strong>${doc.currency} ${totals.rawSubtotal.toLocaleString()}</strong></div>
+              <div class="totals-row gross"><span>TOTAL:</span><span>${doc.currency} ${totals.grandTotal.toLocaleString()}</span></div>
+            </div>
+          </div>
+          <div class="etims-block">
+            <div><span class="etims-badge">KRA eTIMS</span> CU: <strong>${doc.etimsControlCode || "N/A"}</strong></div>
+            <div>Sign: <strong>${doc.etimsInternalSign || "N/A"}</strong></div>
+          </div>
+        </body>
+      </html>`;
   };
 
-  // Generate a real PDF Blob from the document HTML using an iframe + canvas
   const generatePdfBlob = async (doc: InvoiceDocument): Promise<Blob> => {
     const { default: jsPDF } = await import("jspdf");
     const { default: html2canvas } = await import("html2canvas");
 
-    // Render the HTML in an off-screen container matching exact A4 proportions (794px width)
     const iframe = document.createElement("iframe");
-    iframe.style.cssText = "position:fixed;left:0;top:0;width:794px;height:1200px;border:none;opacity:0;pointer-events:none;z-index:-9999;";
+    iframe.style.cssText = "position:fixed;left:0;top:0;width:794px;height:1200px;border:none;opacity:0;pointer-events:none;";
     document.body.appendChild(iframe);
 
     return new Promise((resolve, reject) => {
       iframe.onload = async () => {
         try {
-          // Wait for all fonts and layout to settle
-          if (iframe.contentDocument?.fonts) {
-            await iframe.contentDocument.fonts.ready;
-          }
-          await new Promise((res) => setTimeout(res, 200));
-
-          const body = iframe.contentDocument!.body;
-          const canvas = await html2canvas(body, {
-            scale: 2.5, // Retina crisp rendering
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            width: 794,
-            windowWidth: 794,
-            scrollY: 0,
-            scrollX: 0,
-          });
+          await new Promise((res) => setTimeout(res, 300));
+          const canvas = await html2canvas(iframe.contentDocument!.body, { scale: 2, useCORS: true, width: 794 });
           document.body.removeChild(iframe);
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.98);
           const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-          const pageW = pdf.internal.pageSize.getWidth(); // 210mm
-          const pageH = pdf.internal.pageSize.getHeight(); // 297mm
-
-          const margin = 6;
-          const maxW = pageW - (margin * 2); // 198mm
-          const maxH = pageH - (margin * 2); // 285mm
-
-          const imgAspect = canvas.height / canvas.width;
-          let renderW = maxW;
-          let renderH = maxW * imgAspect;
-
-          // If document height is close to a single page (within 1.35x), scale it down so it fits on exactly 1 single page!
-          if (renderH > maxH && renderH <= maxH * 1.35) {
-            const scaleFactor = maxH / renderH;
-            renderH = maxH;
-            renderW = maxW * scaleFactor;
-          }
-
-          // Single-page rendering (Guaranteed 1 page for standard quotations & invoices)
-          if (renderH <= maxH) {
-            const xOffset = margin + (maxW - renderW) / 2;
-            pdf.addImage(imgData, "JPEG", xOffset, margin, renderW, renderH);
-          } else {
-            // Multi-page only when list has 15+ items and cannot reasonably fit on 1 page
-            let yPos = 0;
-            while (yPos < renderH - 2) {
-              if (yPos > 0) pdf.addPage();
-              pdf.addImage(imgData, "JPEG", margin, margin - yPos, renderW, renderH);
-              yPos += maxH;
-            }
-          }
-
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          const ratio = pdf.internal.pageSize.getWidth() / canvas.width;
+          pdf.addImage(imgData, "JPEG", 0, 0, pdf.internal.pageSize.getWidth(), canvas.height * ratio);
           resolve(pdf.output("blob"));
         } catch (err) {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
           reject(err);
         }
       };
