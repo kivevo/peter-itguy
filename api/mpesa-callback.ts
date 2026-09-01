@@ -28,11 +28,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const items = callbackData?.CallbackMetadata?.Item;
     if (Array.isArray(items)) {
-      items.forEach((item: { Name: string; Value: any }) => {
-        if (item.Name === "MpesaReceiptNumber") mpesaReceiptNumber = String(item.Value);
-        if (item.Name === "Amount") amount = Number(item.Value);
-        if (item.Name === "PhoneNumber") phoneNumber = String(item.Value);
-        if (item.Name === "TransactionDate") transactionDate = String(item.Value);
+      items.forEach((item: { Name: string; Value?: string | number }) => {
+        if (item.Name === "MpesaReceiptNumber" && item.Value) mpesaReceiptNumber = String(item.Value);
+        if (item.Name === "Amount" && item.Value !== undefined) amount = Number(item.Value);
+        if (item.Name === "PhoneNumber" && item.Value) phoneNumber = String(item.Value);
+        if (item.Name === "TransactionDate" && item.Value) transactionDate = String(item.Value);
       });
     }
 
