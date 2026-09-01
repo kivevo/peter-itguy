@@ -79,9 +79,7 @@ import {
   MessageCircle,
   Package,
   ShieldCheck,
-  Wrench,
-  Sparkles,
-  Radio
+  Wrench
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
