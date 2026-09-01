@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { dataStorage, InvoiceDocument } from "@/services/dataStorage";
+import { dataStorage, InvoiceDocument, JobScheduleItem } from "@/services/dataStorage";
 import { BrandLogo } from "@/components/BrandLogo";
 import {
   ShieldCheck,
@@ -16,6 +16,15 @@ import {
   DollarSign,
   Zap,
   ExternalLink,
+  Clock,
+  Send,
+  MessageCircle,
+  Sparkles,
+  MapPin,
+  Check,
+  X,
+  ChevronRight,
+  Phone
 } from "lucide-react";
 
 const VerifyInvoicePage: React.FC = () => {
@@ -68,6 +77,85 @@ const VerifyInvoicePage: React.FC = () => {
     const discounted = Math.max(0, subtotal - discount);
     const vat = inv.vatEnabled ? (discounted * (inv.vatPercent || 16)) / 100 : 0;
     return discounted + vat;
+  };
+
+  // Quote Acceptance State
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [acceptedJob, setAcceptedJob] = useState<JobScheduleItem | null>(null);
+  const [acceptForm, setAcceptForm] = useState({
+    visitDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+    timeSlot: "Morning (09:00 AM - 12:00 PM)",
+    contactPerson: "",
+    contactPhone: "",
+    location: "",
+    notes: "",
+    agreedTerms: true,
+  });
+
+  // Pre-fill accept form when invoice loads
+  useEffect(() => {
+    if (verifiedInvoice) {
+      setAcceptForm((prev) => ({
+        ...prev,
+        contactPerson: verifiedInvoice.client.name || "",
+        contactPhone: verifiedInvoice.client.phone || "",
+        location: verifiedInvoice.client.company
+          ? `${verifiedInvoice.client.company}, ${verifiedInvoice.client.address || "Nairobi"}`
+          : verifiedInvoice.client.address || "Nairobi",
+      }));
+    }
+  }, [verifiedInvoice]);
+
+  const handleConfirmAcceptance = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verifiedInvoice) return;
+
+    setIsAccepting(true);
+
+    // 1. Determine service type from items
+    const descText = (verifiedInvoice.items || []).map((i) => i.desc).join(" ").toLowerCase();
+    let serviceType: JobScheduleItem["serviceType"] = "Turnkey Office Setup";
+    if (descText.includes("cctv") || descText.includes("camera") || descText.includes("nvr")) {
+      serviceType = "CCTV & Cameras Setup";
+    } else if (descText.includes("wi-fi") || descText.includes("wifi") || descText.includes("access point") || descText.includes("switch")) {
+      serviceType = "Wi-Fi & Network Fix";
+    } else if (descText.includes("repair") || descText.includes("laptop") || descText.includes("ssd") || descText.includes("ram") || descText.includes("server")) {
+      serviceType = "Computer & Server Repair";
+    }
+
+    // 2. Create Job in DataStorage
+    const newJob = dataStorage.addJob({
+      clientName: acceptForm.contactPerson || verifiedInvoice.client.name,
+      company: verifiedInvoice.client.company || verifiedInvoice.client.name,
+      phone: acceptForm.contactPhone || verifiedInvoice.client.phone,
+      location: acceptForm.location || verifiedInvoice.client.address || "Nairobi",
+      visitDate: acceptForm.visitDate,
+      timeSlot: acceptForm.timeSlot,
+      serviceType,
+      status: "scheduled",
+      notes: `Auto-scheduled via Quote Acceptance #${verifiedInvoice.docNumber}. ${acceptForm.notes ? `Client Notes: ${acceptForm.notes}` : ""}`,
+      hardwareSerialNumbers: (verifiedInvoice.items || []).map((i) => `${i.qty}x ${i.desc}`).join("; "),
+    });
+
+    // 3. Mark Invoice as Accepted
+    const updatedInvoice: InvoiceDocument = {
+      ...verifiedInvoice,
+      status: "accepted",
+      updatedAt: new Date().toISOString(),
+    };
+    dataStorage.saveInvoice(updatedInvoice);
+    setVerifiedInvoice(updatedInvoice);
+    setAcceptedJob(newJob);
+    setIsAccepting(false);
+    setShowAcceptModal(false);
+  };
+
+  const getWhatsAppAcceptanceMessage = (doc: InvoiceDocument, job: JobScheduleItem | null) => {
+    const total = computeGrossTotal(doc);
+    const dateStr = job ? job.visitDate : acceptForm.visitDate;
+    const timeStr = job ? job.timeSlot : acceptForm.timeSlot;
+    return `Hello Peter / Krenovate Systems! 👋\n\nI have reviewed and *ACCEPTED* formal quotation *${doc.docNumber}*.\n\n• *Client:* ${doc.client.company || doc.client.name}\n• *Total Value:* KES ${total.toLocaleString()}\n• *Preferred Deployment Date:* ${dateStr} (${timeStr})\n• *Location:* ${doc.client.company ? `${doc.client.company} - ` : ""}${doc.client.address || "Nairobi"}\n\nPlease confirm our on-site schedule. Thank you!`;
   };
 
   const getTaxSchemeLabel = (scheme?: InvoiceDocument["taxScheme"]) => {
@@ -162,6 +250,79 @@ const VerifyInvoicePage: React.FC = () => {
         {/* Verified */}
         {verifiedInvoice && (
           <div className="space-y-5 animate-in slide-in-from-bottom-4 duration-500">
+            {/* ══════════════════════════════════════════════════════
+                1-CLICK QUOTE ACCEPTANCE & SCHEDULING ACTION CARD
+            ══════════════════════════════════════════════════════ */}
+            {verifiedInvoice.docType === "quotation" && (
+              <div className="rounded-3xl border-2 border-teal-500/40 bg-gradient-to-br from-teal-500/15 via-card to-emerald-500/10 p-6 md:p-8 shadow-xl shadow-teal-500/10 space-y-5">
+                {verifiedInvoice.status === "accepted" ? (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold font-mono">
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        PROPOSAL ACCEPTED &amp; SCHEDULED
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        Status: <strong className="text-emerald-400 uppercase font-mono">Accepted</strong>
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl md:text-2xl font-extrabold text-foreground">
+                      🎉 Deployment is Booked with Krenovate Systems!
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Thank you for confirming your quotation. Our lead engineer <strong>Peter Kivevo John</strong> has been notified and your job is queued in our active dispatch ledger.
+                    </p>
+
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <Link
+                        to={`/track?job=${verifiedInvoice.docNumber}`}
+                        className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        <span>Track Live Job Status</span>
+                      </Link>
+
+                      <a
+                        href={`https://wa.me/254722000000?text=${encodeURIComponent(
+                          getWhatsAppAcceptanceMessage(verifiedInvoice, acceptedJob)
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Chat with Peter on WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-bold">
+                        <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                        Client Action Required
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-extrabold text-foreground tracking-tight">
+                        Ready to Proceed with This Quotation?
+                      </h3>
+                      <p className="text-xs md:text-sm text-muted-foreground max-w-xl leading-relaxed">
+                        Accept this quotation online to lock in your hardware allocation and pick your preferred on-site deployment date. No paperwork required.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setShowAcceptModal(true)}
+                      className="px-6 py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-navy-950 font-black text-sm shadow-xl shadow-teal-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                    >
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Accept &amp; Book Deployment</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Verification Badge */}
             <div className="rounded-3xl border-2 border-emerald-500/50 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 shadow-2xl shadow-emerald-500/10 overflow-hidden">
               {/* Verified Banner */}
@@ -171,7 +332,7 @@ const VerifyInvoicePage: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-white font-extrabold text-xl">✅ Fiscally Verified</div>
-                  <div className="text-white/80 text-sm">This is an authentic KRA-compliant tax invoice issued by Krenovate Systems</div>
+                  <div className="text-white/80 text-sm">This is an authentic KRA-compliant document issued by Krenovate Systems</div>
                 </div>
               </div>
 
@@ -276,6 +437,176 @@ const VerifyInvoicePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ══════════════════════════════════════════════════
+          QUOTE ACCEPTANCE & DEPLOYMENT SCHEDULING MODAL
+      ══════════════════════════════════════════════════ */}
+      {showAcceptModal && verifiedInvoice && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAcceptModal(false)}>
+          <div
+            className="w-full max-w-lg rounded-3xl bg-card border-2 border-teal-500/50 p-6 md:p-8 space-y-6 shadow-2xl animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-lg text-foreground">
+                    Accept Proposal &amp; Book Deployment
+                  </h3>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {verifiedInvoice.docNumber} · {verifiedInvoice.client.company || verifiedInvoice.client.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAcceptModal(false)}
+                className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Total value callout */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent border border-teal-500/20 flex items-center justify-between">
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Agreed Proposal Value</div>
+                <div className="text-xl font-black text-emerald-400 font-mono">
+                  {fmt(computeGrossTotal(verifiedInvoice))}
+                </div>
+              </div>
+              <div className="text-right text-xs text-muted-foreground">
+                <div>{verifiedInvoice.items.length} Item(s)</div>
+                <div className="text-teal-300 font-semibold">Priority Engineering</div>
+              </div>
+            </div>
+
+            <form onSubmit={handleConfirmAcceptance} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-foreground font-semibold flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-teal-400" />
+                    Preferred Deployment Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().slice(0, 10)}
+                    value={acceptForm.visitDate}
+                    onChange={(e) => setAcceptForm({ ...acceptForm, visitDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-foreground font-semibold flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-teal-400" />
+                    Preferred Time Window *
+                  </label>
+                  <select
+                    value={acceptForm.timeSlot}
+                    onChange={(e) => setAcceptForm({ ...acceptForm, timeSlot: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs"
+                  >
+                    <option value="Morning (09:00 AM - 12:00 PM)">Morning (09:00 AM - 12:00 PM)</option>
+                    <option value="Afternoon (01:00 PM - 04:00 PM)">Afternoon (01:00 PM - 04:00 PM)</option>
+                    <option value="Evening (04:00 PM - 07:00 PM)">Evening (04:00 PM - 07:00 PM)</option>
+                    <option value="Weekend / After-Hours">Weekend / After-Hours</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-foreground font-semibold">On-Site Contact Person *</label>
+                  <input
+                    type="text"
+                    required
+                    value={acceptForm.contactPerson}
+                    onChange={(e) => setAcceptForm({ ...acceptForm, contactPerson: e.target.value })}
+                    placeholder="e.g. David Mwangi"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-foreground font-semibold">Direct Phone / WhatsApp *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={acceptForm.contactPhone}
+                    onChange={(e) => setAcceptForm({ ...acceptForm, contactPhone: e.target.value })}
+                    placeholder="e.g. +254 722 345 678"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-foreground font-semibold flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-teal-400" />
+                  Site Location / Physical Address *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={acceptForm.location}
+                  onChange={(e) => setAcceptForm({ ...acceptForm, location: e.target.value })}
+                  placeholder="e.g. Peak Logistics Hub, 4th Floor, Westlands, Nairobi"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-foreground font-semibold">Special Site Access or Deployment Instructions</label>
+                <textarea
+                  rows={2}
+                  value={acceptForm.notes}
+                  onChange={(e) => setAcceptForm({ ...acceptForm, notes: e.target.value })}
+                  placeholder="e.g. Server room is on 4th floor, ask for receptionist to issue visitor pass..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-background border border-border text-foreground focus:ring-2 focus:ring-teal-500/50 outline-none text-xs resize-none"
+                />
+              </div>
+
+              {/* Terms Checkbox */}
+              <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-secondary/30 border border-border cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  required
+                  checked={acceptForm.agreedTerms}
+                  onChange={(e) => setAcceptForm({ ...acceptForm, agreedTerms: e.target.checked })}
+                  className="mt-0.5 rounded border-border text-teal-600 focus:ring-teal-500"
+                />
+                <span className="text-[11px] text-muted-foreground leading-relaxed">
+                  I confirm acceptance of Quotation <strong>{verifiedInvoice.docNumber}</strong> and authorize Krenovate Systems to dispatch hardware and engineering staff on the scheduled date.
+                </span>
+              </label>
+
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAcceptModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-border text-foreground hover:bg-accent font-semibold text-xs transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAccepting}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-navy-950 font-black text-xs shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Confirm &amp; Schedule</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border/40 py-8 text-center text-xs text-muted-foreground">

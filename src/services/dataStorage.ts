@@ -323,6 +323,115 @@ export interface SiteContent {
   credentials: CredentialBadgeItem[];
 }
 
+export interface ClientVaultRecord {
+  id: string;
+  clientId?: string;
+  clientName: string;
+  company: string;
+  location: string;
+  contactPhone: string;
+  contactEmail?: string;
+  // Network Topology
+  gatewayIp: string;
+  subnetMask: string;
+  dhcpRange: string;
+  vlans: string;
+  primaryDns: string;
+  wifiSsidStaff: string;
+  wifiPassStaff: string;
+  wifiSsidGuest: string;
+  wifiPassGuest: string;
+  // ISP Circuit Details
+  ispProvider: string;
+  circuitId: string;
+  accountNumber: string;
+  bandwidthCir: string;
+  supportContact: string;
+  // Access Credentials
+  routerAdminUrl: string;
+  routerAdminUser: string;
+  routerAdminPass: string;
+  cctvNvrIp: string;
+  cctvNvrUser: string;
+  cctvNvrPass: string;
+  serverRdpIp: string;
+  serverRdpUser: string;
+  serverRdpPass: string;
+  // Expiry Trackers
+  domainName: string;
+  domainExpiryDate?: string;
+  sslExpiryDate?: string;
+  m365LicenseCount?: number;
+  m365RenewalDate?: string;
+  antivirusBrand?: string;
+  antivirusExpiryDate?: string;
+  backupRetentionPolicy?: string;
+  notes?: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface EquipmentIntakeRecord {
+  id: string;
+  intakeNumber: string; // e.g. KRN-INTAKE-2026-001
+  clientName: string;
+  company?: string;
+  phone: string;
+  email?: string;
+  deviceType: "laptop" | "desktop" | "server" | "switch" | "router" | "printer" | "cctv_nvr" | "other";
+  brandModel: string;
+  serialNumber: string;
+  passcodePattern?: string;
+  accessories: {
+    powerAdapter: boolean;
+    bag: boolean;
+    cables: boolean;
+    mouse: boolean;
+    other?: string;
+  };
+  cosmeticCondition: "pristine" | "minor_scratches" | "heavy_wear" | "cracked_screen" | "liquid_damage_suspected";
+  reportedFault: string;
+  diagnosticFee: number; // default 1500 KES
+  estimatedCost?: number;
+  priority: "standard" | "urgent" | "critical_emergency";
+  status: "received" | "diagnosing" | "awaiting_parts" | "repaired" | "ready_for_pickup" | "collected";
+  collectedAt?: string;
+  collectedBy?: string;
+  agreedTerms: boolean;
+  intakeDate: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface MPesaTransactionRecord {
+  id: string;
+  receiptNumber: string; // e.g. QHB72991LK
+  invoiceId?: string;
+  invoiceDocNumber?: string;
+  clientName: string;
+  clientPhone: string;
+  amount: number;
+  transactionType: "STK_PUSH" | "PAYBILL_C2B" | "TILL_BUY_GOODS" | "MANUAL_ENTRY";
+  status: "completed" | "pending" | "failed" | "cancelled";
+  checkoutRequestId?: string;
+  merchantRequestId?: string;
+  resultDesc?: string;
+  timestamp: string;
+  createdAt: string;
+}
+
+export interface WhatsAppCampaignRecord {
+  id: string;
+  campaignTitle: string;
+  targetAudience: "all" | "cctv_clients" | "wifi_clients" | "retainer_sla" | "repair_clients";
+  templateCategory: "seasonal_audit" | "wifi_upgrade" | "cctv_maintenance" | "sla_offer" | "custom";
+  messageTemplate: string;
+  recipientCount: number;
+  dispatchedCount: number;
+  lastDispatchedAt?: string;
+  createdAt: string;
+}
+
 const STORAGE_KEYS = {
   REVIEWS: "itguy_custom_reviews_v1",
   INQUIRIES: "itguy_inquiries_leads_v1",
@@ -343,6 +452,10 @@ const STORAGE_KEYS = {
   INVENTORY: "itguy_inventory_items_v1",
   KRA_SETTINGS: "itguy_kra_profile_settings_v1",
   WHT_CERTIFICATES: "itguy_wht_certificates_v1",
+  CLIENT_VAULTS: "itguy_client_vaults_v1",
+  EQUIPMENT_INTAKES: "itguy_equipment_intakes_v1",
+  MPESA_TRANSACTIONS: "itguy_mpesa_transactions_v1",
+  WHATSAPP_CAMPAIGNS: "itguy_whatsapp_campaigns_v1",
 };
 
 export const DEFAULT_KRA_PROFILE: KRAProfileSettings = {
@@ -2151,6 +2264,262 @@ class DataStorageService {
     } catch (err) {
       console.warn("Background Supabase inquiry sync error:", err);
     }
+  }
+  // ==========================================
+  // CLIENT IT VAULT & NETWORK DOSSIERS
+  // ==========================================
+  public getClientVaults(): ClientVaultRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.CLIENT_VAULTS);
+      if (!stored) {
+        const seedVaults: ClientVaultRecord[] = [
+          {
+            id: "vault-1",
+            clientName: "David Mwangi",
+            company: "Peak Logistics Hub Ltd",
+            location: "Westlands, Nairobi (4th Floor)",
+            contactPhone: "+254 722 345 678",
+            contactEmail: "david@peaklogistics.co.ke",
+            gatewayIp: "192.168.10.1",
+            subnetMask: "255.255.255.0",
+            dhcpRange: "192.168.10.50 - 192.168.10.200",
+            vlans: "VLAN 10: Management (192.168.10.0/24), VLAN 20: Operations (192.168.20.0/24), VLAN 30: Guest Wi-Fi (192.168.30.0/24)",
+            primaryDns: "1.1.1.1 / 8.8.8.8",
+            wifiSsidStaff: "Peak_Logistics_Secure",
+            wifiPassStaff: "PeakLog@2026Secure",
+            wifiSsidGuest: "Peak_Guest_WiFi",
+            wifiPassGuest: "KaribuPeak2026",
+            ispProvider: "Safaricom Business Fiber",
+            circuitId: "SAF-NBO-WST-88192",
+            accountNumber: "ACC-9921448",
+            bandwidthCir: "50 Mbps Dedicated CIR (1:1)",
+            supportContact: "business@safaricom.co.ke / 0722 002 222",
+            routerAdminUrl: "https://192.168.10.1:8443",
+            routerAdminUser: "admin",
+            routerAdminPass: "PeakUniFi#2026!",
+            cctvNvrIp: "192.168.10.250",
+            cctvNvrUser: "admin",
+            cctvNvrPass: "PeakHikvision$2026",
+            serverRdpIp: "192.168.10.10",
+            serverRdpUser: "Administrator",
+            serverRdpPass: "PeakServer@Admin99",
+            domainName: "peaklogistics.co.ke",
+            domainExpiryDate: "2026-11-30",
+            sslExpiryDate: "2026-10-15",
+            m365LicenseCount: 15,
+            m365RenewalDate: "2026-12-15",
+            antivirusBrand: "Kaspersky Endpoint Security Cloud",
+            antivirusExpiryDate: "2027-01-20",
+            backupRetentionPolicy: "Daily NAS Synology Mirror + Weekly Encrypted Cloud Offsite (30-day retention)",
+            notes: "Access requires visitor badge at 4th floor security. Server rack key is with operations manager.",
+            updatedAt: new Date().toISOString(),
+            createdAt: "2026-08-01T08:00:00.000Z",
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.CLIENT_VAULTS, JSON.stringify(seedVaults));
+        return seedVaults;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveClientVault(vault: ClientVaultRecord): ClientVaultRecord {
+    const all = this.getClientVaults();
+    const existingIdx = all.findIndex((v) => v.id === vault.id);
+    let updated: ClientVaultRecord[];
+    const itemToSave = { ...vault, updatedAt: new Date().toISOString() };
+    if (existingIdx >= 0) {
+      updated = [...all];
+      updated[existingIdx] = itemToSave;
+    } else {
+      updated = [itemToSave, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.CLIENT_VAULTS, JSON.stringify(updated));
+    return itemToSave;
+  }
+
+  public deleteClientVault(id: string): void {
+    const all = this.getClientVaults();
+    const updated = all.filter((v) => v.id !== id);
+    localStorage.setItem(STORAGE_KEYS.CLIENT_VAULTS, JSON.stringify(updated));
+  }
+
+  // ==========================================
+  // EQUIPMENT INTAKE & DIAGNOSTIC SLIPS
+  // ==========================================
+  public getEquipmentIntakes(): EquipmentIntakeRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.EQUIPMENT_INTAKES);
+      if (!stored) {
+        const seedIntakes: EquipmentIntakeRecord[] = [
+          {
+            id: "intake-1",
+            intakeNumber: "KRN-INTAKE-2026-001",
+            clientName: "Mary Wanjiku",
+            company: "After40 Hotel",
+            phone: "+254 733 987 654",
+            email: "mary@after40hotel.com",
+            deviceType: "laptop",
+            brandModel: "Dell Latitude 5420 (Core i7 / 16GB RAM)",
+            serialNumber: "DELL-LAT-88491-SN",
+            passcodePattern: "Mary@Hotel123",
+            accessories: {
+              powerAdapter: true,
+              bag: true,
+              cables: false,
+              mouse: true,
+              other: "USB-C Dongle",
+            },
+            cosmeticCondition: "minor_scratches",
+            reportedFault: "Laptop overheating and fan running at max speed constantly. Sudden blue screens under heavy load.",
+            diagnosticFee: 1500,
+            estimatedCost: 6500,
+            priority: "urgent",
+            status: "diagnosing",
+            agreedTerms: true,
+            intakeDate: new Date().toISOString().slice(0, 10),
+            notes: "Cleaned heat sink, applying Arctic MX-4 thermal compound. Bench thermal testing in progress.",
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.EQUIPMENT_INTAKES, JSON.stringify(seedIntakes));
+        return seedIntakes;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveEquipmentIntake(intake: EquipmentIntakeRecord): EquipmentIntakeRecord {
+    const all = this.getEquipmentIntakes();
+    const existingIdx = all.findIndex((i) => i.id === intake.id);
+    let updated: EquipmentIntakeRecord[];
+    if (existingIdx >= 0) {
+      updated = [...all];
+      updated[existingIdx] = intake;
+    } else {
+      updated = [intake, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.EQUIPMENT_INTAKES, JSON.stringify(updated));
+    return intake;
+  }
+
+  public deleteEquipmentIntake(id: string): void {
+    const all = this.getEquipmentIntakes();
+    const updated = all.filter((i) => i.id !== id);
+    localStorage.setItem(STORAGE_KEYS.EQUIPMENT_INTAKES, JSON.stringify(updated));
+  }
+
+  // ==========================================
+  // M-PESA STK & TRANSACTION HUB
+  // ==========================================
+  public getMPesaTransactions(): MPesaTransactionRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.MPESA_TRANSACTIONS);
+      if (!stored) {
+        const seedTxs: MPesaTransactionRecord[] = [
+          {
+            id: "tx-1",
+            receiptNumber: "QHB72991LK",
+            invoiceId: "inv-1",
+            invoiceDocNumber: "KRN-INV-2026-001",
+            clientName: "Mary Wanjiku (After40 Hotel)",
+            clientPhone: "254733987654",
+            amount: 70000,
+            transactionType: "STK_PUSH",
+            status: "completed",
+            resultDesc: "The service request is processed successfully.",
+            timestamp: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify(seedTxs));
+        return seedTxs;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public addMPesaTransaction(tx: Omit<MPesaTransactionRecord, "id" | "createdAt">): MPesaTransactionRecord {
+    const all = this.getMPesaTransactions();
+    const newTx: MPesaTransactionRecord = {
+      ...tx,
+      id: `tx-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newTx, ...all];
+    localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify(updated));
+    return newTx;
+  }
+
+  public updateMPesaTransactionStatus(id: string, status: MPesaTransactionRecord["status"]) {
+    const all = this.getMPesaTransactions();
+    const updated = all.map((t) => (t.id === id ? { ...t, status } : t));
+    localStorage.setItem(STORAGE_KEYS.MPESA_TRANSACTIONS, JSON.stringify(updated));
+  }
+
+  // ==========================================
+  // WHATSAPP PROMO CAMPAIGNS
+  // ==========================================
+  public getWhatsAppCampaigns(): WhatsAppCampaignRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.WHATSAPP_CAMPAIGNS);
+      if (!stored) {
+        const seedCampaigns: WhatsAppCampaignRecord[] = [
+          {
+            id: "camp-1",
+            campaignTitle: "Q3 Business Wi-Fi Speed & Security Tune-up",
+            targetAudience: "wifi_clients",
+            templateCategory: "wifi_upgrade",
+            messageTemplate: "Hello {{name}}! 👋\n\nHope {{company}} is having a productive week! 🚀\n\nIs your office Wi-Fi keeping up with your team's demand? Krenovate Systems is running our *Q3 Corporate Wi-Fi & Bandwidth Optimization Special* in Nairobi:\n\n• Seamless Access Point Firmware Upgrades\n• Isolated Guest Wi-Fi & Staff Bandwidth Shaping\n• Signal Coverage & Dead-Zone Heatmap Audit\n\nReply to this message if you'd like us to schedule a priority on-site tune-up!\n\nBest regards,\nPeter Kivevo — Krenovate Systems\n📞 0722 000 000",
+            recipientCount: 12,
+            dispatchedCount: 12,
+            lastDispatchedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "camp-2",
+            campaignTitle: "CCTV Preventive Lens & NVR Storage Health Check",
+            targetAudience: "cctv_clients",
+            templateCategory: "cctv_maintenance",
+            messageTemplate: "Hello {{name}}! 📹\n\nRoutine security reminder from *Krenovate Systems* for {{company}}.\n\nWhen was the last time your CCTV hard drives were checked for bad sectors? Dust buildup on outdoor lenses and power supply drops can cause surveillance blind spots.\n\nOur *CCTV Health Package* includes:\n✔ 4K Camera Lens Cleaning & Angle Realignment\n✔ NVR Hard Drive Health & Recording Continuity Check\n✔ Mobile App Remote Access & Cloud Backup Re-sync\n\nWould you like us to pass by this week for your scheduled preventive audit?\n\n— Peter Kivevo John (Krenovate Systems)",
+            recipientCount: 8,
+            dispatchedCount: 0,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.WHATSAPP_CAMPAIGNS, JSON.stringify(seedCampaigns));
+        return seedCampaigns;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveWhatsAppCampaign(camp: WhatsAppCampaignRecord): WhatsAppCampaignRecord {
+    const all = this.getWhatsAppCampaigns();
+    const existingIdx = all.findIndex((c) => c.id === camp.id);
+    let updated: WhatsAppCampaignRecord[];
+    if (existingIdx >= 0) {
+      updated = [...all];
+      updated[existingIdx] = camp;
+    } else {
+      updated = [camp, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.WHATSAPP_CAMPAIGNS, JSON.stringify(updated));
+    return camp;
+  }
+
+  public deleteWhatsAppCampaign(id: string): void {
+    const all = this.getWhatsAppCampaigns();
+    const updated = all.filter((c) => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.WHATSAPP_CAMPAIGNS, JSON.stringify(updated));
   }
 }
 

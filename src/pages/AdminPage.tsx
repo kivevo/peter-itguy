@@ -22,6 +22,10 @@ import { EarningsTracker } from "@/components/admin/EarningsTracker";
 import { InventoryManager } from "@/components/admin/InventoryManager";
 import { KRATaxAssistant } from "@/components/admin/KRATaxAssistant";
 import { SLAGenerator } from "@/components/admin/SLAGenerator";
+import { ClientVaultManager } from "@/components/admin/ClientVaultManager";
+import { EquipmentIntakeManager } from "@/components/admin/EquipmentIntakeManager";
+import { MPesaPaymentHub } from "@/components/admin/MPesaPaymentHub";
+import { WhatsAppCampaignStudio } from "@/components/admin/WhatsAppCampaignStudio";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -74,7 +78,10 @@ import {
   PenSquare, 
   MessageCircle,
   Package,
-  ShieldCheck
+  ShieldCheck,
+  Wrench,
+  Sparkles,
+  Radio
 } from "lucide-react";
 
 export const AdminPage: React.FC = () => {
@@ -87,7 +94,7 @@ export const AdminPage: React.FC = () => {
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "earnings" | "kra_tax" | "sla_contracts" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "earnings" | "mpesa_hub" | "kra_tax" | "sla_contracts" | "client_vault" | "equipment_intake" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "whatsapp_campaigns" | "reviews" | "banner" | "database" | "security"
   >("analytics");
 
   // State models
@@ -596,11 +603,32 @@ export const AdminPage: React.FC = () => {
           colorClass: "text-emerald-400",
         },
         {
+          id: "mpesa_hub" as const,
+          label: "M-Pesa STK & Instant Receipts",
+          icon: Smartphone,
+          count: "STK",
+          colorClass: "text-emerald-400",
+        },
+        {
           id: "kra_tax" as const,
           label: "KRA Tax & eTIMS Returns",
           icon: ShieldCheck,
           count: "iTax",
           colorClass: "text-red-400",
+        },
+        {
+          id: "client_vault" as const,
+          label: "Client IT Asset & Credential Vault",
+          icon: Lock,
+          count: "VAULT",
+          colorClass: "text-teal-400",
+        },
+        {
+          id: "equipment_intake" as const,
+          label: "Hardware Intake & Repair Slips",
+          icon: Wrench,
+          count: "REPAIR",
+          colorClass: "text-amber-400",
         },
         {
           id: "sla_contracts" as const,
@@ -649,6 +677,13 @@ export const AdminPage: React.FC = () => {
           label: "WhatsApp Quick-Replies",
           icon: MessageCircle,
           count: "TEMPLATES",
+          colorClass: "text-emerald-400",
+        },
+        {
+          id: "whatsapp_campaigns" as const,
+          label: "WhatsApp Promo Campaigns",
+          icon: Sparkles,
+          count: "PROMO",
           colorClass: "text-emerald-400",
         },
       ],
@@ -842,7 +877,10 @@ export const AdminPage: React.FC = () => {
               <h1 className="font-heading font-extrabold text-lg sm:text-xl text-white">
                 {activeTab === "analytics" && "Operational Analytics & Performance"}
                 {activeTab === "earnings" && "Earnings, M-Pesa Receipts & Financial Ledger"}
+                {activeTab === "mpesa_hub" && "M-Pesa STK Push Prompts & Instant Payment Hub"}
                 {activeTab === "kra_tax" && "KRA Tax Ledger, eTIMS Returns & WHT Credits"}
+                {activeTab === "client_vault" && "Client IT Asset & Credential Vault"}
+                {activeTab === "equipment_intake" && "Hardware Repair Intake & Diagnostic Slips"}
                 {activeTab === "sla_contracts" && "Monthly IT Retainer Contracts & SLA Generator"}
                 {activeTab === "inventory" && "Hardware Inventory & Equipment Deployments"}
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
@@ -851,6 +889,7 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "cms" && "Website Content & CMS Studio (Live Edit)"}
                 {activeTab === "broadcast" && "Resend Email Notifications & Subscriber Broadcast Studio"}
                 {activeTab === "whatsapp" && "WhatsApp Quick-Reply Template Generator"}
+                {activeTab === "whatsapp_campaigns" && "WhatsApp Seasonal Marketing & Promo Campaign Studio"}
                 {activeTab === "reviews" && "Verified Client Reviews & Testimonials"}
                 {activeTab === "banner" && "Live Website Emergency Notice Bar"}
                 {activeTab === "database" && "Supabase Cloud Database Synchronization"}
@@ -1651,9 +1690,24 @@ export const AdminPage: React.FC = () => {
             <EarningsTracker />
           )}
 
+          {/* TAB: 📲 M-PESA STK PUSH & PAYMENT HUB */}
+          {activeTab === "mpesa_hub" && (
+            <MPesaPaymentHub />
+          )}
+
           {/* TAB: 🛡️ KRA TAX & eTIMS RETURNS */}
           {activeTab === "kra_tax" && (
             <KRATaxAssistant />
+          )}
+
+          {/* TAB: 🔐 CLIENT IT ASSET & CREDENTIAL VAULT */}
+          {activeTab === "client_vault" && (
+            <ClientVaultManager />
+          )}
+
+          {/* TAB: 🔧 EQUIPMENT INTAKE & HANDOVER SLIPS */}
+          {activeTab === "equipment_intake" && (
+            <EquipmentIntakeManager />
           )}
 
           {/* TAB: 📋 RETAINER SLA CONTRACT GENERATOR */}
@@ -1685,6 +1739,11 @@ export const AdminPage: React.FC = () => {
           {/* TAB 5B: 💬 WHATSAPP QUICK-REPLY STUDIO */}
           {activeTab === "whatsapp" && (
             <WhatsAppReplyStudio />
+          )}
+
+          {/* TAB 5C: 📢 WHATSAPP PROMO CAMPAIGNS */}
+          {activeTab === "whatsapp_campaigns" && (
+            <WhatsAppCampaignStudio />
           )}
 
           {/* TAB 7: ⭐ REVIEWS MODERATION */}
