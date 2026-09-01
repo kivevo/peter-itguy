@@ -443,10 +443,10 @@ export interface DarajaSettings {
 
 export const DEFAULT_DARAJA_SETTINGS: DarajaSettings = {
   environment: "sandbox",
-  consumerKey: "",
-  consumerSecret: "",
-  passkey: "",
-  shortcode: "3053097",
+  consumerKey: "20tXLbAItCrbcVDNzUtrNRQpkAShqAxbyGqbyPNA3I2RAKIl",
+  consumerSecret: "CNOCB0YBY19aPvXoVVFVk4PJ2qZABURKUpfeITcf2ML6SHPHLXXXVpwIhLrbdvqd",
+  passkey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
+  shortcode: "174379",
   tillOrPaybill: "till",
 };
 
