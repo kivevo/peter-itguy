@@ -184,9 +184,7 @@ export const Footer: React.FC = () => {
             <Link to="/contact" className="hover:text-foreground transition-colors">
               Get In Touch
             </Link>
-            <Link to="/admin" className="text-muted-foreground/60 hover:text-teal-500 transition-colors">
-              Admin Portal
-            </Link>
+
             <button
               onClick={scrollToTop}
               className="inline-flex items-center gap-1 hover:text-foreground font-medium transition-colors"
@@ -260,7 +258,7 @@ const FooterNewsletterForm: React.FC = () => {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Your Name (Optional)"
-        className="px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs focus:ring-2 focus:ring-teal-500/50 outline-none w-full sm:w-36"
+        className="px-3.5 py-2.5 rounded-xl bg-muted/60 dark:bg-navy-950 border border-border text-foreground text-xs focus:ring-2 focus:ring-teal-500/50 outline-none w-full sm:w-48"
       />
       <input
         type="email"
