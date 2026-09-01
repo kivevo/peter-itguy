@@ -813,10 +813,10 @@ export const EarningsTracker: React.FC = () => {
                           {/* Description */}
                           <td className="py-3.5 px-4">
                             <div className="font-bold text-white">
-                              {isIncome ? (item as any).clientName : (item as any).description}
+                              {item.clientName}
                             </div>
                             <div className="text-[11px] text-slate-400">
-                              {isIncome ? (item as any).description : (item as any).notes || "Business outflow"}
+                              {isIncome ? item.description : item.notes || "Business outflow"}
                             </div>
                           </td>
 
@@ -829,13 +829,13 @@ export const EarningsTracker: React.FC = () => {
 
                           {/* Method / Ref */}
                           <td className="py-3.5 px-4 font-mono text-[11px]">
-                            {isIncome ? (
+                            {isIncome && "paymentMethod" in item ? (
                               <span className="text-teal-300 font-bold uppercase">
-                                {(item as any).paymentMethod} {(item as any).mpesaCode ? `(${(item as any).mpesaCode})` : ""}
+                                {item.paymentMethod} {item.mpesaCode ? `(${item.mpesaCode})` : ""}
                               </span>
                             ) : (
                               <span className="text-slate-400">
-                                {(item as any).receiptNote || "Cash / M-Pesa"}
+                                {"receiptNote" in item ? item.receiptNote || "Cash / M-Pesa" : "Cash / M-Pesa"}
                               </span>
                             )}
                           </td>
@@ -1260,7 +1260,7 @@ export const EarningsTracker: React.FC = () => {
                   <label className="text-slate-300 block mb-1">Method</label>
                   <select
                     value={newPayment.paymentMethod}
-                    onChange={(e) => setNewPayment({ ...newPayment, paymentMethod: e.target.value as any })}
+                    onChange={(e) => setNewPayment({ ...newPayment, paymentMethod: e.target.value as PaymentRecord["paymentMethod"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white"
                   >
                     <option value="mpesa">M-Pesa</option>
@@ -1272,7 +1272,7 @@ export const EarningsTracker: React.FC = () => {
                   <label className="text-slate-300 block mb-1">Category</label>
                   <select
                     value={newPayment.category}
-                    onChange={(e) => setNewPayment({ ...newPayment, category: e.target.value as any })}
+                    onChange={(e) => setNewPayment({ ...newPayment, category: e.target.value as PaymentRecord["category"] })}
                     className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white"
                   >
                     <option value="wifi_network">Wi-Fi &amp; Networking</option>
@@ -1371,7 +1371,7 @@ export const EarningsTracker: React.FC = () => {
                 <label className="text-slate-300 block mb-1">Category</label>
                 <select
                   value={newExpense.category}
-                  onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value as any })}
+                  onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value as ExpenseRecord["category"] })}
                   className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white"
                 >
                   <option value="hardware_parts">Hardware Parts &amp; Cables</option>
@@ -1484,7 +1484,7 @@ export const EarningsTracker: React.FC = () => {
                 <label className="text-slate-300 block mb-1">Category</label>
                 <select
                   value={newGoal.category}
-                  onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value as any })}
+                  onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value as SavingsGoal["category"] })}
                   className="w-full px-3 py-2 rounded-xl bg-navy-950 border border-border text-white"
                 >
                   <option value="tech_gear">Field Tech Gear &amp; Tools</option>
