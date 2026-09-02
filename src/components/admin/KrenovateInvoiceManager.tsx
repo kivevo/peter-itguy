@@ -814,21 +814,23 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       font-size: 21px;
       font-weight: 900;
       color: #0f172a;
-      line-height: 1.15;
+      line-height: 1.25;
+      margin-bottom: 2px;
     }
     .company-tagline {
-      font-size: 10px;
+      font-size: 9.5px;
       color: #0d9488;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 2px;
+      display: block;
+      margin-top: 3px;
     }
     .company-details {
       font-size: 10px;
       color: #475569;
       margin-top: 6px;
-      line-height: 1.45;
+      line-height: 1.5;
     }
     .doc-meta {
       text-align: right;
@@ -950,8 +952,10 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     .totals-row {
       display: flex;
       justify-content: space-between;
-      padding: 3px 0;
+      align-items: center;
+      padding: 5px 0;
       color: #475569;
+      line-height: 1.4;
     }
     .totals-row span:first-child {
       font-family: 'Inter', sans-serif;
@@ -959,8 +963,8 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
     .totals-row.gross {
       border-top: 2px solid #0f172a;
-      padding-top: 5px;
-      margin-top: 4px;
+      padding-top: 6px;
+      margin-top: 5px;
       font-size: 12.5px;
       font-weight: 900;
       color: #0f172a;
@@ -1019,11 +1023,13 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       margin-left: auto;
     }
     .signature-text {
-      font-family: 'Caveat', cursive;
-      font-size: 22px;
+      font-family: 'Caveat', cursive, sans-serif;
+      font-size: 26px;
+      font-weight: 700;
       color: #0f172a;
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      line-height: 1.2;
     }
     .etims-block {
       border-top: 1px dashed #cbd5e1;
@@ -1261,7 +1267,16 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     win.document.close();
   };
 
-  // Generate a real PDF Blob from the document HTML using an iframe + canvas (Uses Unified Template)
+  // Download a .pdf file directly to device — Launches the pristine, vector-crisp printable quote with Save as PDF dialog
+  const handleDownloadPdf = async (doc: InvoiceDocument) => {
+    handlePrintDocument(doc);
+    toast({
+      title: "Print / Save PDF Opened 📄",
+      description: "Select 'Save as PDF' in the destination dropdown for crystal-clear vector quality.",
+    });
+  };
+
+  // Generate a real PDF Blob from the document HTML using an iframe + canvas (For Native Share API)
   const generatePdfBlob = async (doc: InvoiceDocument): Promise<Blob> => {
     const { default: jsPDF } = await import("jspdf");
     const { default: html2canvas } = await import("html2canvas");
@@ -1277,7 +1292,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           if (iframe.contentDocument?.fonts) {
             await iframe.contentDocument.fonts.ready;
           }
-          await new Promise((res) => setTimeout(res, 300));
+          await new Promise((res) => setTimeout(res, 350));
 
           const pageEl = (iframe.contentDocument!.querySelector(".page") as HTMLElement) || iframe.contentDocument!.body;
           const canvas = await html2canvas(pageEl, {
@@ -1336,24 +1351,6 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     });
   };
 
-  // Download a .pdf file directly to device
-  const handleDownloadPdf = async (doc: InvoiceDocument) => {
-    setIsGeneratingPdf(true);
-    try {
-      const blob = await generatePdfBlob(doc);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${doc.docNumber}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast({ title: "PDF Downloaded! 📄", description: `${doc.docNumber}.pdf saved to your Downloads.` });
-    } catch {
-      toast({ title: "PDF Error", description: "Could not generate PDF. Try Print / Save PDF instead.", variant: "destructive" });
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
 
   // Share via Web Share API (opens native Android/iOS share sheet with real .pdf file)
   const handleNativeSharePdf = async (doc: InvoiceDocument) => {
@@ -3939,20 +3936,18 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
             {/* Action options */}
             <div className="space-y-3">
-              {/* Option 1: Download PDF file */}
+              {/* Option 1: Download / Save as PDF (Brings the exact printable quote) */}
               <button
-                onClick={() => { handleDownloadPdf(shareModalDoc); }}
-                disabled={isGeneratingPdf}
-                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white font-bold text-sm transition-all"
+                onClick={() => {
+                  handlePrintDocument(shareModalDoc);
+                  setShareModalDoc(null);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
               >
-                {isGeneratingPdf ? (
-                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                ) : (
-                  <Download className="w-5 h-5 shrink-0" />
-                )}
+                <Printer className="w-5 h-5 shrink-0" />
                 <div className="text-left">
-                  <div>{isGeneratingPdf ? "Generating PDF…" : "Download PDF File"}</div>
-                  <div className="text-[11px] font-normal opacity-80">Saves {shareModalDoc.docNumber}.pdf to Downloads</div>
+                  <div>Download / Save as PDF (Vector Crisp A4)</div>
+                  <div className="text-[11px] font-normal opacity-85">Opens printable quote — select "Save as PDF" to download</div>
                 </div>
               </button>
 
