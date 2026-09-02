@@ -987,16 +987,14 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       padding: 8px 12px;
       font-size: 9.5px;
       font-family: ui-monospace, monospace;
-      margin-bottom: 14px;
-      line-height: 1.45;
-    }
-    .footer-grid {
+     .footer-grid {
       display: grid;
       grid-template-columns: 1fr 220px;
       gap: 16px;
       padding-top: 12px;
       border-top: 2px solid #e2e8f0;
       margin-bottom: 12px;
+      align-items: flex-end;
     }
     .pay-box {
       background: #f0fdfa;
@@ -1009,27 +1007,35 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       line-height: 1.55;
     }
     .sign-box {
-      text-align: right;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
       justify-content: flex-end;
-    }
-    .sign-line {
-      width: 180px;
-      border-top: 1px solid #334155;
-      padding-top: 4px;
-      text-align: center;
+      width: 190px;
       margin-left: auto;
     }
     .signature-text {
-      font-family: 'Caveat', cursive, sans-serif;
+      font-family: 'Caveat', cursive, 'Brush Script MT', cursive;
       font-size: 26px;
       font-weight: 700;
       color: #0f172a;
       display: block;
-      margin-bottom: 4px;
-      line-height: 1.2;
+      margin-bottom: 6px;
+      line-height: 1.1;
+      text-align: center;
+      width: 100%;
+    }
+    .sign-line {
+      width: 190px;
+      border-top: 1.5px solid #334155;
+      padding-top: 5px;
+      text-align: center;
+      font-size: 9px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
     }
     .etims-block {
       border-top: 1px dashed #cbd5e1;
@@ -1082,7 +1088,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           </div>
         </div>
         <div class="company-details">
-          ${profile.address} · Phone: ${profile.phone} · Email: ${profile.email}<br />
+          ${profile.address} · Phone: ${profile.phone} · Email: ${(profile.email || "").replace(/\s+/g, "")}<br />
           Web: ${profile.website} · <strong>KRA PIN: ${profile.kraPin}</strong>
         </div>
       </div>
@@ -1222,10 +1228,8 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         • Document Reference: <strong>${doc.docNumber}</strong>
       </div>
       <div class="sign-box">
-        <div class="sign-line">
-          <span class="signature-text">${profile.authorizedSignatory || "Peter Kivevo John"}</span>
-          <span style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Authorized Signatory &amp; Stamp</span>
-        </div>
+        <div class="signature-text">${profile.authorizedSignatory && profile.authorizedSignatory !== "Krenovate Systems" ? profile.authorizedSignatory : "Peter Kivevo"}</div>
+        <div class="sign-line">Authorized Signatory &amp; Stamp</div>
       </div>
     </div>
 
@@ -1233,7 +1237,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     <div class="etims-block">
       <div>
         <span class="etims-badge">KRA eTIMS</span>
-        CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control Code: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.slice(-4)}-8819`}</strong>
+        CU Serial: <strong>KRA-ETIMS-PK01-2026</strong> · Control Code: <strong>${doc.etimsControlCode || `KRA-INV-${doc.docNumber.replace(/[^0-9]/g, "").slice(-4) || "8819"}`}</strong>
       </div>
       <div>
         Internal Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
@@ -1351,7 +1355,6 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     });
   };
 
-
   // Share via Web Share API (opens native Android/iOS share sheet with real .pdf file)
   const handleNativeSharePdf = async (doc: InvoiceDocument) => {
     setIsGeneratingPdf(true);
@@ -1366,21 +1369,16 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         });
         setPdfBlob(blob);
       } else {
-        // Fallback: download the PDF if Web Share API not supported
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${doc.docNumber}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
+        // Fallback on desktop: launch the crystal-clear vector printable quote!
+        handlePrintDocument(doc);
         toast({
-          title: "Saved to Downloads 📄",
-          description: "Native share not supported — PDF downloaded. Open WhatsApp → attach the file manually.",
+          title: "Print / Save PDF Opened 📄",
+          description: "Use 'Save as PDF' in the destination dropdown for crystal-clear vector quality.",
         });
       }
     } catch (err: unknown) {
       if (err instanceof Error && err.name !== "AbortError") {
-        toast({ title: "Share Failed", description: "Could not share PDF. Try downloading instead.", variant: "destructive" });
+        handlePrintDocument(doc);
       }
     } finally {
       setIsGeneratingPdf(false);
