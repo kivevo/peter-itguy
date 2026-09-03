@@ -707,6 +707,16 @@ export const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
 
 const INITIAL_CLIENTS: SavedClient[] = [
   {
+    id: "client-samchi",
+    name: "Peter John",
+    company: "Samchi Group of companies",
+    email: "peter.it@samchi.co.ke",
+    phone: "+254758896553",
+    address: "Nairobi, Kenya",
+    kraPin: "P051982744S",
+    createdAt: "2026-08-01T09:00:00.000Z",
+  },
+  {
     id: "client-1",
     name: "David Mwangi",
     company: "Peak Logistics Hub Ltd",
@@ -1256,7 +1266,20 @@ class DataStorageService {
         localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(INITIAL_CLIENTS));
         return INITIAL_CLIENTS;
       }
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored) as SavedClient[];
+      const samchi = INITIAL_CLIENTS[0];
+      const hasSamchi = parsed.some(
+        (c) =>
+          c.id === "client-samchi" ||
+          c.company.toLowerCase().includes("samchi") ||
+          c.email.toLowerCase().includes("samchi")
+      );
+      if (!hasSamchi) {
+        const merged = [samchi, ...parsed];
+        localStorage.setItem(STORAGE_KEYS.CLIENTS, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
     } catch {
       return INITIAL_CLIENTS;
     }

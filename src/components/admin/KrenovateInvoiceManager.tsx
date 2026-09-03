@@ -2620,6 +2620,32 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   </div>
                 </div>
 
+                {/* 1-Click Quick Autofill Chips */}
+                {clients.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] font-mono text-slate-400">⚡ 1-Click Autofill:</span>
+                    {clients.slice(0, 5).map((c) => {
+                      const isSelected = currentDoc.client.id === c.id || currentDoc.client.company === c.company;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => handleSelectClient(c.id)}
+                          className={`px-2.5 py-1 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                            isSelected
+                              ? "bg-teal-600 text-white border-teal-400 shadow-sm"
+                              : "bg-navy-950 hover:bg-navy-800 text-slate-300 hover:text-white border-border/80"
+                          }`}
+                        >
+                          <Building2 className={`w-3 h-3 ${isSelected ? "text-white" : "text-teal-400"}`} />
+                          <span>{c.company}</span>
+                          <span className={`text-[10px] ${isSelected ? "text-teal-100" : "text-slate-400"}`}>({c.name})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-slate-300 block mb-1">Company / Organization *</label>
