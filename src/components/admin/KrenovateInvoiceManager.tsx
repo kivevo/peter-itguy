@@ -937,7 +937,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     return `<!DOCTYPE html>
 <html>
 <head>
-  <title>${isPrint ? "" : `${docTitle} - ${doc.docNumber}`}</title>
+  <title>${docTitle} - ${doc.docNumber}</title>
   <meta charset="utf-8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1493,15 +1493,32 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 </html>`;
   };
 
-  // Dedicated High-Resolution Clean A4 Print Handler (Uses Unified Template)
+  // Dedicated High-Resolution Clean A4 Print Handler (Uses Hidden Iframe to Eliminate about:blank URL)
   const handlePrintDocument = (doc: InvoiceDocument) => {
-    const win = window.open("", "_blank", "width=900,height=1100");
-    if (!win) {
+    let printFrame = document.getElementById("krenovate-print-iframe") as HTMLIFrameElement | null;
+    if (!printFrame) {
+      printFrame = document.createElement("iframe");
+      printFrame.id = "krenovate-print-iframe";
+      printFrame.style.cssText = "position:fixed;top:-10000px;left:-10000px;width:1000px;height:1200px;border:none;";
+      document.body.appendChild(printFrame);
+    }
+    const frameDoc = printFrame.contentWindow?.document;
+    if (!frameDoc) {
       window.print();
       return;
     }
-    win.document.write(buildDocumentHTML(doc, true));
-    win.document.close();
+    frameDoc.open();
+    frameDoc.write(buildDocumentHTML(doc, false));
+    frameDoc.close();
+
+    setTimeout(() => {
+      try {
+        printFrame?.contentWindow?.focus();
+        printFrame?.contentWindow?.print();
+      } catch {
+        window.print();
+      }
+    }, 350);
   };
 
   // Generate a real PDF Blob from the document HTML using an iframe + canvas (For Direct Download & Native Share API)
