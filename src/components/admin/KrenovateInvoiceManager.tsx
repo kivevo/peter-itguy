@@ -947,9 +947,9 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     html, body {
       background: #ffffff !important;
       color: #0f172a !important;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
       font-size: 11px;
-      line-height: 1.45;
+      line-height: 1.5;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       width: 100%;
@@ -958,7 +958,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       width: 794px;
       max-width: 794px;
       margin: 0 auto;
-      padding: 26px 30px;
+      padding: 32px 36px;
       background: #ffffff;
       box-sizing: border-box;
     }
@@ -966,20 +966,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-bottom: 16px;
-      border-bottom: 2.5px solid #0d9488;
-      margin-bottom: 16px;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 20px;
     }
     .logo-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .logo-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: #0d9488;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #0f766e;
       color: #ffffff;
       font-size: 24px;
       font-weight: 900;
@@ -989,15 +990,15 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       flex-shrink: 0;
     }
     .company-name {
-      font-size: 21px;
+      font-size: 24px;
       font-weight: 900;
       color: #0f172a;
-      line-height: 1.25;
-      margin-bottom: 2px;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
     }
     .company-tagline {
-      font-size: 9.5px;
-      color: #0d9488;
+      font-size: 11px;
+      color: #0f766e;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -1005,32 +1006,32 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       margin-top: 3px;
     }
     .company-details {
-      font-size: 10px;
+      font-size: 11px;
       color: #475569;
-      margin-top: 6px;
+      margin-top: 8px;
       line-height: 1.5;
     }
     .doc-meta {
       text-align: right;
-      max-width: 42%;
+      max-width: 45%;
     }
     .doc-badge {
       display: inline-block;
-      background: #0d9488;
+      background: #115e59;
       color: #ffffff;
-      font-size: 11.5px;
+      font-size: 13px;
       font-weight: 900;
-      padding: 5px 14px;
-      border-radius: 6px;
+      padding: 6px 16px;
+      border-radius: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 6px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
     .doc-meta-table {
-      font-size: 10.5px;
+      font-size: 11px;
       color: #334155;
-      font-family: ui-monospace, monospace;
-      line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.6;
       text-align: right;
     }
     .doc-meta-table strong {
@@ -1039,29 +1040,29 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     .client-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 24px;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 14px;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
     }
     .client-col h4 {
-      font-size: 12.5px;
-      font-weight: 800;
+      font-size: 13px;
+      font-weight: 900;
       color: #0f172a;
       margin-bottom: 2px;
     }
     .client-col p {
-      font-size: 10.5px;
+      font-size: 11px;
       color: #475569;
-      line-height: 1.4;
+      line-height: 1.45;
     }
     .section-label {
-      font-size: 9px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      font-weight: 800;
+      font-weight: 700;
       color: #64748b;
       margin-bottom: 4px;
       display: block;
@@ -1070,25 +1071,27 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       width: 100%;
       border-collapse: collapse;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
     table.items-table th {
       background: #1e293b;
       color: #ffffff;
-      font-size: 9.5px;
+      font-family: ui-monospace, monospace;
+      font-size: 10.5px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      padding: 8px 10px;
+      letter-spacing: 0.5px;
+      padding: 10px 14px;
       text-align: left;
     }
     table.items-table td {
-      padding: 7px 10px;
-      font-size: 10.5px;
-      border-bottom: 1px solid #f1f5f9;
-      line-height: 1.4;
+      padding: 10px 14px;
+      font-size: 11px;
+      border-bottom: 1px solid #e2e8f0;
+      line-height: 1.45;
+      color: #0f172a;
     }
     table.items-table tr:nth-child(even) td {
       background: #f8fafc;
@@ -1096,42 +1099,45 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     .num-cell {
       text-align: right;
       font-family: ui-monospace, monospace;
-      font-weight: 600;
+      font-weight: 700;
       white-space: nowrap;
+      color: #0f172a;
     }
     .center-cell {
       text-align: center;
       font-family: ui-monospace, monospace;
+      color: #64748b;
     }
     .bottom-grid {
       display: grid;
-      grid-template-columns: 1fr 310px;
-      gap: 16px;
-      margin-bottom: 14px;
+      grid-template-columns: 1fr 290px;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: flex-start;
     }
     .notes-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 10px;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 10.5px;
       color: #334155;
       white-space: pre-line;
-      line-height: 1.5;
+      line-height: 1.6;
     }
     .totals-box {
       background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
       font-family: ui-monospace, monospace;
-      font-size: 10.5px;
+      font-size: 11px;
     }
     .totals-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 5px 0;
+      padding: 4px 0;
       color: #475569;
       line-height: 1.4;
     }
@@ -1141,48 +1147,54 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
     .totals-row.gross {
       border-top: 2px solid #0f172a;
-      padding-top: 6px;
-      margin-top: 5px;
-      font-size: 12.5px;
+      padding-top: 8px;
+      margin-top: 6px;
+      font-size: 13px;
       font-weight: 900;
       color: #0f172a;
     }
+    .totals-row.gross span:last-child {
+      font-size: 16px;
+    }
     .totals-row.net {
-      border-top: 2px solid #0d9488;
-      background: #f0fdf4;
-      padding: 5px 8px;
-      margin-top: 5px;
-      border-radius: 6px;
-      font-size: 12.5px;
+      border-top: 2px solid #059669;
+      background: #ecfdf5;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 900;
-      color: #166534;
+      color: #065f46;
     }
     .wht-notice {
       background: #fefce8;
       border: 1px solid #fef08a;
       color: #854d0e;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 9.5px;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 10px;
       font-family: ui-monospace, monospace;
-     .footer-grid {
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .footer-grid {
       display: grid;
       grid-template-columns: 1fr 220px;
-      gap: 16px;
-      padding-top: 12px;
+      gap: 20px;
+      padding-top: 18px;
       border-top: 2px solid #e2e8f0;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       align-items: flex-end;
     }
     .pay-box {
       background: #f0fdfa;
       border: 1px solid #ccfbf1;
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 12px 16px;
       font-family: ui-monospace, monospace;
-      font-size: 10px;
+      font-size: 10.5px;
       color: #115e59;
-      line-height: 1.55;
+      line-height: 1.6;
     }
     .sign-box {
       text-align: center;
@@ -1195,53 +1207,58 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
     .signature-text {
       font-family: 'Caveat', cursive, 'Brush Script MT', cursive;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      color: #0f172a;
+      color: #1e293b;
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       line-height: 1.1;
       text-align: center;
       width: 100%;
     }
     .sign-line {
       width: 190px;
-      border-top: 1.5px solid #334155;
-      padding-top: 5px;
+      border-top: 1px solid #94a3b8;
+      padding-top: 4px;
       text-align: center;
-      font-size: 9px;
+      font-size: 9.5px;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       font-weight: 600;
     }
+    .sign-subtext {
+      font-size: 9px;
+      color: #94a3b8;
+      margin-top: 6px;
+      text-align: center;
+    }
     .etims-block {
       border-top: 1px dashed #cbd5e1;
-      padding-top: 10px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-family: ui-monospace, monospace;
-      font-size: 9.5px;
+      font-size: 10px;
       color: #64748b;
       background: #f8fafc;
-      padding: 8px 12px;
-      border-radius: 6px;
+      border-radius: 10px;
     }
     .etims-badge {
-      background: #0d9488;
-      color: #ffffff;
+      background: #fee2e2;
+      color: #b91c1c;
       font-weight: 800;
       padding: 2px 7px;
       border-radius: 4px;
-      margin-right: 6px;
+      margin-right: 8px;
       display: inline-block;
       vertical-align: middle;
-      font-size: 9px;
+      font-size: 9.5px;
     }
     @page {
       size: A4 portrait;
-      margin: 0; /* Removing page margins suppresses browser default header (time/date) and footer (about:blank/pages) */
+      margin: 0;
     }
     @media print {
       html, body {
@@ -1270,7 +1287,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         <div class="logo-group">
           ${
             profile.logoUrl
-              ? `<img src="${profile.logoUrl}" alt="${profile.name}" style="height:44px;width:44px;object-fit:contain;border-radius:10px;" />`
+              ? `<img src="${profile.logoUrl}" alt="${profile.name}" style="height:48px;width:48px;object-fit:contain;border-radius:12px;" />`
               : `<div class="logo-icon">K</div>`
           }
           <div>
@@ -1289,7 +1306,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           <div>Document No: <strong>${doc.docNumber}</strong></div>
           <div>Date Issued: <strong>${doc.issueDate}</strong></div>
           ${showDueDate ? `<div>${doc.docType === "quotation" ? "Valid Until:" : "Due Date:"} <strong>${doc.dueDate}</strong></div>` : ""}
-          <div>Status: <strong style="text-transform:uppercase;color:#0d9488;">${doc.status}</strong></div>
+          <div>Status: <strong style="text-transform:uppercase;color:#0f766e;">${doc.status}</strong></div>
           <div>Currency: <strong>${doc.currency}</strong></div>
         </div>
       </div>
@@ -1298,16 +1315,16 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     <!-- Client Details -->
     <div class="client-grid">
       <div class="client-col">
-        <span class="section-label">Billed To / Client Organization</span>
+        <span class="section-label">Billed To / Client Details:</span>
         <h4>${doc.client.company || doc.client.name}</h4>
-        <p>Attn: ${doc.client.name}</p>
+        <p style="color:#334155;font-weight:500;">${doc.client.name}</p>
         <p>${doc.client.address || "Nairobi, Kenya"}</p>
       </div>
       <div class="client-col" style="text-align:right;">
-        <span class="section-label">Client Contact Details</span>
-        ${showClientContact ? `<p style="font-family:ui-monospace, monospace;font-weight:600;">${doc.client.phone}</p>` : ""}
+        <span class="section-label">Client Contact:</span>
+        ${showClientContact ? `<p style="font-family:ui-monospace, monospace;font-weight:600;color:#1e293b;">${doc.client.phone}</p>` : ""}
         ${showClientContact && doc.client.email ? `<p>${doc.client.email}</p>` : ""}
-        ${showClientKra && doc.client.kraPin ? `<p style="font-family:ui-monospace, monospace;color:#0f172a;"><strong>Client KRA PIN: ${doc.client.kraPin}</strong></p>` : ""}
+        ${showClientKra && doc.client.kraPin ? `<p style="font-family:ui-monospace, monospace;color:#475569;">PIN: ${doc.client.kraPin}</p>` : ""}
       </div>
     </div>
 
@@ -1318,17 +1335,17 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           ? `<thead>
         <tr>
           <th style="width:36px;text-align:center;">#</th>
-          <th>Item / Service Description</th>
-          <th style="width:55px;text-align:center;">Qty</th>
-          <th style="width:115px;text-align:right;">Unit (${doc.currency})</th>
-          <th style="width:125px;text-align:right;">Total (${doc.currency})</th>
+          <th>ITEM / SERVICE DESCRIPTION</th>
+          <th style="width:55px;text-align:center;">QTY</th>
+          <th style="width:115px;text-align:right;">UNIT (${doc.currency})</th>
+          <th style="width:125px;text-align:right;">TOTAL (${doc.currency})</th>
         </tr>
       </thead>`
           : `<thead>
         <tr>
           <th style="width:36px;text-align:center;">#</th>
-          <th>Item / Service Description</th>
-          <th style="width:140px;text-align:right;">Total (${doc.currency})</th>
+          <th>ITEM / SERVICE DESCRIPTION (LUMP-SUM SCOPE)</th>
+          <th style="width:140px;text-align:right;">TOTAL (${doc.currency})</th>
         </tr>
       </thead>`
       }
@@ -1342,7 +1359,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       ${
         showNotes
           ? `<div>
-        <span class="section-label">Terms &amp; Payment Conditions</span>
+        <span class="section-label">Terms &amp; Payment Conditions:</span>
         <div class="notes-box">
           ${doc.notes || "Payment due within stated terms. Hardware remains property of supplier until full payment."}
         </div>
@@ -1350,12 +1367,12 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           : ""
       }
       <div style="${!showNotes ? 'display:flex;justify-content:flex-end;' : ''}">
-        <div style="${!showNotes ? 'width:360px;' : ''}">
+        <div style="${!showNotes ? 'width:340px;' : ''}">
           <span class="section-label">Financial Calculation Summary</span>
           <div class="totals-box">
             <div class="totals-row">
               <span>Subtotal:</span>
-              <strong>${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong>
+              <strong style="color:#0f172a;">${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong>
             </div>
             ${
               totals.discountAmount > 0
@@ -1434,17 +1451,19 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       ${
         showPaymentInfo
           ? `
-      <div class="pay-box">
-        <strong>Official Payment Instructions:</strong><br />
-        ${showMpesa ? `• M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br />` : ""}
-        ${
-          hasBank
-            ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${
-                profile.bankBranch ? ` (${profile.bankBranch})` : ""
-              }<br />`
-            : ""
-        }
-        • Document Reference: <strong>${doc.docNumber}</strong>
+      <div>
+        <span class="section-label">Official Payment Instructions:</span>
+        <div class="pay-box">
+          ${showMpesa ? `<div>• M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong></div><div>• Account Name: <strong>${profile.mpesaAccount}</strong></div>` : ""}
+          ${
+            hasBank
+              ? `<div>• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${
+                  profile.bankBranch ? ` (${profile.bankBranch})` : ""
+                }</div>`
+              : ""
+          }
+          <div>• Document Reference: <strong>${doc.docNumber}</strong></div>
+        </div>
       </div>`
           : ""
       }
@@ -1454,6 +1473,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       <div class="sign-box" style="${!showPaymentInfo ? 'margin-left:auto;' : ''}">
         <div class="signature-text">${signatoryName}</div>
         <div class="sign-line">${signatoryTitle}</div>
+        <div class="sign-subtext">Generated by ${profile.name} Enterprise Management System</div>
       </div>`
           : ""
       }
