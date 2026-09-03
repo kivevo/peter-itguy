@@ -266,6 +266,69 @@ export const TURNKEY_PACKAGES: TurnkeyPackage[] = [
     suggestedNotes: "• Boosts PC boot time from 3 minutes to under 12 seconds.\n• 100% zero data loss guarantee during SSD migration.\n• Turnaround: Same-day service for all 5 machines.",
   },
   {
+    id: "office_computing_workstation",
+    name: "💻 Complete Office Workstation & Computing Bundle",
+    category: "hardware",
+    icon: "Laptop",
+    badge: "Turnkey Office Setup",
+    tagline: "Essential business computing package: Core i5 Laptop, EcoTank Printer, UPS & Accessories",
+    description: "High-spec business laptop, EcoTank multi-function printer, UPS power protection, wireless peripherals, and complete on-site deployment.",
+    defaultDocType: "quotation",
+    items: [
+      {
+        desc: "HP ProBook 450 G10 / Lenovo ThinkPad E16 (Intel Core i5 13th Gen, 16GB DDR4 RAM, 512GB NVMe M.2 SSD, 15.6\" FHD IPS Anti-Glare, Windows 11 Pro 64-Bit, 1-Year Warranty)",
+        qty: 1,
+        unitPrice: 78500,
+      },
+      {
+        desc: "Epson EcoTank L3250 / L3251 All-in-One Multi-Function Ink Tank Printer (Wi-Fi, Print, Scan, Copy, Borderless Photo Printing, Includes 4x CMYK 65ml Ink Bottles)",
+        qty: 1,
+        unitPrice: 28500,
+      },
+      {
+        desc: "APC / Mercury 650VA Line-Interactive UPS Battery Backup with Automatic Voltage Regulation (AVR) & Surge Protection (Protects PC from Blackouts & Power Surges)",
+        qty: 1,
+        unitPrice: 6800,
+      },
+      {
+        desc: "Logitech MK270 / MK295 Wireless Keyboard & Silent Optical Mouse Combo (2.4GHz Long-Range Nano USB Receiver, Spill-Resistant)",
+        qty: 1,
+        unitPrice: 3800,
+      },
+      {
+        desc: "7-in-1 Premium Aluminum USB-C Hub / Docking Station (4K HDMI Output, 3x USB 3.0 Ports, SD/TF Card Reader, 100W PD Pass-Through Fast Charging)",
+        qty: 1,
+        unitPrice: 4500,
+      },
+      {
+        desc: "Huntkey / Sollatek 6-Way Heavy-Duty Surge-Protected Power Extension Strip (Individual Switches, 3m Cable, Flame-Retardant)",
+        qty: 1,
+        unitPrice: 2600,
+      },
+      {
+        desc: "SanDisk Ultra Dual Luxe 128GB High-Speed All-Metal Flash Drive (Dual USB 3.1 & USB Type-C Connectors, 150MB/s Read)",
+        qty: 1,
+        unitPrice: 2400,
+      },
+      {
+        desc: "Double A / Chamex Premium 80gsm A4 White Multi-Purpose Copy Paper (Full Box of 5 Reams / 2,500 Sheets)",
+        qty: 1,
+        unitPrice: 3600,
+      },
+      {
+        desc: "Targus / HP Classic 15.6\" Padded Water-Resistant Laptop Backpack with Security Cable Combination Lock",
+        qty: 1,
+        unitPrice: 3800,
+      },
+      {
+        desc: "Professional On-Site Commissioning: OS Setup, Microsoft 365 Configuration, Wireless Printer Network Sharing, Anti-Virus & Initial System Image Backup",
+        qty: 1,
+        unitPrice: 5500,
+      },
+    ],
+    suggestedNotes: "• 1-Year official manufacturer warranty on HP/Lenovo laptop and Epson EcoTank printer.\n• 50% commitment deposit required upon contract approval, 50% balance upon on-site handover and user training.\n• Includes 30 days complimentary remote IT helpdesk support post-deployment.\n• Quotation valid for 30 calendar days from issue date.",
+  },
+  {
     id: "pos_retail",
     name: "💳 Point of Sale (POS) Hardware & Network Package",
     category: "pos",
@@ -364,6 +427,14 @@ export const CATALOG_ITEMS: CatalogItem[] = [
   { id: "hdd_4tb_purple", category: "CCTV", name: "4TB Surveillance Hard Drive", desc: "WD Purple 4TB 24/7 Heavy-Duty Surveillance Hard Drive (60+ Days Video)", unitPrice: 18500, defaultQty: 1 },
 
   // Hardware & Power
+  // Hardware & Computing Essentials
+  { id: "laptop_hp_probook", category: "Hardware", name: "HP ProBook 450 G10 (Core i5)", desc: "HP ProBook 450 G10 / Lenovo ThinkPad (Core i5 13th Gen, 16GB RAM, 512GB SSD, 15.6\" FHD, Win 11 Pro, 1-Yr Warranty)", unitPrice: 78500, defaultQty: 1 },
+  { id: "printer_epson_ecotank", category: "Hardware", name: "Epson EcoTank L3250 Printer", desc: "Epson EcoTank L3250 All-in-One Ink Tank Printer (Wi-Fi, Print, Scan, Copy, Borderless, 4x Inks included)", unitPrice: 28500, defaultQty: 1 },
+  { id: "keyboard_mouse_logitech", category: "Hardware", name: "Logitech Wireless Combo", desc: "Logitech MK270 / MK295 Wireless Keyboard & Silent Mouse Combo (Spill-Resistant, Nano USB)", unitPrice: 3800, defaultQty: 1 },
+  { id: "dock_usbc_7in1", category: "Hardware", name: "7-in-1 USB-C Hub Dock", desc: "7-in-1 Aluminum USB-C Hub Dock (4K HDMI, 3x USB 3.0, SD/TF Reader, 100W PD Fast Charging)", unitPrice: 4500, defaultQty: 1 },
+  { id: "surge_strip_6way", category: "Hardware", name: "6-Way Surge Power Strip", desc: "Huntkey / Sollatek 6-Way Heavy-Duty Surge Protected Power Extension Strip (Individual Switches, 3m)", unitPrice: 2600, defaultQty: 1 },
+  { id: "flash_sandisk_128gb", category: "Hardware", name: "128GB Dual Type-C Flash", desc: "SanDisk Ultra Dual Luxe 128GB Metal USB 3.1 & Type-C Flash Drive (150MB/s Read)", unitPrice: 2400, defaultQty: 1 },
+  { id: "paper_a4_box", category: "Hardware", name: "A4 Copy Paper (Box of 5 Reams)", desc: "Double A / Chamex Premium 80gsm A4 White Multi-Purpose Copy Paper (Box of 5 Reams / 2,500 Sheets)", unitPrice: 3600, defaultQty: 1 },
   { id: "ssd_500gb", category: "Hardware", name: "500GB NVMe / SATA SSD", desc: "Kingston / Crucial 500GB Solid State Drive (550MB/s Read, 3-Year Warranty)", unitPrice: 4800, defaultQty: 1 },
   { id: "ssd_1tb", category: "Hardware", name: "1TB High-Speed SSD", desc: "Kingston NV2 1TB PCIe 4.0 NVMe M.2 SSD (3500MB/s Ultra-Fast)", unitPrice: 9500, defaultQty: 1 },
   { id: "ram_8gb_ddr4", category: "Hardware", name: "8GB DDR4 RAM Module", desc: "Kingston 8GB DDR4 3200MHz Desktop / Laptop Memory Upgrade", unitPrice: 3500, defaultQty: 1 },
@@ -376,6 +447,7 @@ export const CATALOG_ITEMS: CatalogItem[] = [
   { id: "labor_cabling_drop", category: "Labor", name: "Structured Cabling (per point)", desc: "Structured Cat6 Cable Pulling, PVC Conduit Piping, RJ45 Punchdown & Fluke Testing (per point)", unitPrice: 2000, defaultQty: 5 },
   { id: "labor_server_config", category: "Labor", name: "Server / Router Configuration", desc: "Enterprise Gateway Setup, Firewall Rules, Port Forwarding, VPN & Security Hardening", unitPrice: 12000, defaultQty: 1 },
   { id: "labor_pc_clean_os", category: "Labor", name: "OS Installation & Migration", desc: "Windows 11 Pro Clean Install, Drivers, Anti-Virus, Data Migration & Speed Optimization", unitPrice: 2500, defaultQty: 1 },
+  { id: "labor_workstation_commission", category: "Labor", name: "Workstation Commissioning", desc: "Complete Office PC/Laptop Setup, Printer Driver & Wi-Fi Sharing, Office 365 & Security Hardening", unitPrice: 5500, defaultQty: 1 },
 
   // Web & Software
   { id: "web_business", category: "Web", name: "Custom Business Website", desc: "Modern High-Converting Business Website Design with Mobile Speed Optimization", unitPrice: 38000, defaultQty: 1 },
@@ -390,6 +462,66 @@ export const CATALOG_ITEMS: CatalogItem[] = [
 export function generateItemsFromPrompt(prompt: string): Array<{ desc: string; qty: number; unitPrice: number }> {
   const p = prompt.toLowerCase();
   const items: Array<{ desc: string; qty: number; unitPrice: number }> = [];
+
+  // Office Workstation & Computing Bundle (Laptop + Printer + Accessories)
+  if (
+    (p.includes("laptop") && (p.includes("printer") || p.includes("office") || p.includes("necessities") || p.includes("basic") || p.includes("computing"))) ||
+    p.includes("workstation") ||
+    p.includes("office bundle") ||
+    p.includes("desktop setup")
+  ) {
+    items.push({
+      desc: "HP ProBook 450 G10 (Intel Core i5 13th Gen, 16GB DDR4 RAM, 512GB NVMe SSD, 15.6\" FHD IPS, Windows 11 Pro, 1-Year Warranty)",
+      qty: 1,
+      unitPrice: 78500,
+    });
+    items.push({
+      desc: "Epson EcoTank L3250 Wi-Fi 3-in-1 Multi-Function Ink Tank Printer (Print, Scan, Copy, Ultra-Low Cost Ink Tank, 4x Bottles included)",
+      qty: 1,
+      unitPrice: 28500,
+    });
+    items.push({
+      desc: "APC / Mercury 650VA Line-Interactive UPS Battery Backup with AVR & Surge Protection",
+      qty: 1,
+      unitPrice: 6800,
+    });
+    items.push({
+      desc: "Logitech MK270 / MK295 Wireless Keyboard & Optical Mouse Combo (Spill-Resistant, Nano USB)",
+      qty: 1,
+      unitPrice: 3800,
+    });
+    items.push({
+      desc: "7-in-1 Aluminum USB-C Hub / Docking Station (4K HDMI, 3x USB 3.0, SD/TF, 100W PD Pass-Through)",
+      qty: 1,
+      unitPrice: 4500,
+    });
+    items.push({
+      desc: "Huntkey / Sollatek 6-Way Heavy-Duty Surge Protected Power Extension Strip (Individual Switches, 3m)",
+      qty: 1,
+      unitPrice: 2600,
+    });
+    items.push({
+      desc: "SanDisk Ultra Dual Luxe 128GB High-Speed All-Metal Flash Drive (USB 3.1 & Type-C)",
+      qty: 1,
+      unitPrice: 2400,
+    });
+    items.push({
+      desc: "Double A / Chamex Premium 80gsm A4 White Copy Paper (Full Box of 5 Reams / 2,500 Sheets)",
+      qty: 1,
+      unitPrice: 3600,
+    });
+    items.push({
+      desc: "Targus / HP Classic 15.6\" Padded Laptop Backpack with Security Cable Combination Lock",
+      qty: 1,
+      unitPrice: 3800,
+    });
+    items.push({
+      desc: "On-Site Office Commissioning: OS Setup, M365 Setup, Wireless Network Printer Sharing & Security Hardening",
+      qty: 1,
+      unitPrice: 5500,
+    });
+    return items;
+  }
 
   if (p.includes("cctv") || p.includes("camera") || p.includes("surveillance")) {
     const camCount = p.includes("8") ? 8 : p.includes("6") ? 6 : p.includes("2") ? 2 : 4;
