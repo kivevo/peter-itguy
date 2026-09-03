@@ -1596,33 +1596,43 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     });
   };
 
-  // Download a .pdf file directly to user's device — Saves file directly to downloads folder
-  const handleDownloadPdf = async (doc: InvoiceDocument) => {
-    setIsGeneratingPdf(true);
-    toast({
-      title: "Generating PDF... ⏳",
-      description: `Downloading ${doc.docNumber}.pdf directly to your device...`,
-    });
-    try {
-      const blob = await generatePdfBlob(doc);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${doc.docNumber || "document"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast({
-        title: "PDF Downloaded! 📥",
-        description: `Saved ${doc.docNumber}.pdf to your device.`,
-      });
-    } catch {
-      // Fallback: If off-screen renderer fails, open clean print-to-PDF
+  // Download PDF — opens document in new window and triggers Save as PDF using the EXACT same template as Print
+  const handleDownloadPdf = (doc: InvoiceDocument) => {
+    const docTitle = doc.docType === "quotation" ? "Formal Quotation"
+      : doc.docType === "invoice" ? "Tax Invoice"
+      : doc.docType === "receipt" ? "Payment Receipt"
+      : "Document";
+
+    const html = buildDocumentHTML(doc, false);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+
+    const win = window.open(blobUrl, "_blank", "width=900,height=1200");
+    if (!win) {
+      // Fallback: write into iframe and print
       handlePrintDocument(doc);
-    } finally {
-      setIsGeneratingPdf(false);
+      URL.revokeObjectURL(blobUrl);
+      return;
     }
+
+    win.onload = () => {
+      // Give fonts a moment to load, then auto-trigger print/save dialog
+      setTimeout(() => {
+        try {
+          win.document.title = `${docTitle} – ${doc.docNumber}`;
+          win.print();
+          // Clean up blob URL after a delay
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        } catch {
+          URL.revokeObjectURL(blobUrl);
+        }
+      }, 500);
+    };
+
+    toast({
+      title: "Save as PDF 📄",
+      description: `In the print dialog, select "Save as PDF" to download ${doc.docNumber}.pdf`,
+    });
   };
 
   // Share via Web Share API (opens native Android/iOS share sheet with real .pdf file)
@@ -3356,14 +3366,9 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
               <button
                 onClick={() => handleDownloadPdf(currentDoc)}
-                disabled={isGeneratingPdf}
-                className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 disabled:opacity-60 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
               >
-                {isGeneratingPdf ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Download className="w-3.5 h-3.5" />
-                )}
+                <Download className="w-3.5 h-3.5" />
                 <span>Download PDF</span>
               </button>
 
@@ -4745,27 +4750,22 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
             {/* Action options */}
             <div className="space-y-3">
-              {/* Option 1: Direct Download PDF to device */}
+              {/* Option 1: Open document → Save as PDF — identical quality to print */}
               <button
                 onClick={() => {
                   handleDownloadPdf(shareModalDoc);
                   setShareModalDoc(null);
                 }}
-                disabled={isGeneratingPdf}
-                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
               >
-                {isGeneratingPdf ? (
-                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                ) : (
-                  <Download className="w-5 h-5 shrink-0" />
-                )}
+                <Download className="w-5 h-5 shrink-0" />
                 <div className="text-left">
-                  <div>Direct Download PDF (.pdf)</div>
-                  <div className="text-[11px] font-normal opacity-85">Saves file directly to your device downloads</div>
+                  <div>Save / Download as PDF</div>
+                  <div className="text-[11px] font-normal opacity-85">Opens exact print-quality document → Save as PDF</div>
                 </div>
               </button>
 
-              {/* Option 2: Print Clean A4 without headers or footers */}
+              {/* Option 2: Print directly */}
               <button
                 onClick={() => {
                   handlePrintDocument(shareModalDoc);
@@ -4775,8 +4775,8 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               >
                 <Printer className="w-5 h-5 shrink-0 text-teal-400" />
                 <div className="text-left">
-                  <div>Print / Save as PDF (Clean A4)</div>
-                  <div className="text-[11px] font-normal opacity-80">Opens print dialog with no URL, date or time</div>
+                  <div>Print Clean A4</div>
+                  <div className="text-[11px] font-normal opacity-80">Send directly to printer — no URL, date or time</div>
                 </div>
               </button>
 
