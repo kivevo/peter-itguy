@@ -53,7 +53,7 @@ export const WhatsAppCampaignStudio: React.FC = () => {
       title: "Q3 Business Wi-Fi Speed & Security Tune-up",
       audience: "wifi_clients",
       icon: <Wifi className="w-4 h-4 text-teal-400" />,
-      template: `Hello {{name}}! 👋\n\nHope {{company}} is having a productive week! 🚀\n\nIs your office Wi-Fi keeping up with your team's video calls and file transfers? Krenovate Systems is running our *Quarterly Wi-Fi Optimization Special* for offices in Nairobi:\n\n• UniFi & MikroTik Firmware Optimization\n• Isolated Guest Wi-Fi & Bandwidth Fair-Share Shaping\n• Signal Coverage & Dead-Zone Heatmap Survey\n\nReply to this message if you'd like us to schedule a priority on-site tune-up!\n\nBest regards,\nPeter Kivevo — Krenovate Systems\n📞 0722 000 000`,
+      template: `Hello {{name}}! 👋\n\nHope {{company}} is having a productive week! 🚀\n\nIs your office Wi-Fi keeping up with your team's video calls and file transfers? Krenovate Systems is running our *Quarterly Wi-Fi Optimization Special* for offices in Nairobi:\n\n• UniFi & MikroTik Firmware Optimization\n• Isolated Guest Wi-Fi & Bandwidth Fair-Share Shaping\n• Signal Coverage & Dead-Zone Heatmap Survey\n\nReply to this message if you'd like us to schedule a priority on-site tune-up!\n\nBest regards,\nPeter Kivevo — Krenovate Systems\n📞 0758 896 553`,
     },
     {
       category: "cctv_maintenance",

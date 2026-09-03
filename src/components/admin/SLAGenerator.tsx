@@ -267,8 +267,8 @@ export const SLAGenerator: React.FC = () => {
             <div class="logo-block">
               <h1>KRENOVATE SYSTEMS</h1>
               <p>IT Infrastructure & Managed Services · Nairobi, Kenya</p>
-              <p>KRA PIN: P051892401K · +254 700 000 000</p>
-              <p>krenovate.com · info@krenovate.com</p>
+              <p>KRA PIN: P051892401K · +254 758 896 553</p>
+              <p>krenovatesystems.com · peterkivevo001@gmail.com</p>
             </div>
             <div class="contract-meta">
               <div style="font-size:10px;color:#666;">CONTRACT REFERENCE</div>
@@ -293,7 +293,7 @@ export const SLAGenerator: React.FC = () => {
                 <div class="label">Company</div><div class="value">Peter Kivevo John / Krenovate Systems</div>
                 <div class="label" style="margin-top:10px;">KRA PIN</div><div class="value" style="font-family:monospace;">P051892401K</div>
                 <div class="label" style="margin-top:10px;">Address</div><div class="value">Nairobi, Kenya</div>
-                <div class="label" style="margin-top:10px;">Phone</div><div class="value">+254 700 000 000</div>
+                <div class="label" style="margin-top:10px;">Phone</div><div class="value">+254 758 896 553</div>
               </div>
             </div>
             <div>

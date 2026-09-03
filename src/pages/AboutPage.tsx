@@ -233,7 +233,7 @@ export const AboutPage: React.FC = () => {
                     )}
 
                     <div className="pt-2 border-t border-border/70 flex items-center justify-between">
-                      <span className="text-[10px] text-muted-foreground">Direct Line: +254 751 035 034</span>
+                      <span className="text-[10px] text-muted-foreground">Direct Line: +254 758 896 553</span>
                       <a
                         href={getWhatsAppUrl("Hi Peter, I saw your engineer terminal and would like to connect.")}
                         target="_blank"

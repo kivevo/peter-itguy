@@ -240,7 +240,7 @@ export const EquipmentIntakeManager: React.FC = () => {
   };
 
   const getWhatsAppStatusMessage = (item: EquipmentIntakeRecord) => {
-    return `Hello ${item.clientName}! 👋\n\nRepair status update from *Krenovate Systems* for your *${item.brandModel}* (Slip #${item.intakeNumber}):\n\n• *Status:* ${item.status.replace("_", " ").toUpperCase()}\n• *Reported Issue:* ${item.reportedFault}\n${item.estimatedCost ? `• *Estimated Repair Cost:* KES ${item.estimatedCost.toLocaleString()}\n` : ""}• *Track Online:* ${window.location.origin}/track?job=${item.intakeNumber}\n\nPlease let us know if you have any questions!\n— Peter Kivevo (0722 000 000)`;
+    return `Hello ${item.clientName}! 👋\n\nRepair status update from *Krenovate Systems* for your *${item.brandModel}* (Slip #${item.intakeNumber}):\n\n• *Status:* ${item.status.replace("_", " ").toUpperCase()}\n• *Reported Issue:* ${item.reportedFault}\n${item.estimatedCost ? `• *Estimated Repair Cost:* KES ${item.estimatedCost.toLocaleString()}\n` : ""}• *Track Online:* ${window.location.origin}/track?job=${item.intakeNumber}\n\nPlease let us know if you have any questions!\n— Peter Kivevo (0758 896 553)`;
   };
 
   const filteredIntakes = intakes.filter((i) => {
