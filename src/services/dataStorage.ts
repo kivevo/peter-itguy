@@ -3251,9 +3251,9 @@ class DataStorageService {
     timestamp: string;
     exportedBy: string;
     stats: Record<string, number>;
-    data: Record<string, any>;
+    data: Record<string, unknown>;
   } {
-    const backupData: Record<string, any> = {};
+    const backupData: Record<string, unknown> = {};
     const stats: Record<string, number> = {};
 
     Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
@@ -3299,7 +3299,7 @@ class DataStorageService {
 
       let restoredCount = 0;
       Object.entries(parsed.data).forEach(([name, val]) => {
-        const key = (STORAGE_KEYS as any)[name];
+        const key = STORAGE_KEYS[name as keyof typeof STORAGE_KEYS];
         if (key && val !== undefined) {
           localStorage.setItem(key, JSON.stringify(val));
           restoredCount++;
@@ -3315,10 +3315,11 @@ class DataStorageService {
         modulesRestored: restoredCount,
         timestamp: parsed.timestamp,
       };
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       return {
         success: false,
-        message: `Corrupt backup file: ${err.message}`,
+        message: `Corrupt backup file: ${errorMessage}`,
         modulesRestored: 0,
       };
     }
