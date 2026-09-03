@@ -152,6 +152,25 @@ export interface InvoiceDocument {
   etimsControlCode?: string;
   etimsInternalSign?: string;
   etimsQrData?: string;
+  // Custom Overrides & Visibility / Privacy Controls
+  customTitle?: string;
+  signatoryName?: string;
+  signatoryTitle?: string;
+  visibility?: DocumentVisibilitySettings;
+}
+
+export interface DocumentVisibilitySettings {
+  showBankDetails?: boolean;       // default true
+  showMpesaDetails?: boolean;      // default true
+  showPaymentInfo?: boolean;       // default true
+  showSupplierKraPin?: boolean;    // default true
+  showClientKraPin?: boolean;      // default true
+  showClientContact?: boolean;     // default true
+  showSignature?: boolean;         // default true
+  showNotes?: boolean;             // default true
+  showEtims?: boolean;             // default true
+  showItemBreakdown?: boolean;     // default true (show Qty & Unit Price columns)
+  showDueDate?: boolean;           // default true
 }
 
 export interface InvoicePayment {

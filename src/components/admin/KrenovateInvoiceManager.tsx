@@ -5,7 +5,8 @@ import {
   InvoiceItem, 
   CompanyProfile, 
   SavedClient,
-  InquiryLead
+  InquiryLead,
+  DocumentVisibilitySettings
 } from "@/services/dataStorage";
 import { 
   TURNKEY_PACKAGES, 
@@ -26,6 +27,7 @@ import {
   Trash2, 
   Edit3, 
   Eye, 
+  EyeOff,
   CheckCircle2, 
   Clock, 
   Send, 
@@ -55,7 +57,17 @@ import {
   X,
   Loader2,
   RotateCcw,
-  AlertTriangle
+  AlertTriangle,
+  SlidersHorizontal,
+  Lock,
+  Unlock,
+  Phone,
+  Shield,
+  Landmark,
+  QrCode,
+  Hash,
+  UserCheck,
+  Calendar
 } from "lucide-react";
 
 interface KrenovateInvoiceManagerProps {
@@ -227,6 +239,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       notes: (pkg.suggestedNotes ? `${pkg.suggestedNotes}\n\n` : "") + profile.notesTemplate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      visibility: {
+        showBankDetails: profile.includeBankDetails !== false,
+        showMpesaDetails: true,
+        showPaymentInfo: true,
+        showSupplierKraPin: true,
+        showClientKraPin: true,
+        showClientContact: true,
+        showSignature: true,
+        showNotes: true,
+        showEtims: true,
+        showItemBreakdown: true,
+        showDueDate: true,
+      },
+      signatoryName: profile.authorizedSignatory && profile.authorizedSignatory !== "Krenovate Systems" ? profile.authorizedSignatory : "Peter Kivevo",
+      signatoryTitle: "Authorized Signatory & Stamp",
     };
 
     setCurrentDoc(newDoc);
@@ -385,6 +412,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       notes: profile.notesTemplate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      visibility: {
+        showBankDetails: profile.includeBankDetails !== false,
+        showMpesaDetails: true,
+        showPaymentInfo: true,
+        showSupplierKraPin: true,
+        showClientKraPin: true,
+        showClientContact: true,
+        showSignature: true,
+        showNotes: true,
+        showEtims: true,
+        showItemBreakdown: true,
+        showDueDate: true,
+      },
+      signatoryName: profile.authorizedSignatory && profile.authorizedSignatory !== "Krenovate Systems" ? profile.authorizedSignatory : "Peter Kivevo",
+      signatoryTitle: "Authorized Signatory & Stamp",
     };
 
     setCurrentDoc(newDoc);
@@ -421,6 +463,105 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       whtAmount,
       netReceivable,
     };
+  };
+
+  // Visibility and Privacy toggles
+  const handleToggleVisibility = (key: keyof DocumentVisibilitySettings) => {
+    if (!currentDoc) return;
+    const curVis = currentDoc.visibility || {};
+    const curVal = curVis[key] !== false; // default is true
+    const updatedVis: DocumentVisibilitySettings = {
+      ...curVis,
+      [key]: !curVal,
+    };
+    const updated: InvoiceDocument = {
+      ...currentDoc,
+      visibility: updatedVis,
+    };
+    setCurrentDoc(updated);
+    if (updated.id) {
+      dataStorage.saveInvoice(updated);
+    }
+  };
+
+  const handleApplyPrivacyPreset = (preset: "all" | "privacy" | "lumpsum" | "simple") => {
+    if (!currentDoc) return;
+    let newVis: DocumentVisibilitySettings = {};
+    if (preset === "all") {
+      newVis = {
+        showBankDetails: true,
+        showMpesaDetails: true,
+        showPaymentInfo: true,
+        showSupplierKraPin: true,
+        showClientKraPin: true,
+        showClientContact: true,
+        showSignature: true,
+        showNotes: true,
+        showEtims: true,
+        showItemBreakdown: true,
+        showDueDate: true,
+      };
+    } else if (preset === "privacy") {
+      newVis = {
+        showBankDetails: false,
+        showMpesaDetails: true,
+        showPaymentInfo: true,
+        showSupplierKraPin: false,
+        showClientKraPin: false,
+        showClientContact: false,
+        showSignature: true,
+        showNotes: true,
+        showEtims: false,
+        showItemBreakdown: true,
+        showDueDate: true,
+      };
+    } else if (preset === "lumpsum") {
+      newVis = {
+        showBankDetails: false,
+        showMpesaDetails: true,
+        showPaymentInfo: true,
+        showSupplierKraPin: false,
+        showClientKraPin: false,
+        showClientContact: true,
+        showSignature: true,
+        showNotes: true,
+        showEtims: false,
+        showItemBreakdown: false, // hide unit prices and qty
+        showDueDate: true,
+      };
+    } else if (preset === "simple") {
+      newVis = {
+        showBankDetails: false,
+        showMpesaDetails: false,
+        showPaymentInfo: false,
+        showSupplierKraPin: false,
+        showClientKraPin: false,
+        showClientContact: true,
+        showSignature: false,
+        showNotes: true,
+        showEtims: false,
+        showItemBreakdown: true,
+        showDueDate: true,
+      };
+    }
+    const updated: InvoiceDocument = {
+      ...currentDoc,
+      visibility: newVis,
+    };
+    setCurrentDoc(updated);
+    if (updated.id) {
+      dataStorage.saveInvoice(updated);
+    }
+    const presetNames = {
+      all: "Full Official (All Visible)",
+      privacy: "Privacy Shield (Hide Bank, eTIMS & PINs)",
+      lumpsum: "Lump-Sum Package (Hide Unit Prices & Rates)",
+      simple: "Simple Estimate (Hide Bank, eTIMS & Sign)"
+    };
+    toast({
+      title: "Privacy Setting Applied 🛡️",
+      description: `Preset '${presetNames[preset]}' active.`,
+    });
   };
 
   // Line item handlers
@@ -730,31 +871,67 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
   const buildDocumentHTML = (doc: InvoiceDocument, isPrint = false): string => {
     const totals = calculateDocTotals(doc);
     const profile = companyProfile;
+
+    const vis = doc.visibility || {};
+    const showBank = vis.showBankDetails !== false;
+    const showMpesa = vis.showMpesaDetails !== false;
+    const showPaymentInfo = vis.showPaymentInfo !== false && (showBank || showMpesa);
+    const showSupplierKra = vis.showSupplierKraPin !== false;
+    const showClientKra = vis.showClientKraPin !== false;
+    const showClientContact = vis.showClientContact !== false;
+    const showSignature = vis.showSignature !== false;
+    const showNotes = vis.showNotes !== false;
+    const showEtims = vis.showEtims !== false;
+    const showItemBreakdown = vis.showItemBreakdown !== false;
+    const showDueDate = vis.showDueDate !== false;
+
     const hasBank =
+      showBank &&
       profile.includeBankDetails !== false &&
       Boolean(profile.bankName?.trim()) &&
       Boolean(profile.bankAccountNumber?.trim());
+
     const docTitle =
-      doc.docType === "quotation"
+      doc.customTitle?.trim() ||
+      (doc.docType === "quotation"
         ? "FORMAL QUOTATION"
         : doc.docType === "invoice"
         ? "TAX INVOICE"
-        : "OFFICIAL RECEIPT";
+        : "OFFICIAL RECEIPT");
+
+    const signatoryName =
+      doc.signatoryName?.trim() ||
+      (profile.authorizedSignatory && profile.authorizedSignatory !== "Krenovate Systems"
+        ? profile.authorizedSignatory
+        : "Peter Kivevo");
+    const signatoryTitle = doc.signatoryTitle?.trim() || "Authorized Signatory & Stamp";
+
     const paidSoFar = (doc.payments || []).reduce((s: number, p: { amount: number }) => s + p.amount, 0);
     const balance = Math.max(0, totals.grandTotal - paidSoFar);
 
-    const itemsHtml = doc.items
-      .map(
-        (item, idx) => `
-      <tr>
-        <td class="center-cell">${idx + 1}</td>
-        <td><strong>${item.desc}</strong></td>
-        <td class="center-cell">${item.qty}</td>
-        <td class="num-cell">${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
-        <td class="num-cell"><strong>${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong></td>
-      </tr>`
-      )
-      .join("");
+    const itemsHtml = showItemBreakdown
+      ? doc.items
+          .map(
+            (item, idx) => `
+          <tr>
+            <td class="center-cell">${idx + 1}</td>
+            <td><strong>${item.desc}</strong></td>
+            <td class="center-cell">${item.qty}</td>
+            <td class="num-cell">${Number(item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</td>
+            <td class="num-cell"><strong>${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong></td>
+          </tr>`
+          )
+          .join("")
+      : doc.items
+          .map(
+            (item, idx) => `
+          <tr>
+            <td class="center-cell">${idx + 1}</td>
+            <td><strong>${item.desc}</strong></td>
+            <td class="num-cell"><strong>${Number(item.qty * item.unitPrice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong></td>
+          </tr>`
+          )
+          .join("");
 
     return `<!DOCTYPE html>
 <html>
@@ -1089,7 +1266,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         </div>
         <div class="company-details">
           ${profile.address} · Phone: ${profile.phone} · Email: ${(profile.email || "").replace(/\s+/g, "")}<br />
-          Web: ${profile.website} · <strong>KRA PIN: ${profile.kraPin}</strong>
+          Web: ${profile.website}${showSupplierKra && profile.kraPin ? ` · <strong>KRA PIN: ${profile.kraPin}</strong>` : ""}
         </div>
       </div>
       <div class="doc-meta">
@@ -1097,7 +1274,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
         <div class="doc-meta-table">
           <div>Document No: <strong>${doc.docNumber}</strong></div>
           <div>Date Issued: <strong>${doc.issueDate}</strong></div>
-          <div>${doc.docType === "quotation" ? "Valid Until:" : "Due Date:"} <strong>${doc.dueDate}</strong></div>
+          ${showDueDate ? `<div>${doc.docType === "quotation" ? "Valid Until:" : "Due Date:"} <strong>${doc.dueDate}</strong></div>` : ""}
           <div>Status: <strong style="text-transform:uppercase;color:#0d9488;">${doc.status}</strong></div>
           <div>Currency: <strong>${doc.currency}</strong></div>
         </div>
@@ -1114,15 +1291,17 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       </div>
       <div class="client-col" style="text-align:right;">
         <span class="section-label">Client Contact Details</span>
-        <p style="font-family:ui-monospace, monospace;font-weight:600;">${doc.client.phone}</p>
-        ${doc.client.email ? `<p>${doc.client.email}</p>` : ""}
-        ${doc.client.kraPin ? `<p style="font-family:ui-monospace, monospace;color:#0f172a;"><strong>Client KRA PIN: ${doc.client.kraPin}</strong></p>` : ""}
+        ${showClientContact ? `<p style="font-family:ui-monospace, monospace;font-weight:600;">${doc.client.phone}</p>` : ""}
+        ${showClientContact && doc.client.email ? `<p>${doc.client.email}</p>` : ""}
+        ${showClientKra && doc.client.kraPin ? `<p style="font-family:ui-monospace, monospace;color:#0f172a;"><strong>Client KRA PIN: ${doc.client.kraPin}</strong></p>` : ""}
       </div>
     </div>
 
     <!-- Items Table -->
     <table class="items-table">
-      <thead>
+      ${
+        showItemBreakdown
+          ? `<thead>
         <tr>
           <th style="width:36px;text-align:center;">#</th>
           <th>Item / Service Description</th>
@@ -1130,75 +1309,89 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
           <th style="width:115px;text-align:right;">Unit (${doc.currency})</th>
           <th style="width:125px;text-align:right;">Total (${doc.currency})</th>
         </tr>
-      </thead>
+      </thead>`
+          : `<thead>
+        <tr>
+          <th style="width:36px;text-align:center;">#</th>
+          <th>Item / Service Description</th>
+          <th style="width:140px;text-align:right;">Total (${doc.currency})</th>
+        </tr>
+      </thead>`
+      }
       <tbody>
         ${itemsHtml}
       </tbody>
     </table>
 
     <!-- Bottom Grid: Notes & Totals -->
-    <div class="bottom-grid">
-      <div>
+    <div class="bottom-grid" style="${!showNotes ? 'grid-template-columns: 1fr;' : ''}">
+      ${
+        showNotes
+          ? `<div>
         <span class="section-label">Terms &amp; Payment Conditions</span>
         <div class="notes-box">
           ${doc.notes || "Payment due within stated terms. Hardware remains property of supplier until full payment."}
         </div>
-      </div>
-      <div>
-        <span class="section-label">Financial Calculation Summary</span>
-        <div class="totals-box">
-          <div class="totals-row">
-            <span>Subtotal:</span>
-            <strong>${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong>
-          </div>
-          ${
-            totals.discountAmount > 0
-              ? `
-            <div class="totals-row" style="color:#b45309;">
-              <span>Discount:</span>
-              <span>- ${doc.currency} ${totals.discountAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>`
-              : ""
-          }
-          ${
-            doc.vatEnabled
-              ? `
+      </div>`
+          : ""
+      }
+      <div style="${!showNotes ? 'display:flex;justify-content:flex-end;' : ''}">
+        <div style="${!showNotes ? 'width:360px;' : ''}">
+          <span class="section-label">Financial Calculation Summary</span>
+          <div class="totals-box">
             <div class="totals-row">
-              <span>VAT (16% KRA):</span>
-              <span>+ ${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>`
-              : ""
-          }
-          <div class="totals-row gross">
-            <span>GROSS TOTAL:</span>
-            <span>${doc.currency} ${totals.grandTotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              <span>Subtotal:</span>
+              <strong>${doc.currency} ${totals.rawSubtotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</strong>
+            </div>
+            ${
+              totals.discountAmount > 0
+                ? `
+              <div class="totals-row" style="color:#b45309;">
+                <span>Discount:</span>
+                <span>- ${doc.currency} ${totals.discountAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>`
+                : ""
+            }
+            ${
+              doc.vatEnabled
+                ? `
+              <div class="totals-row">
+                <span>VAT (16% KRA):</span>
+                <span>+ ${doc.currency} ${totals.vatAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>`
+                : ""
+            }
+            <div class="totals-row gross">
+              <span>GROSS TOTAL:</span>
+              <span>${doc.currency} ${totals.grandTotal.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+            </div>
+            ${
+              paidSoFar > 0
+                ? `
+              <div class="totals-row" style="color:#15803d;font-weight:bold;">
+                <span>Less Paid:</span>
+                <span>- ${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div class="totals-row net">
+                <span>BALANCE DUE:</span>
+                <span>${doc.currency} ${balance.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>`
+                : ""
+            }
+            ${
+              doc.whtEnabled
+                ? `
+              <div class="totals-row" style="color:#047857;border-top:1px dashed #cbd5e1;padding-top:4px;margin-top:4px;">
+                <span>Less 5% WHT (Client Deducts):</span>
+                <span>- ${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div class="totals-row net">
+                <span>NET PAYABLE:</span>
+                <span>${doc.currency} ${totals.netReceivable.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+              </div>`
+                : ""
+            }
           </div>
-          ${
-            paidSoFar > 0
-              ? `
-            <div class="totals-row" style="color:#15803d;font-weight:bold;">
-              <span>Less Paid:</span>
-              <span>- ${doc.currency} ${paidSoFar.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>
-            <div class="totals-row net">
-              <span>BALANCE DUE:</span>
-              <span>${doc.currency} ${balance.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>`
-              : ""
-          }
-          ${
-            doc.whtEnabled
-              ? `
-            <div class="totals-row" style="color:#047857;border-top:1px dashed #cbd5e1;padding-top:4px;margin-top:4px;">
-              <span>Less 5% WHT (Client Deducts):</span>
-              <span>- ${doc.currency} ${totals.whtAmount.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>
-            <div class="totals-row net">
-              <span>NET PAYABLE:</span>
-              <span>${doc.currency} ${totals.netReceivable.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
-            </div>`
-              : ""
-          }
         </div>
       </div>
     </div>
@@ -1214,10 +1407,22 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
 
     <!-- Footer: Payment Info & Signature -->
-    <div class="footer-grid">
+    ${
+      showPaymentInfo || showSignature
+        ? `
+    <div class="footer-grid" style="${
+      !showPaymentInfo
+        ? 'grid-template-columns: 1fr; justify-content: flex-end;'
+        : !showSignature
+        ? 'grid-template-columns: 1fr;'
+        : ''
+    }">
+      ${
+        showPaymentInfo
+          ? `
       <div class="pay-box">
         <strong>Official Payment Instructions:</strong><br />
-        • M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br />
+        ${showMpesa ? `• M-Pesa ${profile.mpesaType}: <strong>${profile.mpesaNumber}</strong> (${profile.mpesaAccount})<br />` : ""}
         ${
           hasBank
             ? `• Bank: <strong>${profile.bankName}</strong> · Acc: <strong>${profile.bankAccountNumber}</strong>${
@@ -1226,14 +1431,26 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
             : ""
         }
         • Document Reference: <strong>${doc.docNumber}</strong>
-      </div>
-      <div class="sign-box">
-        <div class="signature-text">${profile.authorizedSignatory && profile.authorizedSignatory !== "Krenovate Systems" ? profile.authorizedSignatory : "Peter Kivevo"}</div>
-        <div class="sign-line">Authorized Signatory &amp; Stamp</div>
-      </div>
-    </div>
+      </div>`
+          : ""
+      }
+      ${
+        showSignature
+          ? `
+      <div class="sign-box" style="${!showPaymentInfo ? 'margin-left:auto;' : ''}">
+        <div class="signature-text">${signatoryName}</div>
+        <div class="sign-line">${signatoryTitle}</div>
+      </div>`
+          : ""
+      }
+    </div>`
+        : ""
+    }
 
     <!-- eTIMS Fiscal Compliance Footer -->
+    ${
+      showEtims
+        ? `
     <div class="etims-block">
       <div>
         <span class="etims-badge">KRA eTIMS</span>
@@ -1242,7 +1459,9 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       <div>
         Internal Sign: <strong>${doc.etimsInternalSign || "9A4F-BC12-88D4"}</strong>
       </div>
-    </div>
+    </div>`
+        : ""
+    }
   </div>
 
   ${
@@ -2145,11 +2364,21 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </div>
 
               {/* Document Type & Number Details */}
-              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-5">
+                <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                  <span className="font-heading font-bold text-sm text-white flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-teal-400" />
+                    <span>Document Settings &amp; Metadata:</span>
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    ID: {currentDoc.id ? currentDoc.id.slice(0, 8) + "..." : "New Draft"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-slate-300 block mb-1.5">
-                      Document Type
+                      Base Type
                     </label>
                     <select
                       value={currentDoc.docType}
@@ -2160,9 +2389,9 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                       }}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white focus:outline-none focus:ring-1 focus:ring-teal-500 font-bold"
                     >
-                      <option value="quotation">Formal Quotation / Proposal</option>
-                      <option value="invoice">Official Tax Invoice</option>
-                      <option value="receipt">Job Completion Receipt</option>
+                      <option value="quotation">Quotation / Proposal</option>
+                      <option value="invoice">Tax Invoice</option>
+                      <option value="receipt">Job Receipt</option>
                     </select>
                   </div>
 
@@ -2176,6 +2405,22 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                       onChange={(e) => setCurrentDoc({ ...currentDoc, docNumber: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-teal-300 font-mono font-bold"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                      Currency
+                    </label>
+                    <select
+                      value={currentDoc.currency || "KES"}
+                      onChange={(e) => setCurrentDoc({ ...currentDoc, currency: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    >
+                      <option value="KES">KES (Kenyan Shillings)</option>
+                      <option value="USD">USD ($ US Dollar)</option>
+                      <option value="EUR">EUR (€ Euro)</option>
+                      <option value="GBP">GBP (£ British Pound)</option>
+                    </select>
                   </div>
 
                   <div>
@@ -2196,7 +2441,61 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/60">
+                {/* Custom Title Override Input + Quick Suggestion Chips */}
+                <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-teal-500/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-teal-300 flex items-center gap-1.5">
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Custom Document Title Override (Printed at Top):</span>
+                    </label>
+                    {currentDoc.customTitle && (
+                      <button
+                        type="button"
+                        onClick={() => setCurrentDoc({ ...currentDoc, customTitle: undefined })}
+                        className="text-[10px] text-slate-400 hover:text-rose-400 flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Reset to Default</span>
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={currentDoc.customTitle || ""}
+                    onChange={(e) => setCurrentDoc({ ...currentDoc, customTitle: e.target.value })}
+                    placeholder={`Default: ${currentDoc.docType === "quotation" ? "FORMAL QUOTATION" : currentDoc.docType === "invoice" ? "TAX INVOICE" : "OFFICIAL RECEIPT"}`}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-navy-900 border border-border text-white font-bold tracking-wide placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  />
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <span className="text-[10px] font-mono text-slate-400 self-center">Quick Titles:</span>
+                    {[
+                      "FORMAL QUOTATION",
+                      "TAX INVOICE",
+                      "PROFORMA INVOICE",
+                      "JOB ESTIMATE",
+                      "SCOPE OF WORK & QUOTE",
+                      "BILL OF QUANTITIES (BOQ)",
+                      "OFFICIAL RECEIPT",
+                      "SERVICE LEVEL AGREEMENT"
+                    ].map((title) => (
+                      <button
+                        key={title}
+                        type="button"
+                        onClick={() => setCurrentDoc({ ...currentDoc, customTitle: title })}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border transition-colors ${
+                          currentDoc.customTitle === title
+                            ? "bg-teal-600 text-white border-teal-400"
+                            : "bg-navy-900 text-slate-300 hover:text-white border-border/80 hover:border-teal-500/50"
+                        }`}
+                      >
+                        {title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dates & Signatory Controls */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-border/60">
                   <div>
                     <label className="text-xs font-semibold text-slate-300 block mb-1.5">
                       Issue Date
@@ -2218,6 +2517,32 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                       value={currentDoc.dueDate}
                       onChange={(e) => setCurrentDoc({ ...currentDoc, dueDate: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                      Signatory Name
+                    </label>
+                    <input
+                      type="text"
+                      value={currentDoc.signatoryName || (companyProfile.authorizedSignatory && companyProfile.authorizedSignatory !== "Krenovate Systems" ? companyProfile.authorizedSignatory : "Peter Kivevo")}
+                      onChange={(e) => setCurrentDoc({ ...currentDoc, signatoryName: e.target.value })}
+                      placeholder="e.g. Peter Kivevo"
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                      Signatory Title / Role
+                    </label>
+                    <input
+                      type="text"
+                      value={currentDoc.signatoryTitle || "Authorized Signatory & Stamp"}
+                      onChange={(e) => setCurrentDoc({ ...currentDoc, signatoryTitle: e.target.value })}
+                      placeholder="e.g. Lead Engineer / Signatory"
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-navy-950 border border-border text-white"
                     />
                   </div>
                 </div>
@@ -2349,6 +2674,205 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   </div>
                 </div>
               </div>
+
+              {/* ========================================================================= */}
+              {/* 🛡️ DOCUMENT SHARING PRIVACY & SECTION VISIBILITY CONTROLS                  */}
+              {/* ========================================================================= */}
+              {(() => {
+                const vis = currentDoc.visibility || {};
+                const toggles: Array<{
+                  key: keyof DocumentVisibilitySettings;
+                  label: string;
+                  desc: string;
+                  icon: React.ElementType;
+                }> = [
+                  {
+                    key: "showBankDetails",
+                    label: "Bank Account Details",
+                    desc: "Account number, bank name & branch in payment box",
+                    icon: Building2,
+                  },
+                  {
+                    key: "showMpesaDetails",
+                    label: "M-Pesa Payment Details",
+                    desc: "Till/Paybill number & official account name",
+                    icon: DollarSign,
+                  },
+                  {
+                    key: "showPaymentInfo",
+                    label: "Entire Payment Box",
+                    desc: "Show or hide the whole official payment box footer",
+                    icon: CreditCard,
+                  },
+                  {
+                    key: "showSupplierKraPin",
+                    label: "Supplier KRA PIN",
+                    desc: "Your company KRA PIN in header",
+                    icon: ShieldCheck,
+                  },
+                  {
+                    key: "showClientKraPin",
+                    label: "Client KRA PIN",
+                    desc: "Client's KRA PIN in bill-to section",
+                    icon: Users,
+                  },
+                  {
+                    key: "showClientContact",
+                    label: "Client Phone & Email",
+                    desc: "Display client phone number and email on quote/invoice",
+                    icon: Phone,
+                  },
+                  {
+                    key: "showSignature",
+                    label: "Signature & Stamp Box",
+                    desc: "Authorized signatory line, name & official stamp",
+                    icon: Edit3,
+                  },
+                  {
+                    key: "showNotes",
+                    label: "Terms & Conditions Block",
+                    desc: "Notes, delivery terms & warranty conditions box",
+                    icon: FileText,
+                  },
+                  {
+                    key: "showEtims",
+                    label: "KRA eTIMS Fiscal Block",
+                    desc: "CU Serial, Control Code & Internal Sign compliance banner",
+                    icon: AlertCircle,
+                  },
+                  {
+                    key: "showItemBreakdown",
+                    label: "Item Unit Rates & Qty Breakdown",
+                    desc: "When OFF: hides Qty & Unit Price columns (shows only Total)",
+                    icon: Layers,
+                  },
+                  {
+                    key: "showDueDate",
+                    label: "Payment Due / Validity Date",
+                    desc: "Show or hide validity end date / due date in header meta",
+                    icon: Clock,
+                  },
+                ];
+
+                const hiddenCount = toggles.filter((t) => vis[t.key] === false).length;
+
+                return (
+                  <div className="p-6 rounded-3xl bg-navy-900 border border-teal-500/40 space-y-5 shadow-glow">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/60">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <SlidersHorizontal className="w-4 h-4 text-teal-400" />
+                          <h4 className="font-heading font-extrabold text-sm text-white flex items-center gap-2">
+                            <span>Document Sharing Privacy &amp; Section Controls</span>
+                            {hiddenCount > 0 ? (
+                              <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Lock className="w-3 h-3" />
+                                {hiddenCount} Section{hiddenCount > 1 ? "s" : ""} Hidden
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Unlock className="w-3 h-3" />
+                                All Visible
+                              </span>
+                            )}
+                          </h4>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">
+                          Disable anything you don't want to share with the person you are doing business with. Changes reflect immediately in print, PDF download, email, and preview.
+                        </p>
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-mono uppercase text-slate-400">Presets:</span>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPrivacyPreset("all")}
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-navy-950 hover:bg-teal-600/30 text-teal-300 border border-teal-500/40 hover:border-teal-400 transition-all"
+                        >
+                          ✨ Full Official
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPrivacyPreset("privacy")}
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-navy-950 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 hover:border-amber-400 transition-all"
+                          title="Hides Bank details, eTIMS compliance, and KRA PINs"
+                        >
+                          🔒 Privacy Shield
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPrivacyPreset("lumpsum")}
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-navy-950 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 hover:border-purple-400 transition-all"
+                          title="Hides individual Qty and Unit Prices from client"
+                        >
+                          💼 Lump-Sum
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPrivacyPreset("simple")}
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-navy-950 hover:bg-sky-600/30 text-sky-300 border border-sky-500/40 hover:border-sky-400 transition-all"
+                          title="Simple estimate without payment box or signature"
+                        >
+                          📄 Simple Estimate
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Granular Toggles Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {toggles.map((item) => {
+                        const Icon = item.icon;
+                        const isVisible = vis[item.key] !== false; // default true
+                        return (
+                          <div
+                            key={item.key}
+                            onClick={() => handleToggleVisibility(item.key)}
+                            className={`p-3 rounded-2xl border cursor-pointer transition-all select-none flex flex-col justify-between ${
+                              isVisible
+                                ? "bg-navy-950/70 border-teal-500/40 hover:border-teal-400 shadow-sm"
+                                : "bg-slate-950/80 border-slate-800 opacity-70 hover:opacity-90"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <div className={`p-1.5 rounded-lg ${isVisible ? "bg-teal-500/20 text-teal-400" : "bg-slate-800 text-slate-500"}`}>
+                                  <Icon className="w-3.5 h-3.5" />
+                                </div>
+                                <span className={`text-xs font-bold leading-tight ${isVisible ? "text-white" : "text-slate-400 line-through decoration-slate-600"}`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                              <span
+                                className={`text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap flex items-center gap-1 ${
+                                  isVisible
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                    : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                                }`}
+                              >
+                                {isVisible ? (
+                                  <>
+                                    <Eye className="w-2.5 h-2.5" />
+                                    <span>Visible</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <EyeOff className="w-2.5 h-2.5" />
+                                    <span>Hidden</span>
+                                  </>
+                                )}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 leading-snug">
+                              {item.desc}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Line Items Table */}
               <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-5">
@@ -2482,10 +3006,68 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </div>
 
               {/* Notes & Terms */}
-              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-2">
-                <label className="text-xs font-semibold text-slate-300 block">
-                  Terms, Notes &amp; Payment Conditions
-                </label>
+              <div className="p-6 rounded-3xl bg-navy-900 border border-border/80 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-teal-400" />
+                    <label className="text-xs font-bold text-white">
+                      Terms, Notes &amp; Payment Conditions:
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleVisibility("showNotes")}
+                    className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border flex items-center gap-1.5 transition-all ${
+                      currentDoc.visibility?.showNotes !== false
+                        ? "bg-teal-500/10 text-teal-300 border-teal-500/40"
+                        : "bg-rose-500/10 text-rose-300 border-rose-500/30"
+                    }`}
+                  >
+                    {currentDoc.visibility?.showNotes !== false ? (
+                      <>
+                        <Eye className="w-3 h-3" />
+                        <span>Visible in Document</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3 h-3" />
+                        <span>Hidden from Document</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Quick Standard Payment Clauses */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-mono text-slate-400">Add Clauses:</span>
+                  {[
+                    { label: "50/50 Deposit", text: "• 50% initial commitment deposit required upon commissioning.\n• 50% balance payable upon project handover, sign-off and testing." },
+                    { label: "7 Days Net", text: "• Payment terms: Strictly 7 days net from invoice date.\n• Equipment remains property of supplier until payment is completed in full." },
+                    { label: "30 Days Validity", text: "• Quotation valid for 30 calendar days from issue date.\n• Prevailing dollar exchange rates apply for imported network equipment." },
+                    { label: "1 Yr Warranty", text: "• 1-Year manufacturer replacement warranty on all active networking hardware.\n• 90-day complimentary post-installation technical SLA support included." },
+                  ].map((clause) => (
+                    <button
+                      key={clause.label}
+                      type="button"
+                      onClick={() => {
+                        const existing = currentDoc.notes ? `${currentDoc.notes}\n` : "";
+                        setCurrentDoc({ ...currentDoc, notes: `${existing}${clause.text}` });
+                      }}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-navy-950 hover:bg-teal-600/20 text-slate-300 hover:text-teal-300 border border-border transition-colors"
+                    >
+                      + {clause.label}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentDoc({ ...currentDoc, notes: companyProfile.notesTemplate })}
+                    className="text-[10px] text-slate-400 hover:text-white px-1.5 py-0.5"
+                  >
+                    Reset
+                  </button>
+                </div>
+
                 <textarea
                   rows={4}
                   value={currentDoc.notes}
@@ -2813,6 +3395,93 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
             </div>
           )}
 
+          {/* LIVE QUICK-PRIVACY & VISIBILITY CONTROLS IN PREVIEW */}
+          <div className="p-4 rounded-2xl bg-navy-900 border border-border/80 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-teal-400" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                  Live Preview Privacy &amp; Visibility Controls
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  (Toggle on/off before printing or emailing)
+                </span>
+              </div>
+
+              {/* Presets */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] font-mono text-slate-400 mr-1">Presets:</span>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPrivacyPreset("all")}
+                  className="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-[11px] font-semibold transition-all"
+                >
+                  ✨ Full Official
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPrivacyPreset("privacy")}
+                  className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-semibold transition-all"
+                >
+                  🔒 Client Shield
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPrivacyPreset("lumpsum")}
+                  className="px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-semibold transition-all"
+                >
+                  💼 Lump-Sum
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPrivacyPreset("simple")}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-border text-[11px] font-semibold transition-all"
+                >
+                  📄 Simple Slip
+                </button>
+              </div>
+            </div>
+
+            {/* Individual Toggle Chips */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/50">
+              {[
+                { key: "showBankDetails" as const, label: "Bank Acc", icon: Landmark },
+                { key: "showMpesaDetails" as const, label: "M-Pesa", icon: Phone },
+                { key: "showPaymentInfo" as const, label: "Payment Box", icon: CreditCard },
+                { key: "showItemBreakdown" as const, label: "Rates / Qty", icon: Layers },
+                { key: "showNotes" as const, label: "Notes & Terms", icon: FileText },
+                { key: "showSignature" as const, label: "Signature", icon: CheckCircle2 },
+                { key: "showEtims" as const, label: "eTIMS Code", icon: QrCode },
+                { key: "showSupplierKraPin" as const, label: "Supplier PIN", icon: Hash },
+                { key: "showClientKraPin" as const, label: "Client PIN", icon: Hash },
+                { key: "showClientContact" as const, label: "Client Phone", icon: UserCheck },
+                { key: "showDueDate" as const, label: "Due Date", icon: Calendar },
+              ].map(({ key, label, icon: Icon }) => {
+                const isVisible = currentDoc.visibility?.[key] !== false;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => handleToggleVisibility(key)}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-medium border flex items-center gap-1.5 transition-all ${
+                      isVisible
+                        ? "bg-navy-950 text-teal-300 border-teal-500/40 hover:border-teal-400"
+                        : "bg-navy-950/50 text-slate-400 line-through border-border/50 hover:text-slate-300"
+                    }`}
+                  >
+                    <Icon className={`w-3 h-3 ${isVisible ? "text-teal-400" : "text-slate-400"}`} />
+                    <span>{label}</span>
+                    {isVisible ? (
+                      <Eye className="w-3 h-3 text-teal-400 ml-0.5" />
+                    ) : (
+                      <EyeOff className="w-3 h-3 text-rose-400 ml-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* PRINT-READY A4 CANVAS (Styled for both dark UI preview & crisp white paper print) */}
           <div className="flex justify-center">
             <div
@@ -2849,24 +3518,33 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   <div className="text-xs text-slate-600 space-y-0.5 pt-2">
                     <p>{companyProfile.address}</p>
                     <p>Phone: {companyProfile.phone} &bull; Email: {companyProfile.email}</p>
-                    <p>Web: {companyProfile.website} &bull; KRA PIN: <strong>{companyProfile.kraPin}</strong></p>
+                    <p>
+                      Web: {companyProfile.website}
+                      {currentDoc.visibility?.showSupplierKraPin !== false && companyProfile.kraPin && (
+                        <> &bull; KRA PIN: <strong>{companyProfile.kraPin}</strong></>
+                      )}
+                    </p>
                   </div>
                 </div>
 
                 {/* Doc Title & Meta */}
                 <div className="sm:text-right space-y-1">
                   <div className="inline-block px-4 py-1.5 rounded-lg bg-teal-800 text-white font-black text-sm uppercase tracking-wider">
-                    {currentDoc.docType === "quotation"
-                      ? "FORMAL QUOTATION"
-                      : currentDoc.docType === "invoice"
-                      ? "TAX INVOICE"
-                      : "OFFICIAL RECEIPT"}
+                    {currentDoc.customTitle?.trim() || (
+                      currentDoc.docType === "quotation"
+                        ? "FORMAL QUOTATION"
+                        : currentDoc.docType === "invoice"
+                        ? "TAX INVOICE"
+                        : "OFFICIAL RECEIPT"
+                    )}
                   </div>
 
                   <div className="text-xs text-slate-700 pt-2 space-y-0.5 font-mono">
                     <p><span className="text-slate-500">Document No:</span> <strong className="text-slate-900">{currentDoc.docNumber}</strong></p>
                     <p><span className="text-slate-500">Date Issued:</span> {currentDoc.issueDate}</p>
-                    <p><span className="text-slate-500">{currentDoc.docType === "quotation" ? "Valid Until:" : "Due Date:"}</span> {currentDoc.dueDate}</p>
+                    {currentDoc.visibility?.showDueDate !== false && (
+                      <p><span className="text-slate-500">{currentDoc.docType === "quotation" ? "Valid Until:" : "Due Date:"}</span> {currentDoc.dueDate}</p>
+                    )}
                     <p><span className="text-slate-500">Status:</span> <strong className="uppercase text-teal-800">{currentDoc.status}</strong></p>
                   </div>
                 </div>
@@ -2883,12 +3561,16 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                   <p className="text-slate-600">{currentDoc.client.address}</p>
                 </div>
                 <div className="text-right space-y-0.5">
-                  <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block mb-1">
-                    Client Contact:
-                  </span>
-                  <p className="text-slate-800 font-mono">{currentDoc.client.phone}</p>
-                  {currentDoc.client.email && <p className="text-slate-600">{currentDoc.client.email}</p>}
-                  {currentDoc.client.kraPin && (
+                  {currentDoc.visibility?.showClientContact !== false && (
+                    <>
+                      <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block mb-1">
+                        Client Contact:
+                      </span>
+                      <p className="text-slate-800 font-mono">{currentDoc.client.phone}</p>
+                      {currentDoc.client.email && <p className="text-slate-600">{currentDoc.client.email}</p>}
+                    </>
+                  )}
+                  {currentDoc.visibility?.showClientKraPin !== false && currentDoc.client.kraPin && (
                     <p className="text-slate-600 font-mono">PIN: {currentDoc.client.kraPin}</p>
                   )}
                 </div>
@@ -2896,32 +3578,55 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
               {/* Itemized Table */}
               <div className="overflow-hidden border border-slate-200 rounded-xl">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="bg-slate-800 text-white font-mono text-[11px]">
-                      <th className="py-3 px-3 w-10 text-center">#</th>
-                      <th className="py-3 px-4">ITEM / SERVICE DESCRIPTION</th>
-                      <th className="py-3 px-3 text-center w-16">QTY</th>
-                      <th className="py-3 px-4 text-right w-28">UNIT ({currentDoc.currency})</th>
-                      <th className="py-3 px-4 text-right w-32">TOTAL ({currentDoc.currency})</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {currentDoc.items.map((item, idx) => (
-                      <tr key={item.id} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"}>
-                        <td className="py-3 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
-                        <td className="py-3 px-4 font-semibold text-slate-900">{item.desc}</td>
-                        <td className="py-3 px-3 text-center font-mono text-slate-800">{item.qty}</td>
-                        <td className="py-3 px-4 text-right font-mono text-slate-800">
-                          {item.unitPrice.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                          {(item.qty * item.unitPrice).toLocaleString()}
-                        </td>
+                {currentDoc.visibility?.showItemBreakdown !== false ? (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="bg-slate-800 text-white font-mono text-[11px]">
+                        <th className="py-3 px-3 w-10 text-center">#</th>
+                        <th className="py-3 px-4">ITEM / SERVICE DESCRIPTION</th>
+                        <th className="py-3 px-3 text-center w-16">QTY</th>
+                        <th className="py-3 px-4 text-right w-28">UNIT ({currentDoc.currency})</th>
+                        <th className="py-3 px-4 text-right w-32">TOTAL ({currentDoc.currency})</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {currentDoc.items.map((item, idx) => (
+                        <tr key={item.id} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"}>
+                          <td className="py-3 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
+                          <td className="py-3 px-4 font-semibold text-slate-900">{item.desc}</td>
+                          <td className="py-3 px-3 text-center font-mono text-slate-800">{item.qty}</td>
+                          <td className="py-3 px-4 text-right font-mono text-slate-800">
+                            {item.unitPrice.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                            {(item.qty * item.unitPrice).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="bg-slate-800 text-white font-mono text-[11px]">
+                        <th className="py-3 px-3 w-10 text-center">#</th>
+                        <th className="py-3 px-4">ITEM / SERVICE DESCRIPTION (LUMP-SUM SCOPE)</th>
+                        <th className="py-3 px-4 text-right w-36">AMOUNT ({currentDoc.currency})</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {currentDoc.items.map((item, idx) => (
+                        <tr key={item.id} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"}>
+                          <td className="py-3 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
+                          <td className="py-3 px-4 font-semibold text-slate-900">{item.desc}</td>
+                          <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                            {(item.qty * item.unitPrice).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
 
               {/* Financial Calculation Breakdown */}
@@ -2930,14 +3635,18 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 return (
                   <div className="flex flex-col sm:flex-row justify-between gap-6 pt-2">
                     {/* Left: Notes and Conditions */}
-                    <div className="flex-1 space-y-2 text-xs">
-                      <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block">
-                        Terms &amp; Payment Conditions:
-                      </span>
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 whitespace-pre-line leading-relaxed text-[11px]">
-                        {currentDoc.notes}
+                    {currentDoc.visibility?.showNotes !== false && currentDoc.notes ? (
+                      <div className="flex-1 space-y-2 text-xs">
+                        <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block">
+                          Terms &amp; Payment Conditions:
+                        </span>
+                        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 whitespace-pre-line leading-relaxed text-[11px]">
+                          {currentDoc.notes}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex-1" />
+                    )}
 
                     {/* Right: Math Totals Box */}
                     <div className="w-full sm:w-72 rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2 text-xs font-mono">
@@ -2999,50 +3708,62 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               )}
 
               {/* Payment Instructions & Official Stamp Footer */}
-              <div className="pt-6 border-t-2 border-slate-200 grid sm:grid-cols-2 gap-6 items-end text-xs">
-                <div className="space-y-1.5">
-                  <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block">
-                    Official Payment Instructions:
-                  </span>
-                  <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200 text-teal-950 space-y-0.5 font-mono text-[11px]">
-                    <p><strong>M-Pesa {companyProfile.mpesaType}:</strong> {companyProfile.mpesaNumber}</p>
-                    <p><strong>Account Name:</strong> {companyProfile.mpesaAccount}</p>
-                    {companyProfile.includeBankDetails !== false && Boolean(companyProfile.bankName?.trim()) && Boolean(companyProfile.bankAccountNumber?.trim()) && (
-                      <>
-                        <p><strong>Bank:</strong> {companyProfile.bankName} &bull; Acc: {companyProfile.bankAccountNumber}</p>
-                        {companyProfile.bankBranch?.trim() && <p><strong>Branch:</strong> {companyProfile.bankBranch}</p>}
-                      </>
-                    )}
-                  </div>
-                </div>
+              {(currentDoc.visibility?.showPaymentInfo !== false || currentDoc.visibility?.showSignature !== false) && (
+                <div className="pt-6 border-t-2 border-slate-200 grid sm:grid-cols-2 gap-6 items-end text-xs">
+                  {currentDoc.visibility?.showPaymentInfo !== false ? (
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] block">
+                        Official Payment Instructions:
+                      </span>
+                      <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200 text-teal-950 space-y-0.5 font-mono text-[11px]">
+                        {currentDoc.visibility?.showMpesaDetails !== false && (
+                          <>
+                            <p><strong>M-Pesa {companyProfile.mpesaType}:</strong> {companyProfile.mpesaNumber}</p>
+                            <p><strong>Account Name:</strong> {companyProfile.mpesaAccount}</p>
+                          </>
+                        )}
+                        {currentDoc.visibility?.showBankDetails !== false && companyProfile.includeBankDetails !== false && Boolean(companyProfile.bankName?.trim()) && Boolean(companyProfile.bankAccountNumber?.trim()) && (
+                          <>
+                            <p><strong>Bank:</strong> {companyProfile.bankName} &bull; Acc: {companyProfile.bankAccountNumber}</p>
+                            {companyProfile.bankBranch?.trim() && <p><strong>Branch:</strong> {companyProfile.bankBranch}</p>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ) : <div />}
 
-                <div className="text-right space-y-3">
-                  <div className="inline-block text-center border-b border-slate-400 pb-1 w-48">
-                    <span className="font-script text-lg text-slate-800 font-bold block">
-                      {companyProfile.authorizedSignatory}
-                    </span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                      Authorized Signature &amp; Stamp
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">
-                    Generated by {companyProfile.name} Enterprise Management System
-                  </p>
+                  {currentDoc.visibility?.showSignature !== false && (
+                    <div className="text-right space-y-3">
+                      <div className="inline-block text-center border-b border-slate-400 pb-1 w-48">
+                        <span className="font-script text-lg text-slate-800 font-bold block">
+                          {currentDoc.signatoryName || companyProfile.authorizedSignatory}
+                        </span>
+                        <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+                          {currentDoc.signatoryTitle || "Authorized Signature & Stamp"}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-400">
+                        Generated by {companyProfile.name} Enterprise Management System
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* eTIMS Fiscal Compliance Block */}
-              <div className="pt-4 border-t border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] font-mono text-slate-500 bg-slate-50/80 p-3 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">KRA eTIMS</span>
-                  <span>CU Serial: <strong>KRA-ETIMS-PK01-2026</strong></span>
-                  <span>&bull;</span>
-                  <span>Control Code: <strong>{currentDoc.etimsControlCode || `KRA-INV-${currentDoc.docNumber.slice(-4)}-8819`}</strong></span>
+              {currentDoc.visibility?.showEtims !== false && (
+                <div className="pt-4 border-t border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] font-mono text-slate-500 bg-slate-50/80 p-3 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">KRA eTIMS</span>
+                    <span>CU Serial: <strong>KRA-ETIMS-PK01-2026</strong></span>
+                    <span>&bull;</span>
+                    <span>Control Code: <strong>{currentDoc.etimsControlCode || `KRA-INV-${currentDoc.docNumber.slice(-4)}-8819`}</strong></span>
+                  </div>
+                  <div>
+                    <span>Internal Sign: <strong>{currentDoc.etimsInternalSign || "9A4F-BC12-88D4"}</strong></span>
+                  </div>
                 </div>
-                <div>
-                  <span>Internal Sign: <strong>{currentDoc.etimsInternalSign || "9A4F-BC12-88D4"}</strong></span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

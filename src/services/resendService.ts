@@ -538,9 +538,11 @@ class ResendEmailService {
     }
 
     const company = dataStorage.getCompanyProfile();
+    const vis = doc.visibility || {};
     const isQuote = doc.docType === "quotation";
     const isInvoice = doc.docType === "invoice";
-    const typeLabel = isQuote ? "Formal Quotation" : isInvoice ? "Official Tax Invoice" : "Payment Receipt";
+    const defaultTypeLabel = isQuote ? "Formal Quotation" : isInvoice ? "Official Tax Invoice" : "Payment Receipt";
+    const typeLabel = doc.customTitle?.trim() || defaultTypeLabel;
 
     // Calculate totals
     const rawSubtotal = doc.items.reduce((acc, item) => acc + item.qty * item.unitPrice, 0);
@@ -554,37 +556,63 @@ class ResendEmailService {
     const vatAmount = doc.vatEnabled ? (discountedSubtotal * (doc.vatPercent || 16)) / 100 : 0;
     const grandTotal = discountedSubtotal + vatAmount;
 
-    const hasBank =
+    const showItemBreakdown = vis.showItemBreakdown !== false;
+    const showBank =
+      vis.showBankDetails !== false &&
       company.includeBankDetails !== false &&
       Boolean(company.bankName?.trim()) &&
       Boolean(company.bankAccountNumber?.trim());
+    const showMpesa = vis.showMpesaDetails !== false;
+    const showPaymentBox = vis.showPaymentInfo !== false && (showMpesa || showBank);
 
     const subject = `${isQuote ? "📄 Quotation" : "🧾 Invoice"} #${doc.docNumber}: ${doc.items[0]?.desc ? doc.items[0].desc.slice(0, 45) + '...' : company.name} - ${company.name}`;
 
-    const itemsHtml = doc.items.map((item, idx) => `
-      <tr style="border-bottom: 1px solid #e2e8f0; ${idx % 2 === 1 ? 'background-color: #f8fafc;' : ''}">
-        <td style="padding: 10px 12px; font-size: 12px; color: #64748b; font-family: monospace;">#${idx + 1}</td>
-        <td style="padding: 10px 12px; font-size: 13px; font-weight: 600; color: #0f172a;">${item.desc}</td>
-        <td style="padding: 10px 12px; font-size: 13px; text-align: center; color: #334155;">${item.qty}</td>
-        <td style="padding: 10px 12px; font-size: 13px; text-align: right; color: #334155; font-family: monospace;">${doc.currency} ${item.unitPrice.toLocaleString()}</td>
-        <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a; font-family: monospace;">${doc.currency} ${(item.qty * item.unitPrice).toLocaleString()}</td>
-      </tr>
-    `).join("");
+    const itemsHtml = doc.items.map((item, idx) => {
+      if (showItemBreakdown) {
+        return `
+          <tr style="border-bottom: 1px solid #e2e8f0; ${idx % 2 === 1 ? 'background-color: #f8fafc;' : ''}">
+            <td style="padding: 10px 12px; font-size: 12px; color: #64748b; font-family: monospace;">#${idx + 1}</td>
+            <td style="padding: 10px 12px; font-size: 13px; font-weight: 600; color: #0f172a;">${item.desc}</td>
+            <td style="padding: 10px 12px; font-size: 13px; text-align: center; color: #334155;">${item.qty}</td>
+            <td style="padding: 10px 12px; font-size: 13px; text-align: right; color: #334155; font-family: monospace;">${doc.currency} ${item.unitPrice.toLocaleString()}</td>
+            <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a; font-family: monospace;">${doc.currency} ${(item.qty * item.unitPrice).toLocaleString()}</td>
+          </tr>
+        `;
+      } else {
+        return `
+          <tr style="border-bottom: 1px solid #e2e8f0; ${idx % 2 === 1 ? 'background-color: #f8fafc;' : ''}">
+            <td style="padding: 10px 12px; font-size: 12px; color: #64748b; font-family: monospace;">#${idx + 1}</td>
+            <td style="padding: 10px 12px; font-size: 13px; font-weight: 600; color: #0f172a;">${item.desc}</td>
+            <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a; font-family: monospace;">${doc.currency} ${(item.qty * item.unitPrice).toLocaleString()}</td>
+          </tr>
+        `;
+      }
+    }).join("");
 
-    const paymentHtml = `
+    const paymentHtml = showPaymentBox ? `
       <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 16px; margin-top: 20px;">
         <h4 style="margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; color: #0f766e; letter-spacing: 0.05em;">Official Payment Instructions:</h4>
-        <p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>M-Pesa ${company.mpesaType}:</strong> <span style="font-family: monospace; font-weight: bold;">${company.mpesaNumber}</span></p>
-        <p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>Account Name:</strong> ${company.mpesaAccount}</p>
-        ${hasBank ? `
+        ${showMpesa ? `
+          <p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>M-Pesa ${company.mpesaType}:</strong> <span style="font-family: monospace; font-weight: bold;">${company.mpesaNumber}</span></p>
+          <p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>Account Name:</strong> ${company.mpesaAccount}</p>
+        ` : ''}
+        ${showBank ? `
           <p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>Bank:</strong> ${company.bankName} &bull; <strong>Acc:</strong> <span style="font-family: monospace; font-weight: bold;">${company.bankAccountNumber}</span></p>
           ${company.bankBranch ? `<p style="margin: 4px 0; font-size: 13px; color: #134e4a;"><strong>Branch:</strong> ${company.bankBranch}</p>` : ''}
         ` : ''}
       </div>
-    `;
+    ` : '';
 
     const waText = `Hi Peter,\n\nI received your ${typeLabel} *#${doc.docNumber}* for *${doc.currency} ${grandTotal.toLocaleString()}*.\n\nLet's proceed with scheduling on-site deployment.`;
     const waUrl = `https://wa.me/254758896553?text=${encodeURIComponent(waText)}`;
+
+    const showSupplierKra = vis.showSupplierKraPin !== false && Boolean(company.kraPin);
+    const showClientKra = vis.showClientKraPin !== false && Boolean(doc.client.kraPin);
+    const showClientContact = vis.showClientContact !== false;
+    const showDueDate = vis.showDueDate !== false;
+    const showNotes = vis.showNotes !== false && Boolean(doc.notes);
+    const showSignature = vis.showSignature !== false;
+    const signatoryName = doc.signatoryName || company.authorizedSignatory || company.name;
 
     const html = `
       <!DOCTYPE html>
@@ -603,7 +631,7 @@ class ResendEmailService {
                 <td style="vertical-align: middle;">
                   <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em;">${company.name}</h1>
                   <p style="margin: 4px 0 0 0; color: #2dd4bf; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">${company.tagline || 'Enterprise IT & Digital Systems'}</p>
-                  <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 11px;">${company.phone} &bull; ${company.email} &bull; Nairobi, Kenya</p>
+                  <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 11px;">${company.phone} &bull; ${company.email} &bull; Nairobi, Kenya ${showSupplierKra ? `&bull; PIN: ${company.kraPin}` : ''}</p>
                 </td>
                 <td style="vertical-align: middle; text-align: right;">
                   <span style="display: inline-block; background: #0d9488; color: #ffffff; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">${typeLabel}</span>
@@ -622,13 +650,13 @@ class ResendEmailService {
                   <h3 style="margin: 4px 0 2px 0; font-size: 16px; font-weight: 800; color: #0f172a;">${doc.client.company || doc.client.name}</h3>
                   <p style="margin: 0; font-size: 13px; color: #334155;">Attn: ${doc.client.name}</p>
                   <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">${doc.client.address || 'Nairobi, Kenya'}</p>
-                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #0d9488; font-family: monospace;">${doc.client.phone}</p>
-                  ${doc.client.kraPin ? `<p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">KRA PIN: ${doc.client.kraPin}</p>` : ''}
+                  ${showClientContact ? `<p style="margin: 2px 0 0 0; font-size: 12px; color: #0d9488; font-family: monospace;">${doc.client.phone} ${doc.client.email ? `&bull; ${doc.client.email}` : ''}</p>` : ''}
+                  ${showClientKra ? `<p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">KRA PIN: ${doc.client.kraPin}</p>` : ''}
                 </td>
                 <td style="vertical-align: top; width: 50%; text-align: right;">
                   <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Document Details:</span>
                   <p style="margin: 4px 0 2px 0; font-size: 12px; color: #334155;"><strong>Date Issued:</strong> ${doc.issueDate}</p>
-                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #334155;"><strong>${isQuote ? 'Valid Until:' : 'Due Date:'}</strong> ${doc.dueDate}</p>
+                  ${showDueDate ? `<p style="margin: 2px 0 0 0; font-size: 12px; color: #334155;"><strong>${isQuote ? 'Valid Until:' : 'Due Date:'}</strong> ${doc.dueDate}</p>` : ''}
                   <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: bold; color: #0d9488; text-transform: uppercase;">Status: ${doc.status.toUpperCase()}</p>
                 </td>
               </tr>
@@ -642,8 +670,10 @@ class ResendEmailService {
                 <tr style="background: #0f172a; color: #ffffff; text-align: left;">
                   <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase;">#</th>
                   <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Item / Description</th>
-                  <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: center;">Qty</th>
-                  <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: right;">Unit Price</th>
+                  ${showItemBreakdown ? `
+                    <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: center;">Qty</th>
+                    <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: right;">Unit Price</th>
+                  ` : ''}
                   <th style="padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: right;">Total</th>
                 </tr>
               </thead>
@@ -682,7 +712,7 @@ class ResendEmailService {
             ${paymentHtml}
 
             <!-- Notes & Terms -->
-            ${doc.notes ? `
+            ${showNotes ? `
               <div style="margin-top: 20px; padding: 14px; background: #f8fafc; border-left: 4px solid #0d9488; border-radius: 6px; font-size: 12px; color: #475569; white-space: pre-wrap;">
                 <strong style="color: #0f172a; text-transform: uppercase; font-size: 11px; display: block; margin-bottom: 4px;">Terms &amp; Warranty Conditions:</strong>
                 ${doc.notes}
@@ -703,7 +733,7 @@ class ResendEmailService {
 
           <!-- Footer -->
           <div style="background: #f1f5f9; padding: 18px 24px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #64748b;">
-            <p style="margin: 0;">Authorized Signatory: <strong>${company.authorizedSignatory || company.name}</strong> &bull; PIN: ${company.kraPin || 'N/A'}</p>
+            ${showSignature ? `<p style="margin: 0;">Authorized Signatory: <strong>${signatoryName}</strong> ${showSupplierKra ? `&bull; PIN: ${company.kraPin}` : ''}</p>` : ''}
             <p style="margin: 4px 0 0 0; color: #94a3b8;">Delivered by ${company.name} Automated Enterprise System</p>
           </div>
 

@@ -732,7 +732,7 @@ export const AdminPage: React.FC = () => {
         },
         {
           id: "mpesa_hub" as const,
-          label: "M-Pesa STK & Instant Receipts",
+          label: "M-Pesa STK & Receipts",
           icon: Smartphone,
           count: "STK",
           colorClass: "text-emerald-400",
@@ -746,14 +746,14 @@ export const AdminPage: React.FC = () => {
         },
         {
           id: "client_vault" as const,
-          label: "Client IT Asset & Credential Vault",
+          label: "Client IT Assets & Vault",
           icon: Lock,
           count: "VAULT",
           colorClass: "text-teal-400",
         },
         {
           id: "equipment_intake" as const,
-          label: "Hardware Intake & Repair Slips",
+          label: "Hardware Intake & Repairs",
           icon: Wrench,
           count: "REPAIR",
           colorClass: "text-amber-400",
@@ -894,24 +894,24 @@ export const AdminPage: React.FC = () => {
 
       {/* SIDEBAR NAVIGATION */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-72 bg-navy-900 border-r border-border/80 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-80 bg-navy-900 border-r border-border/80 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-5 space-y-6 overflow-y-auto">
+        <div className="p-4 sm:p-5 space-y-6 overflow-y-auto overflow-x-hidden">
           {/* Brand Identity Header */}
           <div className="flex items-center gap-3 pb-4 border-b border-border/60">
             <BrandLogo size="md" showText={false} />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h2 className="font-heading font-bold text-sm text-white truncate">
                 Peter Kivevo John
               </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span className="text-[11px] font-mono text-teal-400 font-semibold">
+                <span className="text-[11px] font-mono text-teal-400 font-semibold truncate">
                   Nairobi Console
                 </span>
               </div>
@@ -934,29 +934,30 @@ export const AdminPage: React.FC = () => {
                       <button
                         key={item.id}
                         type="button"
+                        title={item.label}
                         onClick={() => {
                           setActiveTab(item.id);
                           setMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 group ${
                           isActive
                             ? "bg-teal-600/90 text-white shadow-lg font-bold ring-1 ring-teal-500/50"
                             : "text-slate-300 hover:text-white hover:bg-white/5"
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : colorClass}`} />
-                          <span className="truncate">{item.label}</span>
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <Icon className={`w-4 h-4 shrink-0 flex-shrink-0 ${isActive ? "text-white" : colorClass}`} />
+                          <span className="truncate text-left block">{item.label}</span>
                         </div>
 
                         {item.count !== null && item.count !== undefined && (
                           <span
-                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold flex-shrink-0 ml-1 ${
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 flex-shrink-0 whitespace-nowrap ml-auto ${
                               isActive
                                 ? "bg-white/20 text-white"
                                 : typeof item.count === "number" && item.count > 0
                                 ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                                : "bg-white/5 text-slate-500"
+                                : "bg-white/5 text-slate-400 border border-white/5"
                             }`}
                           >
                             {item.count}
@@ -972,17 +973,17 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* Sidebar Footer Controls */}
-        <div className="p-4 border-t border-border/80 bg-navy-950/60 space-y-2">
+        <div className="p-4 border-t border-border/80 bg-navy-950/60 space-y-2 shrink-0">
           <Link
             to="/"
             target="_blank"
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white text-xs font-medium transition-colors border border-border"
           >
             <span className="flex items-center gap-2">
-              <ExternalLink className="w-3.5 h-3.5 text-teal-400" />
+              <ExternalLink className="w-3.5 h-3.5 text-teal-400 shrink-0" />
               <span>View Public Site</span>
             </span>
-            <span className="text-[10px] font-mono text-slate-400">Live</span>
+            <span className="text-[10px] font-mono text-slate-400 shrink-0">Live</span>
           </Link>
 
           <button
@@ -990,14 +991,14 @@ export const AdminPage: React.FC = () => {
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-400 hover:bg-rose-500/10 text-xs font-semibold transition-colors"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-3.5 h-3.5 shrink-0" />
             <span>Lock Admin Portal</span>
           </button>
         </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-w-0">
+      <div className="flex-1 lg:pl-80 flex flex-col min-w-0">
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 bg-navy-900/90 backdrop-blur-md border-b border-border/80 px-6 sm:px-10 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
