@@ -556,32 +556,160 @@ export const EarningsTracker: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-border/60">
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      {/* PREMIUM SECTION NAVIGATOR — Card Grid */}
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {[
-          { id: "overview" as const, label: "Overview & Net Cashflow", icon: <BarChart3 className="w-3.5 h-3.5" /> },
-          { id: "debtors" as const, label: `Aged Debtors & Debt Recovery (${unpaidInvoicesList.length})`, icon: <HandCoins className="w-3.5 h-3.5 text-amber-400" /> },
-          { id: "ledger" as const, label: `Transactions Ledger (${filteredLedgerItems.length})`, icon: <Receipt className="w-3.5 h-3.5" /> },
-          { id: "budgets" as const, label: `Monthly Budgets (${budgets.length})`, icon: <Target className="w-3.5 h-3.5" /> },
-          { id: "savings" as const, label: `Savings & Sinking Goals (${savingsGoals.length})`, icon: <PiggyBank className="w-3.5 h-3.5" /> },
-          { id: "debts" as const, label: `Debts & Receivables (${debts.length})`, icon: <HandCoins className="w-3.5 h-3.5" /> },
-          { id: "bills" as const, label: `Recurring Subscriptions (${recurringBills.length})`, icon: <ReceiptText className="w-3.5 h-3.5" /> },
-          { id: "pl_report" as const, label: "P&L Statement", icon: <PieChart className="w-3.5 h-3.5" /> },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeTab === tab.id
-                ? "bg-teal-600 text-white shadow-sm"
-                : "bg-navy-950 text-slate-400 hover:text-white border border-border"
-            }`}
-          >
-            {tab.icon}
-            <span>{tab.label}</span>
-          </button>
-        ))}
+          {
+            id: "overview" as const,
+            label: "Overview",
+            sub: "Net Cashflow",
+            icon: <BarChart3 className="w-5 h-5" />,
+            count: null,
+            color: "teal",
+            countBg: "",
+          },
+          {
+            id: "debtors" as const,
+            label: "Aged Debtors",
+            sub: "Debt Recovery",
+            icon: <HandCoins className="w-5 h-5" />,
+            count: unpaidInvoicesList.length,
+            color: "amber",
+            countBg: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+          },
+          {
+            id: "ledger" as const,
+            label: "Ledger",
+            sub: "All Transactions",
+            icon: <Receipt className="w-5 h-5" />,
+            count: filteredLedgerItems.length,
+            color: "cyan",
+            countBg: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+          },
+          {
+            id: "budgets" as const,
+            label: "Budgets",
+            sub: "Monthly Limits",
+            icon: <Target className="w-5 h-5" />,
+            count: budgets.length,
+            color: "violet",
+            countBg: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+          },
+          {
+            id: "savings" as const,
+            label: "Savings",
+            sub: "Sinking Goals",
+            icon: <PiggyBank className="w-5 h-5" />,
+            count: savingsGoals.length,
+            color: "emerald",
+            countBg: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+          },
+          {
+            id: "debts" as const,
+            label: "Debts",
+            sub: "Receivables",
+            icon: <HandCoins className="w-5 h-5" />,
+            count: debts.length,
+            color: "rose",
+            countBg: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+          },
+          {
+            id: "bills" as const,
+            label: "Subscriptions",
+            sub: "Recurring Bills",
+            icon: <ReceiptText className="w-5 h-5" />,
+            count: recurringBills.length,
+            color: "blue",
+            countBg: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+          },
+          {
+            id: "pl_report" as const,
+            label: "P&L Report",
+            sub: "Profit & Loss",
+            icon: <PieChart className="w-5 h-5" />,
+            count: null,
+            color: "slate",
+            countBg: "",
+          },
+        ].map((tab) => {
+          const isActive = activeTab === tab.id;
+          const colorMap: Record<string, string> = {
+            teal:    "border-teal-500/50 bg-teal-500/10 text-teal-400 shadow-[0_0_18px_rgba(20,184,166,0.18)]",
+            amber:   "border-amber-500/50 bg-amber-500/10 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.18)]",
+            cyan:    "border-cyan-500/50 bg-cyan-500/10 text-cyan-400 shadow-[0_0_18px_rgba(6,182,212,0.18)]",
+            violet:  "border-violet-500/50 bg-violet-500/10 text-violet-400 shadow-[0_0_18px_rgba(139,92,246,0.18)]",
+            emerald: "border-emerald-500/50 bg-emerald-500/10 text-emerald-400 shadow-[0_0_18px_rgba(16,185,129,0.18)]",
+            rose:    "border-rose-500/50 bg-rose-500/10 text-rose-400 shadow-[0_0_18px_rgba(244,63,94,0.18)]",
+            blue:    "border-blue-500/50 bg-blue-500/10 text-blue-400 shadow-[0_0_18px_rgba(59,130,246,0.18)]",
+            slate:   "border-slate-500/50 bg-slate-500/10 text-slate-300 shadow-[0_0_18px_rgba(100,116,139,0.10)]",
+          };
+          const iconColorMap: Record<string, string> = {
+            teal:    "text-teal-400",
+            amber:   "text-amber-400",
+            cyan:    "text-cyan-400",
+            violet:  "text-violet-400",
+            emerald: "text-emerald-400",
+            rose:    "text-rose-400",
+            blue:    "text-blue-400",
+            slate:   "text-slate-400",
+          };
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                relative group flex flex-col items-center justify-center gap-2
+                py-4 px-3 rounded-2xl border text-center
+                transition-all duration-200 cursor-pointer
+                ${isActive
+                  ? colorMap[tab.color]
+                  : "border-border bg-navy-900 text-slate-400 hover:border-slate-600 hover:bg-navy-800 hover:text-slate-200"
+                }
+              `}
+            >
+              {/* Icon */}
+              <span className={`transition-colors duration-200 ${isActive ? iconColorMap[tab.color] : "text-slate-500 group-hover:text-slate-300"}`}>
+                {tab.icon}
+              </span>
+
+              {/* Label + Sub */}
+              <div className="space-y-0.5">
+                <div className={`text-[11px] font-bold leading-tight whitespace-nowrap ${isActive ? "text-white" : ""}`}>
+                  {tab.label}
+                </div>
+                <div className={`text-[9.5px] font-mono leading-tight whitespace-nowrap ${isActive ? "opacity-80" : "text-slate-500 group-hover:text-slate-400"}`}>
+                  {tab.sub}
+                </div>
+              </div>
+
+              {/* Count Badge */}
+              {tab.count !== null && tab.count > 0 && (
+                <span className={`absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-black font-mono flex items-center justify-center border ${isActive ? tab.countBg : "bg-navy-950 text-slate-400 border-border"}`}>
+                  {tab.count}
+                </span>
+              )}
+
+              {/* Active bottom glow line */}
+              {isActive && (
+                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full opacity-80 ${
+                  tab.color === "teal" ? "bg-teal-400" :
+                  tab.color === "amber" ? "bg-amber-400" :
+                  tab.color === "cyan" ? "bg-cyan-400" :
+                  tab.color === "violet" ? "bg-violet-400" :
+                  tab.color === "emerald" ? "bg-emerald-400" :
+                  tab.color === "rose" ? "bg-rose-400" :
+                  tab.color === "blue" ? "bg-blue-400" :
+                  "bg-slate-400"
+                }`} />
+              )}
+            </button>
+          );
+        })}
       </div>
+
 
       {/* ========================================================================= */}
       {/* TAB 1: OVERVIEW & CASHFLOW DASHBOARD */}
