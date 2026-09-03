@@ -497,6 +497,84 @@ export interface WhatsAppCampaignRecord {
   createdAt: string;
 }
 
+export interface ServiceReportRecord {
+  id: string;
+  reportNumber: string; // e.g. KRN-SR-2026-001
+  clientName: string;
+  company: string;
+  phone: string;
+  email?: string;
+  siteLocation: string;
+  serviceDate: string;
+  serviceType: "network_wifi" | "cctv_security" | "server_systems" | "hardware_repair" | "cabling_infrastructure" | "other";
+  workSummary: string;
+  preDiagnostics?: {
+    downloadMbps?: number;
+    uploadMbps?: number;
+    pingMs?: number;
+    packetLossPct?: number;
+    notes?: string;
+  };
+  postDiagnostics?: {
+    downloadMbps?: number;
+    uploadMbps?: number;
+    pingMs?: number;
+    packetLossPct?: number;
+    notes?: string;
+  };
+  partsDeployed?: Array<{
+    id: string;
+    itemDesc: string;
+    serialNumber?: string;
+    macAddress?: string;
+    qty: number;
+    warrantyMonths: number;
+  }>;
+  checklist?: Array<{
+    id: string;
+    task: string;
+    completed: boolean;
+  }>;
+  clientSignOff: {
+    signerName: string;
+    signerRole: string;
+    signedDate: string;
+    satisfactionRating: 1 | 2 | 3 | 4 | 5;
+    signatureText?: string;
+    clientComments?: string;
+  };
+  status: "draft" | "completed" | "sent_to_client";
+  createdAt: string;
+}
+
+export interface VendorRecord {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  phone: string;
+  whatsapp?: string;
+  email?: string;
+  location: string;
+  category: "laptops_computers" | "networking_ubiquiti" | "cctv_security" | "printers_toners" | "cabling_accessories" | "general_it";
+  paymentTerms: "cash_on_delivery" | "30_day_credit" | "cheque" | "mpesa_paybill";
+  rating: number; // 1-5
+  notes?: string;
+  createdAt: string;
+}
+
+export interface WholesalePriceBenchmark {
+  id: string;
+  itemName: string;
+  category: string;
+  typicalWholesaleKes: number;
+  recommendedRetailKes: number;
+  preferredVendorId?: string;
+  preferredVendorName?: string;
+  warrantyPeriod: string;
+  notes?: string;
+  updatedAt: string;
+}
+
 export interface DarajaSettings {
   environment: "sandbox" | "production";
   consumerKey: string;
@@ -544,6 +622,10 @@ const STORAGE_KEYS = {
   SAVINGS_GOALS: "itguy_savings_goals_v1",
   DEBTS: "itguy_debt_records_v1",
   RECURRING_BILLS: "itguy_recurring_bills_v1",
+  SERVICE_REPORTS: "itguy_service_reports_v1",
+  VENDORS: "itguy_nairobi_vendors_v1",
+  WHOLESALE_BENCHMARKS: "itguy_wholesale_benchmarks_v1",
+  LAST_BACKUP_DATE: "itguy_last_master_backup_date_v1",
 };
 
 export const DEFAULT_KRA_PROFILE: KRAProfileSettings = {
@@ -2830,6 +2912,420 @@ class DataStorageService {
     const updated = all.filter((item) => item.id !== id);
     localStorage.setItem(STORAGE_KEYS.RECURRING_BILLS, JSON.stringify(updated));
     this.notify();
+  }
+
+  // --- SERVICE REPORTS & COMMISSIONING HANDOVER ---
+  public getServiceReports(): ServiceReportRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SERVICE_REPORTS);
+      if (!stored) {
+        const seedReports: ServiceReportRecord[] = [
+          {
+            id: "sr-1",
+            reportNumber: "KRN-SR-2026-001",
+            clientName: "Peter John",
+            company: "Samchi Group of companies",
+            phone: "+254758896553",
+            email: "peter.it@samchi.co.ke",
+            siteLocation: "Samchi HQ, 4th Floor, Westlands, Nairobi",
+            serviceDate: new Date().toISOString().slice(0, 10),
+            serviceType: "network_wifi",
+            workSummary: "Full enterprise Wi-Fi 6 optimization, Dual-WAN automatic failover configuration, and boardroom dead-zone elimination.",
+            preDiagnostics: {
+              downloadMbps: 14.2,
+              uploadMbps: 6.8,
+              pingMs: 74,
+              packetLossPct: 3.2,
+              notes: "Severe latency spikes during peak hours; boardroom had complete signal drop on 5GHz band.",
+            },
+            postDiagnostics: {
+              downloadMbps: 92.4,
+              uploadMbps: 88.0,
+              pingMs: 12,
+              packetLossPct: 0.0,
+              notes: "Seamless roaming active across all access points. Zero packet loss on Zoom/Teams video test.",
+            },
+            partsDeployed: [
+              {
+                id: "part-1",
+                itemDesc: "Ubiquiti UniFi U6-Pro Wi-Fi 6 Ceiling Access Point",
+                serialNumber: "U6P-2026-98124B",
+                macAddress: "74:83:C2:59:11:AE",
+                qty: 2,
+                warrantyMonths: 12,
+              },
+              {
+                id: "part-2",
+                itemDesc: "Cat6 UTP Pure Copper Patch Leads (3M, Molded)",
+                qty: 8,
+                warrantyMonths: 24,
+              },
+            ],
+            checklist: [
+              { id: "c1", task: "Router dual-WAN failover (Safaricom Fiber + 5G Backup) verified", completed: true },
+              { id: "c2", task: "Executive & Staff Wi-Fi separated from Guest VLAN", completed: true },
+              { id: "c3", task: "Admin console password rotated & 2FA enabled", completed: true },
+              { id: "c4", task: "All network cables labeled and dressed neatly in server cabinet", completed: true },
+              { id: "c5", task: "Client IT Manager confirmed smooth connectivity on 15 concurrent devices", completed: true },
+            ],
+            clientSignOff: {
+              signerName: "Peter John",
+              signerRole: "Group IT Infrastructure Manager",
+              signedDate: new Date().toISOString().slice(0, 10),
+              satisfactionRating: 5,
+              signatureText: "Peter John",
+              clientComments: "Outstanding turnaround. Boardroom Wi-Fi is now blazing fast and failover switches in less than 2 seconds.",
+            },
+            status: "completed",
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.SERVICE_REPORTS, JSON.stringify(seedReports));
+        return seedReports;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveServiceReport(report: ServiceReportRecord): ServiceReportRecord {
+    const all = this.getServiceReports();
+    const idx = all.findIndex((r) => r.id === report.id);
+    let updated: ServiceReportRecord[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = report;
+    } else {
+      updated = [report, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.SERVICE_REPORTS, JSON.stringify(updated));
+    this.notify();
+    return report;
+  }
+
+  public deleteServiceReport(id: string): void {
+    const all = this.getServiceReports();
+    const updated = all.filter((r) => r.id !== id);
+    localStorage.setItem(STORAGE_KEYS.SERVICE_REPORTS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // --- NAIROBI HARDWARE VENDORS & PROCUREMENT ---
+  public getVendors(): VendorRecord[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.VENDORS);
+      if (!stored) {
+        const seedVendors: VendorRecord[] = [
+          {
+            id: "vendor-1",
+            companyName: "Eurocom Systems Kenya Ltd",
+            contactPerson: "Dennis Karanja",
+            phone: "+254 722 890 123",
+            whatsapp: "+254722890123",
+            email: "sales@eurocomkenya.com",
+            location: "Revlon Plaza, 2nd Floor, Biashara Street, Nairobi CBD",
+            category: "laptops_computers",
+            paymentTerms: "cash_on_delivery",
+            rating: 5,
+            notes: "Main dealer for brand-new HP ProBook, Dell Latitude, and Lenovo ThinkPad laptops. Fast 1-hour dispatch in CBD.",
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "vendor-2",
+            companyName: "Bright Technologies Ltd",
+            contactPerson: "Ashish Patel",
+            phone: "+254 733 456 789",
+            whatsapp: "+254733456789",
+            email: "wholesale@bright.co.ke",
+            location: "Old Mutual Building, Ground Floor, Kimathi Street, Nairobi CBD",
+            category: "networking_ubiquiti",
+            paymentTerms: "30_day_credit",
+            rating: 5,
+            notes: "Direct authorized distributor for Ubiquiti UniFi, Mikrotik routers, Cisco SMB switches, and TP-Link Omada.",
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "vendor-3",
+            companyName: "Computer Pride Hardware Hub",
+            contactPerson: "Grace Muthoni",
+            phone: "+254 711 234 567",
+            whatsapp: "+254711234567",
+            email: "hardware@computerpride.co.ke",
+            location: "ICEA Building, Mezzanine 1, Kenyatta Avenue, Nairobi CBD",
+            category: "printers_toners",
+            paymentTerms: "mpesa_paybill",
+            rating: 4,
+            notes: "Official Epson EcoTank printers, genuine ink bottles (003/103/664), and HP LaserJet toner cartridges.",
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "vendor-4",
+            companyName: "SecurityWorld Surveillance Ltd",
+            contactPerson: "Samuel Waweru",
+            phone: "+254 720 998 877",
+            whatsapp: "+254720998877",
+            email: "orders@securityworldkenya.com",
+            location: "Westlands Arcade, Chiromo Road, Westlands, Nairobi",
+            category: "cctv_security",
+            paymentTerms: "cash_on_delivery",
+            rating: 5,
+            notes: "Hikvision, Dahua ColorVu IP cameras, 8/16ch PoE NVRs, and Seagate SkyHawk surveillance hard drives.",
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "vendor-5",
+            companyName: "Bazaar Network Cables & Accessories",
+            contactPerson: "Ali Hassan",
+            phone: "+254 721 112 233",
+            whatsapp: "+254721112233",
+            email: "bazaartech@gmail.com",
+            location: "Bazaar Plaza, 1st Floor, Moi Avenue, Nairobi CBD",
+            category: "cabling_accessories",
+            paymentTerms: "mpesa_paybill",
+            rating: 4,
+            notes: "D-Link & Siemon Cat6 UTP 305m cable rolls, RJ45 pass-through connectors, wall-mount 6U/9U/12U server racks, and trunking.",
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(seedVendors));
+        return seedVendors;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveVendor(vendor: VendorRecord): VendorRecord {
+    const all = this.getVendors();
+    const idx = all.findIndex((v) => v.id === vendor.id);
+    let updated: VendorRecord[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = vendor;
+    } else {
+      updated = [vendor, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(updated));
+    this.notify();
+    return vendor;
+  }
+
+  public deleteVendor(id: string): void {
+    const all = this.getVendors();
+    const updated = all.filter((v) => v.id !== id);
+    localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // --- WHOLESALE HARDWARE BENCHMARKS & MARGIN INDEX ---
+  public getWholesaleBenchmarks(): WholesalePriceBenchmark[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.WHOLESALE_BENCHMARKS);
+      if (!stored) {
+        const seedBenchmarks: WholesalePriceBenchmark[] = [
+          {
+            id: "bench-1",
+            itemName: "HP ProBook 450 G10 (Core i5 13th Gen, 16GB, 512GB SSD, 15.6\")",
+            category: "Laptops",
+            typicalWholesaleKes: 72000,
+            recommendedRetailKes: 82500,
+            preferredVendorName: "Eurocom Systems Kenya Ltd",
+            warrantyPeriod: "12 Months Official HP",
+            notes: "Popular with corporate finance and legal offices. Stock available regularly.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-2",
+            itemName: "Lenovo ThinkPad E16 (Core i5 13th Gen, 16GB, 512GB SSD, Windows 11 Pro)",
+            category: "Laptops",
+            typicalWholesaleKes: 69500,
+            recommendedRetailKes: 79000,
+            preferredVendorName: "Eurocom Systems Kenya Ltd",
+            warrantyPeriod: "12 Months Official Lenovo",
+            notes: "Heavy-duty typing keyboard and military-grade durability.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-3",
+            itemName: "Epson EcoTank L3250 Wi-Fi 3-in-1 Multi-Function Ink Tank Printer",
+            category: "Printers",
+            typicalWholesaleKes: 24800,
+            recommendedRetailKes: 28500,
+            preferredVendorName: "Computer Pride Hardware Hub",
+            warrantyPeriod: "12 Months / 30,000 Pages",
+            notes: "Best seller in Nairobi. Includes full set of 4 CMYK ink bottles in the box.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-4",
+            itemName: "APC Back-UPS 650VA / 360W 230V with AVR & Universal Sockets",
+            category: "Power & UPS",
+            typicalWholesaleKes: 5400,
+            recommendedRetailKes: 6800,
+            preferredVendorName: "Bright Technologies Ltd",
+            warrantyPeriod: "24 Months APC",
+            notes: "Essential for workstation and router protection against Nairobi power fluctuations.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-5",
+            itemName: "Ubiquiti UniFi U6-Pro Dual-Band Wi-Fi 6 Access Point (PoE)",
+            category: "Networking",
+            typicalWholesaleKes: 21500,
+            recommendedRetailKes: 26000,
+            preferredVendorName: "Bright Technologies Ltd",
+            warrantyPeriod: "12 Months Ubiquiti",
+            notes: "Enterprise gold standard. Up to 300 concurrent client devices.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-6",
+            itemName: "Hikvision 4MP IP Network Dome Camera (PoE, ColorVu 24/7 Color)",
+            category: "CCTV & Security",
+            typicalWholesaleKes: 6800,
+            recommendedRetailKes: 9500,
+            preferredVendorName: "SecurityWorld Surveillance Ltd",
+            warrantyPeriod: "24 Months Hikvision",
+            notes: "Night color vision with built-in microphone for office lobbies.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-7",
+            itemName: "D-Link Cat6 UTP Pure Copper Ethernet Cable Roll (305M / 1000ft)",
+            category: "Cabling",
+            typicalWholesaleKes: 11500,
+            recommendedRetailKes: 14500,
+            preferredVendorName: "Bazaar Network Cables",
+            warrantyPeriod: "Lifetime Manufacturer",
+            notes: "100% Solid annealed bare copper. FluKe test certified.",
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: "bench-8",
+            itemName: "Mikrotik hEX S 5-Port Gigabit Ethernet Router with SFP Port",
+            category: "Networking",
+            typicalWholesaleKes: 8200,
+            recommendedRetailKes: 11000,
+            preferredVendorName: "Bright Technologies Ltd",
+            warrantyPeriod: "12 Months Mikrotik",
+            notes: "Ideal for dual-WAN load balancing and bandwidth throttling for up to 50 staff.",
+            updatedAt: new Date().toISOString(),
+          },
+        ];
+        localStorage.setItem(STORAGE_KEYS.WHOLESALE_BENCHMARKS, JSON.stringify(seedBenchmarks));
+        return seedBenchmarks;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  public saveWholesaleBenchmark(benchmark: WholesalePriceBenchmark): WholesalePriceBenchmark {
+    const all = this.getWholesaleBenchmarks();
+    const idx = all.findIndex((b) => b.id === benchmark.id);
+    let updated: WholesalePriceBenchmark[];
+    if (idx >= 0) {
+      updated = [...all];
+      updated[idx] = benchmark;
+    } else {
+      updated = [benchmark, ...all];
+    }
+    localStorage.setItem(STORAGE_KEYS.WHOLESALE_BENCHMARKS, JSON.stringify(updated));
+    this.notify();
+    return benchmark;
+  }
+
+  public deleteWholesaleBenchmark(id: string): void {
+    const all = this.getWholesaleBenchmarks();
+    const updated = all.filter((b) => b.id !== id);
+    localStorage.setItem(STORAGE_KEYS.WHOLESALE_BENCHMARKS, JSON.stringify(updated));
+    this.notify();
+  }
+
+  // --- MASTER SYSTEM BACKUP & DISASTER RECOVERY ENGINE ---
+  public exportMasterBackup(): {
+    version: string;
+    timestamp: string;
+    exportedBy: string;
+    stats: Record<string, number>;
+    data: Record<string, any>;
+  } {
+    const backupData: Record<string, any> = {};
+    const stats: Record<string, number> = {};
+
+    Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
+      try {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const parsed = JSON.parse(item);
+          backupData[name] = parsed;
+          stats[name] = Array.isArray(parsed) ? parsed.length : 1;
+        }
+      } catch (e) {
+        console.warn(`Could not backup key ${key}`, e);
+      }
+    });
+
+    const now = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEYS.LAST_BACKUP_DATE, now);
+
+    return {
+      version: "2.0-enterprise",
+      timestamp: now,
+      exportedBy: "Peter Kivevo John (Krenovate Systems)",
+      stats,
+      data: backupData,
+    };
+  }
+
+  public importMasterBackup(jsonString: string): {
+    success: boolean;
+    message: string;
+    modulesRestored: number;
+    timestamp?: string;
+  } {
+    try {
+      const parsed = JSON.parse(jsonString);
+      if (!parsed || !parsed.data || typeof parsed.data !== "object") {
+        return {
+          success: false,
+          message: "Invalid master backup format. File must contain a valid 'data' payload.",
+          modulesRestored: 0,
+        };
+      }
+
+      let restoredCount = 0;
+      Object.entries(parsed.data).forEach(([name, val]) => {
+        const key = (STORAGE_KEYS as any)[name];
+        if (key && val !== undefined) {
+          localStorage.setItem(key, JSON.stringify(val));
+          restoredCount++;
+        }
+      });
+
+      localStorage.setItem(STORAGE_KEYS.LAST_BACKUP_DATE, new Date().toISOString());
+      this.notify();
+
+      return {
+        success: true,
+        message: `Successfully restored ${restoredCount} database modules from master backup.`,
+        modulesRestored: restoredCount,
+        timestamp: parsed.timestamp,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: `Corrupt backup file: ${err.message}`,
+        modulesRestored: 0,
+      };
+    }
+  }
+
+  public getLastBackupDate(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.LAST_BACKUP_DATE);
   }
 }
 

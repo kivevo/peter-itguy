@@ -26,6 +26,9 @@ import { ClientVaultManager } from "@/components/admin/ClientVaultManager";
 import { EquipmentIntakeManager } from "@/components/admin/EquipmentIntakeManager";
 import { MPesaPaymentHub } from "@/components/admin/MPesaPaymentHub";
 import { WhatsAppCampaignStudio } from "@/components/admin/WhatsAppCampaignStudio";
+import { ServiceReportManager } from "@/components/admin/ServiceReportManager";
+import { VendorDirectoryManager } from "@/components/admin/VendorDirectoryManager";
+import { SystemBackupManager } from "@/components/admin/SystemBackupManager";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Lock, 
@@ -46,6 +49,9 @@ import {
   Search,
   Calendar,
   FileText,
+  FileCheck,
+  Store,
+  HardDrive,
   Printer,
   Radio,
   KeyRound,
@@ -107,9 +113,8 @@ export const AdminPage: React.FC = () => {
   const warningTimer      = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningToastShown = useRef(false);
 
-  // Tabs
   const [activeTab, setActiveTab] = useState<
-    "analytics" | "earnings" | "mpesa_hub" | "kra_tax" | "sla_contracts" | "client_vault" | "equipment_intake" | "inventory" | "inquiries" | "jobs" | "invoice" | "cms" | "broadcast" | "whatsapp" | "whatsapp_campaigns" | "reviews" | "banner" | "database" | "security"
+    "analytics" | "earnings" | "mpesa_hub" | "kra_tax" | "sla_contracts" | "client_vault" | "equipment_intake" | "inventory" | "inquiries" | "jobs" | "invoice" | "service_reports" | "vendor_directory" | "cms" | "broadcast" | "whatsapp" | "whatsapp_campaigns" | "reviews" | "banner" | "database" | "system_backup" | "security"
   >("analytics");
 
   // State models
@@ -773,6 +778,20 @@ export const AdminPage: React.FC = () => {
           colorClass: "text-teal-400",
         },
         {
+          id: "service_reports" as const,
+          label: "Service Handover Cards",
+          icon: FileCheck,
+          count: "HANDOVER",
+          colorClass: "text-teal-400",
+        },
+        {
+          id: "vendor_directory" as const,
+          label: "Nairobi Hardware Vendors",
+          icon: Store,
+          count: "BENCH",
+          colorClass: "text-cyan-400",
+        },
+        {
           id: "inventory" as const,
           label: "Hardware Stock & Equipment",
           icon: Package,
@@ -851,6 +870,13 @@ export const AdminPage: React.FC = () => {
           icon: Database,
           count: "LIVE",
           colorClass: "text-teal-400",
+        },
+        {
+          id: "system_backup" as const,
+          label: "Master Backup & Recovery",
+          icon: HardDrive,
+          count: "JSON",
+          colorClass: "text-emerald-400",
         },
         {
           id: "security" as const,
@@ -1015,6 +1041,8 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "inquiries" && "Customer Leads & Inquiries CRM"}
                 {activeTab === "jobs" && "On-Site Dispatch & Appointment Calendar"}
                 {activeTab === "invoice" && "Official Quotation & Invoice Generator"}
+                {activeTab === "service_reports" && "On-Site Service Reports & Job Handover Cards"}
+                {activeTab === "vendor_directory" && "Nairobi Hardware Vendors & Wholesale Price Watch"}
                 {activeTab === "cms" && "Website Content & CMS Studio (Live Edit)"}
                 {activeTab === "broadcast" && "Resend Email Notifications & Subscriber Broadcast Studio"}
                 {activeTab === "whatsapp" && "WhatsApp Quick-Reply Template Generator"}
@@ -1022,6 +1050,7 @@ export const AdminPage: React.FC = () => {
                 {activeTab === "reviews" && "Verified Client Reviews & Testimonials"}
                 {activeTab === "banner" && "Live Website Emergency Notice Bar"}
                 {activeTab === "database" && "Supabase Cloud Database Synchronization"}
+                {activeTab === "system_backup" && "1-Click Master Database Backup & Disaster Recovery"}
                 {activeTab === "security" && "Security Settings & Admin Passcode"}
               </h1>
             </div>
@@ -1855,6 +1884,16 @@ export const AdminPage: React.FC = () => {
             <KrenovateInvoiceManager initialLead={leadForQuote} />
           )}
 
+          {/* TAB: 📋 ON-SITE SERVICE REPORTS & JOB HANDOVER CARDS */}
+          {activeTab === "service_reports" && (
+            <ServiceReportManager />
+          )}
+
+          {/* TAB: 🏪 NAIROBI HARDWARE VENDOR DIRECTORY & WHOLESALE PRICE INDEX */}
+          {activeTab === "vendor_directory" && (
+            <VendorDirectoryManager />
+          )}
+
           {/* TAB 5: 🌐 WEBSITE CONTENT CMS STUDIO */}
           {activeTab === "cms" && (
             <SiteContentManager />
@@ -2275,6 +2314,11 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* TAB: 🛡️ 1-CLICK MASTER BACKUP & DISASTER RECOVERY */}
+          {activeTab === "system_backup" && (
+            <SystemBackupManager />
           )}
 
           {/* TAB 8: 🔒 SECURITY & CUSTOM PIN */}

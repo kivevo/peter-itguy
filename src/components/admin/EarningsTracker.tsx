@@ -63,10 +63,11 @@ export const EarningsTracker: React.FC = () => {
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [debts, setDebts] = useState<DebtRecord[]>([]);
   const [recurringBills, setRecurringBills] = useState<RecurringBill[]>([]);
+  const [inventory, setInventory] = useState(dataStorage.getInventory());
 
-  // Sub-view: "overview" | "ledger" | "budgets" | "savings" | "debts" | "bills" | "pl_report"
+  // Sub-view: "overview" | "ledger" | "debtors" | "budgets" | "savings" | "debts" | "bills" | "pl_report"
   const [activeTab, setActiveTab] = useState<
-    "overview" | "ledger" | "budgets" | "savings" | "debts" | "bills" | "pl_report"
+    "overview" | "ledger" | "debtors" | "budgets" | "savings" | "debts" | "bills" | "pl_report"
   >("overview");
 
   // Wallet filter: "all" | "business" | "personal"
@@ -202,6 +203,7 @@ export const EarningsTracker: React.FC = () => {
       setSavingsGoals(dataStorage.getSavingsGoals());
       setDebts(dataStorage.getDebts());
       setRecurringBills(dataStorage.getRecurringBills());
+      setInventory(dataStorage.getInventory());
     };
 
     loadAll();
@@ -239,6 +241,28 @@ export const EarningsTracker: React.FC = () => {
   const totalReceivables = debts.filter((d) => d.type === "owed_to_me" && d.status !== "settled").reduce((acc, d) => acc + (d.amount - d.paidAmount), 0);
   const totalPayables = debts.filter((d) => d.type === "owed_by_me" && d.status !== "settled").reduce((acc, d) => acc + (d.amount - d.paidAmount), 0);
   const totalRecurringMonthly = recurringBills.reduce((acc, b) => acc + Number(b.amount), 0);
+
+  // Universal Balance Sheet & Asset Valuation
+  const hardwareStockValuation = inventory.reduce(
+    (sum, item) => sum + Number(item.quantity || 0) * Number(item.unitCost || 0),
+    0
+  );
+
+  // Unpaid Invoices & Accounts Receivable
+  const unpaidInvoicesList = invoices.filter((inv) => {
+    if (inv.status === "paid" || inv.docType !== "invoice") return false;
+    const gross = inv.items.reduce((sum, it) => sum + Number(it.qty * it.unitPrice), 0) * (inv.vatEnabled ? 1.16 : 1);
+    const paid = (inv.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+    return gross - paid > 1;
+  });
+
+  const totalInvoiceReceivables = unpaidInvoicesList.reduce((sum, inv) => {
+    const gross = inv.items.reduce((s, it) => s + Number(it.qty * it.unitPrice), 0) * (inv.vatEnabled ? 1.16 : 1);
+    const paid = (inv.payments || []).reduce((s, p) => s + Number(p.amount), 0);
+    return sum + Math.max(0, gross - paid);
+  }, 0);
+
+  const universalNetWorth = netProfit + totalInvoiceReceivables + hardwareStockValuation - totalPayables;
 
   // Category maps for UI
   const categoryLabels: Record<string, string> = {
@@ -536,6 +560,7 @@ export const EarningsTracker: React.FC = () => {
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-border/60">
         {[
           { id: "overview" as const, label: "Overview & Net Cashflow", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+          { id: "debtors" as const, label: `Aged Debtors & Debt Recovery (${unpaidInvoicesList.length})`, icon: <HandCoins className="w-3.5 h-3.5 text-amber-400" /> },
           { id: "ledger" as const, label: `Transactions Ledger (${filteredLedgerItems.length})`, icon: <Receipt className="w-3.5 h-3.5" /> },
           { id: "budgets" as const, label: `Monthly Budgets (${budgets.length})`, icon: <Target className="w-3.5 h-3.5" /> },
           { id: "savings" as const, label: `Savings & Sinking Goals (${savingsGoals.length})`, icon: <PiggyBank className="w-3.5 h-3.5" /> },
@@ -563,6 +588,66 @@ export const EarningsTracker: React.FC = () => {
       {/* ========================================================================= */}
       {activeTab === "overview" && (
         <div className="space-y-6">
+          {/* UNIVERSAL NET ASSET & WEALTH PORTFOLIO (Consolidated Balance Sheet) */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-teal-950/40 border border-teal-500/30 shadow-xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/60">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-mono text-teal-300 font-bold uppercase tracking-wider block">
+                    Universal Business Equity &amp; Asset Valuation
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-black font-heading text-white font-mono">
+                    KES {universalNetWorth.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-mono text-slate-400 block">Consolidated Liquidity + Stock + Receivables</span>
+                <span className="text-xs font-mono text-emerald-400 font-bold">
+                  {totalRevenue > 0 ? `${profitMargin}% Gross Margin` : "Active Portfolio"}
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Asset Components Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-border/70 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">1. Liquid Cash Flow:</span>
+                <div className="text-base font-black text-emerald-400">
+                  KES {netProfit.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-500 font-sans">Cash, Bank &amp; M-Pesa Till</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-border/70 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">2. Invoices Receivable:</span>
+                <div className="text-base font-black text-amber-400">
+                  KES {totalInvoiceReceivables.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-500 font-sans">{unpaidInvoicesList.length} uncollected client invoices</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-border/70 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">3. Hardware Stock Asset:</span>
+                <div className="text-base font-black text-cyan-400">
+                  KES {hardwareStockValuation.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-500 font-sans">{inventory.length} physical stock SKUs in shop</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-navy-950/80 border border-border/70 space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">4. Total Liabilities:</span>
+                <div className="text-base font-black text-rose-400">
+                  KES {totalPayables.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-500 font-sans">Debts owed &amp; bills</div>
+              </div>
+            </div>
+          </div>
+
           {/* Primary KPI Metrics Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
             {/* Total Revenue */}
@@ -708,6 +793,221 @@ export const EarningsTracker: React.FC = () => {
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB: ⏳ AGED DEBTORS & DEBT COLLECTION RECOVERY */}
+      {/* ========================================================================= */}
+      {activeTab === "debtors" && (
+        <div className="space-y-6">
+          {/* Debtors Summary KPIs */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-5 rounded-3xl bg-navy-900 border border-amber-500/30 space-y-1">
+              <span className="text-[11px] font-mono text-amber-400 uppercase tracking-wider block">
+                Total Uncollected Invoices
+              </span>
+              <div className="text-2xl sm:text-3xl font-black font-heading text-white font-mono">
+                KES {totalInvoiceReceivables.toLocaleString()}
+              </div>
+              <p className="text-[10px] text-slate-400 font-sans">
+                {unpaidInvoicesList.length} outstanding client invoices awaiting payment.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-navy-900 border border-rose-500/30 space-y-1">
+              <span className="text-[11px] font-mono text-rose-400 uppercase tracking-wider block">
+                Critically Overdue (&gt;7 Days)
+              </span>
+              <div className="text-2xl sm:text-3xl font-black font-heading text-rose-400 font-mono">
+                {
+                  unpaidInvoicesList.filter((inv) => {
+                    const due = new Date(inv.dueDate || inv.issueDate).getTime();
+                    return (Date.now() - due) / (1000 * 60 * 60 * 24) > 7;
+                  }).length
+                } Invoices
+              </div>
+              <p className="text-[10px] text-slate-400 font-sans">
+                Requires escalation or WhatsApp reminder.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-navy-900 border border-emerald-500/30 space-y-1">
+              <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-wider block">
+                Total Settled Invoices
+              </span>
+              <div className="text-2xl sm:text-3xl font-black font-heading text-emerald-400 font-mono">
+                {invoices.filter((i) => i.status === "paid").length} Paid
+              </div>
+              <p className="text-[10px] text-slate-400 font-sans">
+                Fully reconciled and stamped as cleared.
+              </p>
+            </div>
+          </div>
+
+          {/* Debtors List Table */}
+          <div className="p-6 rounded-3xl bg-navy-900 border border-border space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
+              <div>
+                <h3 className="font-heading font-bold text-sm text-white">
+                  Aged Debtors &amp; Automated Escalation Recovery
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Send polite, firm, or final legal WhatsApp demand notices with 1-click.
+                </p>
+              </div>
+              <span className="text-xs font-mono text-amber-300 font-bold bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/20">
+                {unpaidInvoicesList.length} Invoices Requiring Follow-Up
+              </span>
+            </div>
+
+            {unpaidInvoicesList.length === 0 ? (
+              <div className="py-12 text-center space-y-2">
+                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
+                <h4 className="font-heading font-bold text-sm text-white">Zero Overdue Debtors!</h4>
+                <p className="text-xs text-slate-400">All client invoices are currently up to date or marked paid.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {unpaidInvoicesList.map((inv) => {
+                  const gross =
+                    inv.items.reduce((sum, it) => sum + Number(it.qty * it.unitPrice), 0) * (inv.vatEnabled ? 1.16 : 1);
+                  const paid = (inv.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+                  const balance = Math.max(0, gross - paid);
+
+                  const dueTime = new Date(inv.dueDate || inv.issueDate).getTime();
+                  const diffDays = Math.floor((Date.now() - dueTime) / (1000 * 60 * 60 * 24));
+
+                  // Urgency badge
+                  const isDelinquent = diffDays >= 15;
+                  const isFirm = diffDays >= 8 && diffDays < 15;
+                  const isMild = diffDays >= 1 && diffDays < 8;
+                  const isDueTodayOrSoon = diffDays <= 0;
+
+                  // Escalation templates
+                  const friendlyMsg = `Habari ${inv.client.name}, this is Peter from Krenovate Systems. Friendly reminder regarding Invoice ${inv.docNumber} of KES ${balance.toLocaleString()} due on ${inv.dueDate}. You can remit via M-Pesa Till: 3053097 (Krenovate Systems) or Bank. Thank you!`;
+                  const firmMsg = `Dear ${inv.client.name}, formal follow-up regarding overdue Invoice ${inv.docNumber} for KES ${balance.toLocaleString()} issued to ${inv.client.company}. Kindly remit payment today via M-Pesa Till: 3053097 and share payment confirmation.`;
+                  const finalDemandMsg = `URGENT PAYMENT DEMAND: Invoice ${inv.docNumber} (KES ${balance.toLocaleString()}) for ${inv.client.company} is critically overdue by ${diffDays} days. Continued non-payment will lead to suspension of SLA and remote support services. Please clear via Till 3053097 today.`;
+
+                  const chosenMsg = isDelinquent ? finalDemandMsg : isFirm ? firmMsg : friendlyMsg;
+                  const phoneClean = (inv.client.phone || "").replace(/[^0-9]/g, "");
+
+                  return (
+                    <div
+                      key={inv.id}
+                      className="p-4 sm:p-5 rounded-2xl bg-navy-950 border border-border/80 hover:border-amber-500/40 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-white bg-navy-900 px-2 py-0.5 rounded border border-border">
+                            {inv.docNumber}
+                          </span>
+                          <span className="font-heading font-bold text-sm text-white">{inv.client.company}</span>
+                          <span className="text-xs text-slate-400">({inv.client.name})</span>
+
+                          {/* Urgency Badge */}
+                          {isDelinquent && (
+                            <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[10px] font-mono font-bold">
+                              🚨 {diffDays} Days Overdue (Final Demand)
+                            </span>
+                          )}
+                          {isFirm && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold">
+                              🔴 {diffDays} Days Overdue (Firm Notice)
+                            </span>
+                          )}
+                          {isMild && (
+                            <span className="px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 text-[10px] font-mono font-bold">
+                              🟠 {diffDays} Days Overdue (Gentle Reminder)
+                            </span>
+                          )}
+                          {isDueTodayOrSoon && (
+                            <span className="px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30 text-[10px] font-mono font-bold">
+                              🟡 Due {diffDays === 0 ? "Today" : `in ${Math.abs(diffDays)} days`}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
+                          <div>Issued: <strong className="text-slate-300">{inv.issueDate}</strong></div>
+                          <div>Due: <strong className="text-amber-300">{inv.dueDate}</strong></div>
+                          <div>Phone: <strong className="text-slate-300">{inv.client.phone}</strong></div>
+                        </div>
+                      </div>
+
+                      {/* Financial Balance & 1-Click WhatsApp Action */}
+                      <div className="flex items-center gap-4 shrink-0">
+                        <div className="text-right font-mono">
+                          <div className="text-xs text-slate-400">Balance Due:</div>
+                          <div className="text-base font-black text-amber-400">
+                            KES {balance.toLocaleString()}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(chosenMsg)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`px-3.5 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all ${
+                              isDelinquent
+                                ? "bg-rose-600 hover:bg-rose-500"
+                                : isFirm
+                                ? "bg-amber-600 hover:bg-amber-500"
+                                : "bg-emerald-600 hover:bg-emerald-500"
+                            }`}
+                            title="Send WhatsApp Escalation Notice"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>WhatsApp Notice</span>
+                          </a>
+
+                          <button
+                            onClick={() => {
+                              if (confirm(`Mark Invoice ${inv.docNumber} as fully paid (KES ${balance.toLocaleString()})?`)) {
+                                dataStorage.addPayment({
+                                  clientName: inv.client.company || inv.client.name,
+                                  description: `Full payment settlement for ${inv.docNumber}`,
+                                  amount: balance,
+                                  paymentMethod: "mpesa",
+                                  category: "wifi_network",
+                                  wallet: "business",
+                                  date: new Date().toISOString().slice(0, 10),
+                                  notes: `Reconciled via Debt Collection Hub.`,
+                                });
+                                dataStorage.saveInvoice({
+                                  ...inv,
+                                  status: "paid",
+                                  payments: [
+                                    ...(inv.payments || []),
+                                    {
+                                      id: `p-${Date.now()}`,
+                                      amount: balance,
+                                      method: "mpesa",
+                                      date: new Date().toISOString().slice(0, 10),
+                                    },
+                                  ],
+                                });
+                                toast({
+                                  title: "Invoice Settled! 🎉",
+                                  description: `Invoice ${inv.docNumber} marked as paid and logged into Ledger.`,
+                                });
+                              }
+                            }}
+                            className="px-3 py-2 rounded-xl bg-navy-900 hover:bg-teal-600 text-slate-300 hover:text-white border border-border text-xs font-bold transition-colors flex items-center gap-1"
+                            title="Mark as Paid"
+                          >
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Mark Paid</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
