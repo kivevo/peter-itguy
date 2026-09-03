@@ -67,7 +67,8 @@ import {
   QrCode,
   Hash,
   UserCheck,
-  Calendar
+  Calendar,
+  Share2
 } from "lucide-react";
 
 interface KrenovateInvoiceManagerProps {
@@ -936,7 +937,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     return `<!DOCTYPE html>
 <html>
 <head>
-  <title>${docTitle} - ${doc.docNumber}</title>
+  <title>${isPrint ? "" : `${docTitle} - ${doc.docNumber}`}</title>
   <meta charset="utf-8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1240,11 +1241,24 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     }
     @page {
       size: A4 portrait;
-      margin: 8mm;
+      margin: 0; /* Removing page margins suppresses browser default header (time/date) and footer (about:blank/pages) */
     }
     @media print {
-      body { margin: 0; padding: 0; }
-      .page { padding: 12px 16px; max-width: 100%; width: 100%; }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        width: 100% !important;
+      }
+      .page {
+        margin: 0 auto !important;
+        padding: 12mm 14mm !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
     }
   </style>
 </head>
@@ -1490,16 +1504,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
     win.document.close();
   };
 
-  // Download a .pdf file directly to device — Launches the pristine, vector-crisp printable quote with Save as PDF dialog
-  const handleDownloadPdf = async (doc: InvoiceDocument) => {
-    handlePrintDocument(doc);
-    toast({
-      title: "Print / Save PDF Opened 📄",
-      description: "Select 'Save as PDF' in the destination dropdown for crystal-clear vector quality.",
-    });
-  };
-
-  // Generate a real PDF Blob from the document HTML using an iframe + canvas (For Native Share API)
+  // Generate a real PDF Blob from the document HTML using an iframe + canvas (For Direct Download & Native Share API)
   const generatePdfBlob = async (doc: InvoiceDocument): Promise<Blob> => {
     const { default: jsPDF } = await import("jspdf");
     const { default: html2canvas } = await import("html2canvas");
@@ -1572,6 +1577,35 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
       };
       iframe.srcdoc = buildDocumentHTML(doc, false);
     });
+  };
+
+  // Download a .pdf file directly to user's device — Saves file directly to downloads folder
+  const handleDownloadPdf = async (doc: InvoiceDocument) => {
+    setIsGeneratingPdf(true);
+    toast({
+      title: "Generating PDF... ⏳",
+      description: `Downloading ${doc.docNumber}.pdf directly to your device...`,
+    });
+    try {
+      const blob = await generatePdfBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${doc.docNumber || "document"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({
+        title: "PDF Downloaded! 📥",
+        description: `Saved ${doc.docNumber}.pdf to your device.`,
+      });
+    } catch {
+      // Fallback: If off-screen renderer fails, open clean print-to-PDF
+      handlePrintDocument(doc);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   // Share via Web Share API (opens native Android/iOS share sheet with real .pdf file)
@@ -3268,7 +3302,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setSubView("editor")}
                 className="px-4 py-2 rounded-xl bg-navy-950 text-slate-200 hover:text-white border border-border text-xs font-bold transition-all flex items-center gap-1.5"
@@ -3278,11 +3312,24 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
               </button>
 
               <button
+                onClick={() => handleDownloadPdf(currentDoc)}
+                disabled={isGeneratingPdf}
+                className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 disabled:opacity-60 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+              >
+                {isGeneratingPdf ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span>Download PDF</span>
+              </button>
+
+              <button
                 onClick={() => setShareModalDoc(currentDoc)}
                 className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
               >
-                <Download className="w-4 h-4" />
-                <span>Share / PDF</span>
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share</span>
               </button>
 
               <button
@@ -3298,7 +3345,7 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
                 className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 shadow-glow"
               >
                 <Printer className="w-4 h-4" />
-                <span>Print / Save PDF (A4)</span>
+                <span>Print Clean A4</span>
               </button>
             </div>
           </div>
@@ -4655,18 +4702,38 @@ export const KrenovateInvoiceManager: React.FC<KrenovateInvoiceManagerProps> = (
 
             {/* Action options */}
             <div className="space-y-3">
-              {/* Option 1: Download / Save as PDF (Brings the exact printable quote) */}
+              {/* Option 1: Direct Download PDF to device */}
+              <button
+                onClick={() => {
+                  handleDownloadPdf(shareModalDoc);
+                  setShareModalDoc(null);
+                }}
+                disabled={isGeneratingPdf}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
+              >
+                {isGeneratingPdf ? (
+                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                ) : (
+                  <Download className="w-5 h-5 shrink-0" />
+                )}
+                <div className="text-left">
+                  <div>Direct Download PDF (.pdf)</div>
+                  <div className="text-[11px] font-normal opacity-85">Saves file directly to your device downloads</div>
+                </div>
+              </button>
+
+              {/* Option 2: Print Clean A4 without headers or footers */}
               <button
                 onClick={() => {
                   handlePrintDocument(shareModalDoc);
                   setShareModalDoc(null);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-navy-800 hover:bg-navy-700 border border-border text-slate-200 hover:text-white font-bold text-sm transition-all shadow-sm cursor-pointer"
               >
-                <Printer className="w-5 h-5 shrink-0" />
+                <Printer className="w-5 h-5 shrink-0 text-teal-400" />
                 <div className="text-left">
-                  <div>Download / Save as PDF (Vector Crisp A4)</div>
-                  <div className="text-[11px] font-normal opacity-85">Opens printable quote — select "Save as PDF" to download</div>
+                  <div>Print / Save as PDF (Clean A4)</div>
+                  <div className="text-[11px] font-normal opacity-80">Opens print dialog with no URL, date or time</div>
                 </div>
               </button>
 
