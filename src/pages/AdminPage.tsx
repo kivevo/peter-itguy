@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { 
@@ -82,6 +82,13 @@ import {
   Wrench
 } from "lucide-react";
 
+// ── Security constants ──────────────────────────────────────────────────────
+const INACTIVITY_TIMEOUT_MS = 20 * 60 * 1000;  // 20 minutes
+const WARN_BEFORE_MS        = 2  * 60 * 1000;  // warn 2 min before lock
+const MAX_ATTEMPTS          = 5;               // max wrong PINs before cooldown
+const LOCKOUT_MS            = 5  * 60 * 1000;  // 5-min cooldown after 5 bad PINs
+const SESSION_KEY           = "itguy_admin_session_ts"; // sessionStorage key
+
 export const AdminPage: React.FC = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -89,6 +96,16 @@ export const AdminPage: React.FC = () => {
   const [authError, setAuthError] = useState(false);
   const [pinShake, setPinShake] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Brute-force protection state
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [lockCountdown, setLockCountdown] = useState(0);
+
+  // Inactivity timeout refs
+  const inactivityTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningTimer      = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningToastShown = useRef(false);
 
   // Tabs
   const [activeTab, setActiveTab] = useState<
@@ -162,11 +179,88 @@ export const AdminPage: React.FC = () => {
   const [newPinInput, setNewPinInput] = useState("");
   const [confirmPinInput, setConfirmPinInput] = useState("");
 
-  // Check existing session
+  // ── Auto-lock on inactivity ────────────────────────────────────────────────
+  const lockAdmin = useCallback((reason: "inactivity" | "manual" = "manual") => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem(SESSION_KEY);
+    setPinInput("");
+    warningToastShown.current = false;
+    if (inactivityTimer.current)  clearTimeout(inactivityTimer.current);
+    if (warningTimer.current)     clearTimeout(warningTimer.current);
+    if (reason === "inactivity") {
+      toast({
+        title: "Session Locked",
+        description: "Auto-locked after 20 minutes of inactivity. Enter your PIN to continue.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const resetInactivityTimer = useCallback(() => {
+    if (!isAuthenticated) return;
+    if (inactivityTimer.current)  clearTimeout(inactivityTimer.current);
+    if (warningTimer.current)     clearTimeout(warningTimer.current);
+    warningToastShown.current = false;
+
+    // Update session timestamp
+    sessionStorage.setItem(SESSION_KEY, Date.now().toString());
+
+    // 2-minute warning
+    warningTimer.current = setTimeout(() => {
+      if (!warningToastShown.current) {
+        warningToastShown.current = true;
+        toast({
+          title: "⚠️ Session Expiring Soon",
+          description: "Admin session will auto-lock in 2 minutes due to inactivity. Move your mouse to stay active.",
+        });
+      }
+    }, INACTIVITY_TIMEOUT_MS - WARN_BEFORE_MS);
+
+    // Auto-lock
+    inactivityTimer.current = setTimeout(() => lockAdmin("inactivity"), INACTIVITY_TIMEOUT_MS);
+  }, [isAuthenticated, lockAdmin, toast]);
+
+  // Register activity listeners when authenticated
   useEffect(() => {
-    const session = sessionStorage.getItem("itguy_admin_session");
-    if (session === "true") {
-      setIsAuthenticated(true);
+    if (!isAuthenticated) return;
+    const events = ["mousemove", "keydown", "touchstart", "click", "scroll"];
+    const onActivity = () => resetInactivityTimer();
+    events.forEach(ev => window.addEventListener(ev, onActivity, { passive: true }));
+    resetInactivityTimer(); // start timer immediately on auth
+    return () => {
+      events.forEach(ev => window.removeEventListener(ev, onActivity));
+      if (inactivityTimer.current)  clearTimeout(inactivityTimer.current);
+      if (warningTimer.current)     clearTimeout(warningTimer.current);
+    };
+  }, [isAuthenticated, resetInactivityTimer]);
+
+  // ── Brute-force lockout countdown ─────────────────────────────────────────
+  useEffect(() => {
+    if (!lockedUntil) return;
+    const tick = setInterval(() => {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockedUntil(null);
+        setFailedAttempts(0);
+        setLockCountdown(0);
+        clearInterval(tick);
+      } else {
+        setLockCountdown(remaining);
+      }
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [lockedUntil]);
+
+  // ── Restore existing session (with expiry check) ───────────────────────────
+  useEffect(() => {
+    const ts = sessionStorage.getItem(SESSION_KEY);
+    if (ts) {
+      const age = Date.now() - parseInt(ts, 10);
+      if (age < INACTIVITY_TIMEOUT_MS) {
+        setIsAuthenticated(true);
+      } else {
+        sessionStorage.removeItem(SESSION_KEY); // expired — clear it
+      }
     }
   }, []);
 
@@ -196,32 +290,56 @@ export const AdminPage: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Brute-force lockout check
+    if (lockedUntil && Date.now() < lockedUntil) {
+      toast({
+        title: "Too Many Failed Attempts",
+        description: `Locked for ${Math.ceil((lockedUntil - Date.now()) / 1000)}s. Please wait.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const masterPin = dataStorage.getAdminPin();
     if (pinInput === masterPin) {
       setIsAuthenticated(true);
-      sessionStorage.setItem("itguy_admin_session", "true");
+      sessionStorage.setItem(SESSION_KEY, Date.now().toString());
       setAuthError(false);
+      setFailedAttempts(0);
+      setLockedUntil(null);
       toast({
         title: "Welcome back, Peter!",
-        description: "Admin panel authenticated successfully.",
+        description: "Admin panel authenticated. Auto-locks after 20 min of inactivity.",
       });
     } else {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
       setAuthError(true);
       setPinInput("");
       setPinShake(true);
       setTimeout(() => setPinShake(false), 600);
-      toast({
-        title: "Incorrect Passcode",
-        description: "Please enter the correct admin passcode.",
-        variant: "destructive",
-      });
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const until = Date.now() + LOCKOUT_MS;
+        setLockedUntil(until);
+        toast({
+          title: "Account Temporarily Locked",
+          description: "5 incorrect attempts. Admin portal locked for 5 minutes.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Incorrect Passcode",
+          description: `Attempt ${newAttempts}/${MAX_ATTEMPTS}. ${MAX_ATTEMPTS - newAttempts} remaining before lockout.`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("itguy_admin_session");
-    setPinInput("");
+    lockAdmin("manual");
   };
 
   // Handlers for Inquiries
@@ -512,11 +630,12 @@ export const AdminPage: React.FC = () => {
 
   // 1. Password Lock Screen
   if (!isAuthenticated) {
+    const isLockedOut = !!lockedUntil && Date.now() < lockedUntil;
     return (
       <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-teal-500/30 shadow-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200">
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center mx-auto shadow-glow">
+            <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto shadow-glow transition-colors ${isLockedOut ? "bg-rose-500/10 text-rose-400 border-rose-500/20" : "bg-teal-500/10 text-teal-400 border-teal-500/20"}`}>
               <Lock className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-extrabold font-heading text-white">
@@ -527,6 +646,16 @@ export const AdminPage: React.FC = () => {
             </p>
           </div>
 
+          {isLockedOut && (
+            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-center space-y-1">
+              <p className="text-sm font-bold text-rose-400">🔒 Portal Temporarily Locked</p>
+              <p className="text-xs text-rose-300/80">Too many failed attempts. Unlocks in</p>
+              <p className="text-3xl font-mono font-black text-rose-400 tabular-nums">
+                {Math.floor(lockCountdown / 60)}:{String(lockCountdown % 60).padStart(2, "0")}
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 block">
@@ -536,24 +665,24 @@ export const AdminPage: React.FC = () => {
                 type="password"
                 required
                 autoFocus
+                disabled={isLockedOut}
                 value={pinInput}
                 onChange={(e) => { setPinInput(e.target.value); setAuthError(false); }}
-                placeholder="Enter your PIN"
-                className={`w-full px-4 py-3 text-center text-xl tracking-widest font-mono rounded-xl bg-navy-950 border text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all ${
-                  authError ? "border-rose-500/70 ring-1 ring-rose-500/40" : "border-border"
-                } ${pinShake ? "animate-[shake_0.5s_ease-in-out]" : ""}`}
+                placeholder={isLockedOut ? "Portal locked — please wait..." : "Enter your PIN"}
+                className={`w-full px-4 py-3 text-center text-xl tracking-widest font-mono rounded-xl bg-navy-950 border text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${authError ? "border-rose-500/70 ring-1 ring-rose-500/40" : "border-border"} ${pinShake ? "animate-[shake_0.5s_ease-in-out]" : ""}`}
               />
             </div>
 
-            {authError && (
+            {authError && !isLockedOut && (
               <p className="text-xs text-rose-400 text-center font-mono">
-                Incorrect passcode. Please try again.
+                Incorrect passcode — attempt {failedAttempts}/{MAX_ATTEMPTS}.
               </p>
             )}
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm shadow-md transition-all hover:shadow-glow"
+              disabled={isLockedOut}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md transition-all hover:shadow-glow"
             >
               <Unlock className="w-4 h-4" />
               <span>Unlock Admin Dashboard</span>
@@ -573,6 +702,7 @@ export const AdminPage: React.FC = () => {
       </div>
     );
   }
+
 
 
   // Navigation Items Definitions — ordered by daily-use frequency (senior UX principle)
@@ -2211,23 +2341,50 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Security Architecture Information Card */}
-              <div className="p-6 rounded-3xl bg-navy-900/60 border border-border/80 space-y-3">
+              <div className="p-6 rounded-3xl bg-navy-900/60 border border-border/80 space-y-4">
                 <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-teal-400" />
-                  How Admin PIN Security Works
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+                  Active Security Features
                 </h4>
-                <div className="text-xs text-slate-400 space-y-2 leading-relaxed">
-                  <p>
-                    <strong className="text-slate-200">1. Global Master PIN:</strong> Configured securely in your Vercel Dashboard under <code className="text-teal-300 bg-navy-950 px-1.5 py-0.5 rounded">VITE_ADMIN_PIN</code>. This ensures no stranger can access your portal on any browser.
-                  </p>
-                  <p>
-                    <strong className="text-slate-200">2. Local Device Override:</strong> When you change your PIN above, it is securely remembered on this browser.
-                  </p>
-                  <p>
-                    <strong className="text-slate-200">3. Multi-Device Tip:</strong> To change the PIN for all devices at once (phone, laptop, office PC), update <code className="text-teal-300 bg-navy-950 px-1.5 py-0.5 rounded">VITE_ADMIN_PIN</code> in Vercel.
-                  </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-2xl bg-teal-500/5 border border-teal-500/15 space-y-1">
+                    <p className="text-[11px] font-bold text-teal-300 flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" /> Auto-Lock (20 min)
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      Session automatically locks after 20 minutes of inactivity. A warning appears 2 minutes before.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-teal-500/5 border border-teal-500/15 space-y-1">
+                    <p className="text-[11px] font-bold text-teal-300 flex items-center gap-1.5">
+                      <Lock className="w-3 h-3" /> Brute-Force Lockout
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      5 wrong PIN attempts triggers a 5-minute lockout with live countdown. Protects against PIN guessing.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-teal-500/5 border border-teal-500/15 space-y-1">
+                    <p className="text-[11px] font-bold text-teal-300 flex items-center gap-1.5">
+                      <Zap className="w-3 h-3" /> Session Timestamps
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      Sessions use time-stamped tokens, not static flags. Stale sessions from previous browser tabs are auto-expired.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-teal-500/5 border border-teal-500/15 space-y-1">
+                    <p className="text-[11px] font-bold text-teal-300 flex items-center gap-1.5">
+                      <KeyRound className="w-3 h-3" /> Vercel PIN Vault
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      Master PIN is stored in <code className="text-teal-300 bg-navy-950 px-1 rounded">VITE_ADMIN_PIN</code> Vercel env variable — never in source code.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-xs text-slate-500 pt-1 leading-relaxed border-t border-border/60">
+                  <strong className="text-slate-300">Multi-Device Tip:</strong> To change the PIN across all devices at once (phone, laptop, office PC), update <code className="text-teal-300 bg-navy-950 px-1.5 py-0.5 rounded">VITE_ADMIN_PIN</code> in Vercel and redeploy.
                 </div>
               </div>
+
             </div>
           )}
         </main>

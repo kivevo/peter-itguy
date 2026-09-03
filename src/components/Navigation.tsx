@@ -87,8 +87,8 @@ export const Navigation: React.FC = () => {
       <div 
         className={`w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-background/95 dark:bg-navy-950/95 backdrop-blur-xl border-b border-border/80 dark:border-white/10 shadow-lg shadow-black/5"
-            : "bg-background/85 dark:bg-navy-950/85 backdrop-blur-lg border-b border-border/50 dark:border-white/5"
+            ? "bg-white/97 dark:bg-navy-950/95 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 shadow-lg shadow-black/5"
+            : "bg-white/90 dark:bg-navy-950/85 backdrop-blur-lg border-b border-slate-200/70 dark:border-white/5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +108,7 @@ export const Navigation: React.FC = () => {
             </Link>
 
             {/* Center: Desktop Navigation Capsule (Large Screens >= 1024px) */}
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-muted/40 dark:bg-navy-900/60 p-1.5 rounded-full border border-border/80 dark:border-white/10 shadow-inner flex-shrink-0">
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-slate-100/80 dark:bg-navy-900/60 p-1.5 rounded-full border border-slate-200 dark:border-white/10 shadow-inner flex-shrink-0">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.href;
                 return (
@@ -124,7 +124,7 @@ export const Navigation: React.FC = () => {
                     className={`px-3 xl:px-4 py-2 text-xs font-bold rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                       isActive
                         ? "bg-teal-600 text-white shadow-md shadow-teal-600/30 border border-teal-400/40 font-extrabold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
+                        : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/8"
                     }`}
                   >
                     {link.label}
@@ -142,15 +142,16 @@ export const Navigation: React.FC = () => {
 
               {/* Command Palette Search Trigger */}
               {/* Desktop Full Search Pill (>= 1024px) */}
-              <button
+          <button
+                type="button"
                 onClick={() => setCommandOpen(true)}
                 aria-label="Open command palette (Ctrl+K)"
                 title="Search commands, tools & services (Ctrl+K)"
-                className="hidden lg:inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-card dark:bg-navy-900 border border-border/80 hover:border-teal-500/40 text-muted-foreground hover:text-foreground text-xs font-mono transition-all shadow-sm group"
+                className="hidden lg:inline-flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-border/80 hover:border-teal-500/40 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-mono transition-all shadow-sm group"
               >
                 <Search className="w-4 h-4 text-teal-500 group-hover:scale-110 transition-transform" />
                 <span>Search...</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-muted/80 border border-border text-[10px] font-mono">⌘K</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-muted/80 border border-slate-200 dark:border-border text-[10px] font-mono">⌘K</kbd>
               </button>
 
               {/* Tablet & Mobile Search Icon Button (< 1024px) */}
@@ -158,7 +159,7 @@ export const Navigation: React.FC = () => {
                 onClick={() => setCommandOpen(true)}
                 aria-label="Open search"
                 title="Search services & tools"
-                className="lg:hidden p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 hover:bg-muted dark:hover:bg-navy-800 text-muted-foreground hover:text-foreground hover:border-teal-500/40 transition-all shadow-sm flex items-center justify-center focus:outline-none"
+                className="lg:hidden p-2.5 rounded-xl border border-slate-200 dark:border-border/80 bg-white dark:bg-navy-900 hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-teal-500/40 transition-all shadow-sm flex items-center justify-center focus:outline-none"
               >
                 <Search className="w-4 h-4 text-teal-500" />
               </button>
@@ -167,12 +168,12 @@ export const Navigation: React.FC = () => {
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle theme"
-                className="p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 hover:bg-muted dark:hover:bg-navy-800 text-muted-foreground hover:text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 shadow-sm flex items-center justify-center"
+                className="p-2.5 rounded-xl border border-slate-200 dark:border-border/80 bg-white dark:bg-navy-900 hover:bg-slate-50 dark:hover:bg-navy-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 shadow-sm flex items-center justify-center"
               >
                 {theme === "dark" ? (
                   <Sun className="w-4 h-4 text-amber-400" />
                 ) : (
-                  <Moon className="w-4 h-4 text-navy-800" />
+                  <Moon className="w-4 h-4 text-slate-700" />
                 )}
               </button>
 
@@ -191,9 +192,9 @@ export const Navigation: React.FC = () => {
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle navigation menu"
-                className="lg:hidden p-2.5 rounded-xl border border-border/80 bg-card dark:bg-navy-900 text-foreground hover:bg-muted focus:outline-none shadow-sm transition-all"
+                className="lg:hidden p-2.5 rounded-xl border border-slate-200 dark:border-border/80 bg-white dark:bg-navy-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-navy-800 focus:outline-none shadow-sm transition-all"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-rose-400" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-rose-500" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -238,14 +239,14 @@ export const Navigation: React.FC = () => {
                   className={`flex items-center justify-between px-4 py-3 text-sm font-bold rounded-2xl transition-all ${
                     isActive
                       ? "text-white bg-teal-600 shadow-md"
-                      : "text-foreground hover:bg-muted/60"
+                      : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-teal-500"}`} />
                     <span>{link.label}</span>
                   </div>
-                  <ChevronRight className={`w-4 h-4 ${isActive ? "text-white/80" : "text-muted-foreground/40"}`} />
+                  <ChevronRight className={`w-4 h-4 ${isActive ? "text-white/80" : "text-slate-400 dark:text-slate-500"}`} />
                 </Link>
               );
             })}
@@ -257,13 +258,13 @@ export const Navigation: React.FC = () => {
               setMobileMenuOpen(false);
               setCommandOpen(true);
             }}
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-card dark:bg-navy-900 border border-border/80 text-muted-foreground text-xs font-mono"
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-border/80 text-slate-600 dark:text-slate-400 text-xs font-mono"
           >
             <span className="flex items-center gap-2">
               <Search className="w-4 h-4 text-teal-500" />
               <span>Search Tools & Diagnostics...</span>
             </span>
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/80 border border-border text-[10px]">⌘K</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-muted/80 border border-slate-200 dark:border-border text-[10px]">⌘K</kbd>
           </button>
 
           {/* Primary Mobile Action Buttons */}
@@ -282,7 +283,7 @@ export const Navigation: React.FC = () => {
             <div className="grid grid-cols-2 gap-2">
               <a
                 href={`tel:${siteInfo.phoneTel}`}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border bg-card dark:bg-navy-900 text-foreground font-semibold text-xs hover:bg-muted"
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-navy-900 text-slate-800 dark:text-white font-semibold text-xs hover:bg-slate-50 dark:hover:bg-navy-800"
               >
                 <Phone className="w-3.5 h-3.5 text-teal-500" />
                 <span>Call Peter</span>
@@ -293,7 +294,7 @@ export const Navigation: React.FC = () => {
                   setMobileMenuOpen(false);
                   setContactCardOpen(true);
                 }}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border bg-card dark:bg-navy-900 text-foreground font-semibold text-xs hover:bg-muted"
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-navy-900 text-slate-800 dark:text-white font-semibold text-xs hover:bg-slate-50 dark:hover:bg-navy-800"
               >
                 <QrCode className="w-3.5 h-3.5 text-teal-500" />
                 <span>Save Contact</span>

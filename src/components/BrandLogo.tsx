@@ -97,14 +97,14 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       {showText && (
         <div className="flex flex-col leading-none">
           <div className="flex items-center gap-1.5">
-            <span className="font-heading font-bold text-base sm:text-lg tracking-tight text-foreground">
+            <span className="font-heading font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white">
               Peter Kivevo
             </span>
-            <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:text-teal-400 font-mono font-bold border border-teal-500/25">
+            <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-400 font-mono font-bold border border-teal-500/25">
               KE
             </span>
           </div>
-          <span className="text-[10px] sm:text-xs font-mono text-muted-foreground tracking-wider uppercase mt-0.5 font-medium">
+          <span className="text-[10px] sm:text-xs font-mono text-slate-500 dark:text-slate-400 tracking-wider uppercase mt-0.5 font-medium">
             The IT Guy
           </span>
         </div>
