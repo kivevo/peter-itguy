@@ -225,11 +225,12 @@
     page-break-inside: avoid;
     page-break-after: avoid;
   }
+}
 
-  @page {
-    size: A4 portrait;
-    margin: 0; /* Removing page margins removes browser default header (time/date) and footer (about:blank/pages) */
-  }
+/* Enforce zero page margins at root level to strip browser print headers/footers */
+@page {
+  size: A4 portrait;
+  margin: 0mm;
 }
 
 /* Shake animation for wrong PIN input */
