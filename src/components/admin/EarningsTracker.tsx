@@ -1112,8 +1112,9 @@ export const EarningsTracker: React.FC = () => {
                                     {
                                       id: `p-${Date.now()}`,
                                       amount: balance,
-                                      method: "mpesa",
+                                      method: "mpesa" as const,
                                       date: new Date().toISOString().slice(0, 10),
+                                      recordedAt: new Date().toISOString(),
                                     },
                                   ],
                                 });
